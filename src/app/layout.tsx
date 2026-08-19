@@ -1,13 +1,42 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, IBM_Plex_Sans_Arabic } from 'next/font/google'
+import { UIProvider } from '@/lib/ui-context'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+
+const plexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ['arabic'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-plex-arabic',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'NeuraOps — Automated Support',
-  description: 'نظام الدعم الآلي الذكي للمتاجر والمطاعم والكافيهات',
+  title: 'NeuraOps — Intelligent Operations',
+  description: 'AI agents that handle your customer support, 24/7.',
 }
+
+// This script runs before React hydrates and before first paint.
+// It reads localStorage and sets the correct class/dir/lang on <html>
+// synchronously, so there is zero flash of wrong theme or wrong direction.
+const antiFlashScript = `
+(function() {
+  try {
+    var theme = localStorage.getItem('neuraops-theme') || 'dark';
+    var lang = localStorage.getItem('neuraops-lang') || 'ar';
+    var html = document.documentElement;
+    if (theme === 'dark') html.classList.add('dark');
+    else html.classList.remove('dark');
+    html.lang = lang;
+    html.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  } catch (e) {}
+})();
+`
 
 export default function RootLayout({
   children,
@@ -15,8 +44,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ar" dir="rtl">
-      <body className={inter.className}>{children}</body>
+    <html lang="ar" dir="rtl" className="dark" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: antiFlashScript }} />
+      </head>
+      <body
+        className={`${inter.variable} ${plexArabic.variable} font-arabic bg-paper-50 text-ink-950 dark:bg-ink-950 dark:text-paper-50 transition-colors duration-300`}
+        suppressHydrationWarning
+      >
+        <UIProvider>{children}</UIProvider>
+      </body>
     </html>
   )
 }
