@@ -1,52 +1,65 @@
 import OpenAI from 'openai'
-import { retrieveContext } from './rag'
+import type { AgentName, RoutingDecision, ChatHistoryMessage } from './types'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-interface HistoryMessage {
-  role: string
-  content: string
+const AGENT_DESCRIPTIONS: Record<Exclude<AgentName, 'router'>, string> = {
+  order_tracker: 'أسئلة عن حالة الطلب، رقم التتبع، وقت التوصيل، هل الطلب شُحن أو وصل',
+  returns: 'أسئلة عن الإرجاع، الاستبدال، الاسترداد، سياسة الاستبدال',
+  product_expert: 'أسئلة عن المقاسات، المواصفات، توفر منتج معين، تفاصيل المنتج',
+  menu_offers: 'أسئلة عن المنيو، الأسعار، العروض الحالية، الخصومات',
+  store_info: 'أسئلة عن أوقات الدوام، العنوان، طرق الدفع، معلومات التواصل',
 }
 
-export async function routerAgent(
+/**
+ * Analyzes the customer's message BEFORE any response is generated,
+ * and decides which single specialist agent should handle it.
+ * This is a real routing decision, not a fallback chain.
+ */
+export async function routeMessage(
   message: string,
-  storeId: string,
-  history: HistoryMessage[]
-) {
-  const context = await retrieveContext(message, storeId)
+  history: ChatHistoryMessage[]
+): Promise<RoutingDecision> {
+  const agentList = Object.entries(AGENT_DESCRIPTIONS)
+    .map(([id, desc]) => `- ${id}: ${desc}`)
+    .join('\n')
 
-  const systemPrompt = `أنت مساعد ذكي لمتجر. رد بالعربية بشكل ودي ومختصر.
+  const systemPrompt = `أنت موجّه ذكي (Router) في نظام دعم آلي متعدد الوكلاء. مهمتك الوحيدة: تحليل رسالة العميل وتحديد أي وكيل متخصص يجب أن يتولى الرد.
 
-السياق المتاح:
-${context.chunks.map((c: any) => c.content).join('\n---\n')}
+الوكلاء المتاحون:
+${agentList}
 
-أجب حصراً بصيغة JSON بهذا الشكل:
-{"answer": "الرد هنا", "confidence": 0.9, "should_escalate": false, "escalation_reason": null}`
+قواعد:
+- اختر وكيلاً واحداً فقط، الأنسب لنية الرسالة
+- إذا الرسالة لا تنتمي بوضوح لأي وكيل متخصص (تحية عامة، سؤال غامض، شكوى عامة)، اخترRouter نفسه غير متاح كخيار — استخدم "store_info" كافتراضي آمن
+- قيّم ثقتك في القرار من 0 إلى 1
+
+أجب حصراً بصيغة JSON:
+{"agent": "order_tracker", "reasoning": "سبب مختصر", "confidence": 0.9}`
 
   const response = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
       { role: 'system', content: systemPrompt },
-      ...history.slice(-4).map((m) => ({
-        role: (m.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
-        content: m.content,
-      })),
+      ...history.slice(-4).map(m => ({ role: m.role, content: m.content })),
       { role: 'user', content: message },
     ],
     response_format: { type: 'json_object' },
-    max_tokens: 500,
-    temperature: 0.3,
+    max_tokens: 150,
+    temperature: 0.1,
   })
 
   const raw = response.choices[0].message.content || '{}'
   const parsed = JSON.parse(raw)
 
+  const validAgents: AgentName[] = [
+    'order_tracker', 'returns', 'product_expert', 'menu_offers', 'store_info',
+  ]
+  const agent: AgentName = validAgents.includes(parsed.agent) ? parsed.agent : 'store_info'
+
   return {
-    agent: 'router',
-    answer: parsed.answer || 'عذراً، لم أتمكن من فهم سؤالك.',
-    confidence: parsed.confidence ?? 0,
-    should_escalate: parsed.should_escalate ?? false,
-    escalation_reason: parsed.escalation_reason ?? null,
-    retrieved_chunks: context.chunks.map((c: any) => c.content),
+    agent,
+    reasoning: parsed.reasoning || '',
+    confidence: parsed.confidence ?? 0.5,
   }
 }
