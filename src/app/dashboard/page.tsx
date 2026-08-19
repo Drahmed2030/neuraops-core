@@ -183,19 +183,27 @@ export default function Dashboard() {
           ))}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button onClick={toggleLang} style={{
-            background: 'transparent', border: `1px solid ${colors.borderStrong}`, color: colors.textSecondary,
-            fontSize: 12, fontWeight: 500, padding: '6px 11px', borderRadius: 8, cursor: 'pointer', fontFamily: 'Inter',
-          }}>{t.langBtn}</button>
-          <button onClick={toggleTheme} aria-label="Toggle theme" style={{
-            width: 42, height: 26, borderRadius: 100, background: colors.borderStrong, border: 'none',
-            position: 'relative', cursor: 'pointer',
-          }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, direction: 'ltr' }}>
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLang() }}
+            style={{
+              background: 'transparent', border: `1px solid ${colors.borderStrong}`, color: colors.textSecondary,
+              fontSize: 12, fontWeight: 500, padding: '6px 11px', borderRadius: 8, cursor: 'pointer', fontFamily: 'Inter',
+              zIndex: 10, position: 'relative',
+            }}>{t.langBtn}</button>
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTheme() }}
+            aria-label="Toggle theme"
+            style={{
+              width: 42, height: 26, borderRadius: 100, background: colors.borderStrong, border: 'none',
+              position: 'relative', cursor: 'pointer', zIndex: 10, padding: 0,
+            }}>
             <span style={{
-              position: 'absolute', top: 3, [isDark ? 'right' : 'left']: 3, width: 20, height: 20, borderRadius: '50%',
-              background: colors.bgElevated, transition: 'all 0.3s ease', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', fontSize: 10,
+              position: 'absolute', top: 3, left: isDark ? 19 : 3, width: 20, height: 20, borderRadius: '50%',
+              background: colors.bgElevated, transition: 'left 0.3s ease', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', fontSize: 10, pointerEvents: 'none',
             }}>{isDark ? '🌙' : '☀️'}</span>
           </button>
         </div>
