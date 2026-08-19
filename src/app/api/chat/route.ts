@@ -12,38 +12,42 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServerClient()
 
-    // Get or create conversation
+    const { data: store } = await supabase
+      .from('stores')
+      .select('id')
+      .eq('slug', storeId)
+      .single()
+
+    const realStoreId = store?.id || storeId
+
     let conversationId: string
     const { data: existing } = await supabase
       .from('conversations')
       .select('id')
-      .eq('store_id', storeId)
+      .eq('store_id', realStoreId)
       .eq('session_id', sessionId)
       .eq('status', 'open')
-      .single()
+      .maybeSingle()
 
     if (existing) {
       conversationId = existing.id
     } else {
       const { data: newConv } = await supabase
         .from('conversations')
-        .insert({ store_id: storeId, session_id: sessionId, channel: 'demo' })
+        .insert({ store_id: realStoreId, session_id: sessionId, channel: 'demo' })
         .select('id')
         .single()
       conversationId = newConv!.id
     }
 
-    // Save user message
     await supabase.from('messages').insert({
       conversation_id: conversationId,
       role: 'user',
       content: message,
     })
 
-    // Run agent
-    const agentResponse = await routerAgent(message, storeId, history)
+    const agentResponse = await routerAgent(message, realStoreId, history)
 
-    // Save assistant message
     await supabase.from('messages').insert({
       conversation_id: conversationId,
       role: 'assistant',
@@ -53,26 +57,18 @@ export async function POST(req: NextRequest) {
       retrieved_chunks: agentResponse.retrieved_chunks,
     })
 
-    // Handle escalation
     if (agentResponse.should_escalate) {
-      // Calculate SLA deadline (30 min for high priority)
       const slaDeadline = new Date(Date.now() + 30 * 60 * 1000).toISOString()
-
       await supabase.from('escalations').insert({
         conversation_id: conversationId,
-        store_id: storeId,
+        store_id: realStoreId,
         reason: agentResponse.escalation_reason || 'تصعيد تلقائي',
         priority: agentResponse.confidence < 0.3 ? 'high' : 'medium',
         confidence_score: agentResponse.confidence,
-        context: { message, history: history.slice(-4) },
+        context: { message },
         sla_deadline: slaDeadline,
       })
-
-      // Update conversation status
-      await supabase
-        .from('conversations')
-        .update({ status: 'escalated' })
-        .eq('id', conversationId)
+      await supabase.from('conversations').update({ status: 'escalated' }).eq('id', conversationId)
     }
 
     return NextResponse.json({
@@ -82,9 +78,8 @@ export async function POST(req: NextRequest) {
       escalated: agentResponse.should_escalate,
       conversationId,
     })
-
   } catch (err: any) {
     console.error('Chat error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 })
   }
 }
