@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
-export async function retrieveContext(query: string, storeId: string) {
+export async function retrieveContext(query: string, storeId: string, category?: string) {
   try {
     const supabase = createServerClient()
     const embeddingResponse = await openai.embeddings.create({
@@ -23,7 +23,15 @@ export async function retrieveContext(query: string, storeId: string) {
       console.error('RAG error:', error)
       return { chunks: [] }
     }
-    return { chunks: chunks || [] }
+
+    // Optional: prefer chunks matching the target category if provided
+    let results = chunks || []
+    if (category && results.length > 0) {
+      const matching = results.filter((c: any) => c.category === category)
+      if (matching.length > 0) results = matching
+    }
+
+    return { chunks: results }
   } catch (err) {
     console.error('RAG exception:', err)
     return { chunks: [] }

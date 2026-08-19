@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { routerAgent } from '@/lib/agents/router'
+import { handleCustomerMessage } from '@/lib/agents/orchestrator'
 import { createServerClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       .from('stores')
       .select('id')
       .eq('slug', storeId)
-      .single()
+      .maybeSingle()
 
     const realStoreId = store?.id || storeId
 
@@ -46,7 +46,10 @@ export async function POST(req: NextRequest) {
       content: message,
     })
 
-    const agentResponse = await routerAgent(message, realStoreId, history)
+    // Real multi-agent routing: analyzes intent, hands off to the
+    // correct specialist (order_tracker / returns / product_expert /
+    // menu_offers / store_info), rather than a single general agent.
+    const agentResponse = await handleCustomerMessage(message, realStoreId, history)
 
     await supabase.from('messages').insert({
       conversation_id: conversationId,
@@ -65,7 +68,7 @@ export async function POST(req: NextRequest) {
         reason: agentResponse.escalation_reason || 'تصعيد تلقائي',
         priority: agentResponse.confidence < 0.3 ? 'high' : 'medium',
         confidence_score: agentResponse.confidence,
-        context: { message },
+        context: { message, routed_to: agentResponse.agent, routing_reasoning: agentResponse.routingReasoning },
         sla_deadline: slaDeadline,
       })
       await supabase.from('conversations').update({ status: 'escalated' }).eq('id', conversationId)
