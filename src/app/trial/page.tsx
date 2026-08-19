@@ -10,13 +10,11 @@ export default function TrialPage() {
     if (initialized.current) return
     initialized.current = true
 
-    // Inject fonts
     const fontLink = document.createElement('link')
     fontLink.rel = 'stylesheet'
     fontLink.href = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap'
     document.head.appendChild(fontLink)
 
-    // Inject styles
     const styleEl = document.createElement('style')
     styleEl.id = 'trialpage-styles'
     styleEl.textContent = `
@@ -321,7 +319,6 @@ export default function TrialPage() {
   `
     document.head.appendChild(styleEl)
 
-    // Run the page's own script logic after DOM is in place
     const script = document.createElement('script')
     script.id = 'trialpage-script'
     script.textContent = `
