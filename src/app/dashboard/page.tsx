@@ -5,9 +5,10 @@ import { useUI } from '@/lib/ui-context'
 import { Header } from '@/components/layout/Header'
 import { StatsTab } from '@/components/dashboard/StatsTab'
 import { ChatTab } from '@/components/dashboard/ChatTab'
+import { ReportTab } from '@/components/dashboard/ReportTab'
 import { EmptyStateTab } from '@/components/dashboard/EmptyStateTab'
 
-type Tab = 'dashboard' | 'chat' | 'escalations' | 'settings'
+type Tab = 'dashboard' | 'chat' | 'report' | 'escalations' | 'settings'
 
 export default function DashboardPage() {
   const { t } = useUI()
@@ -24,6 +25,7 @@ export default function DashboardPage() {
       <div className={activeTab === 'chat' ? '' : 'p-6 max-w-[900px] mx-auto'}>
         {activeTab === 'dashboard' && <StatsTab />}
         {activeTab === 'chat' && <ChatTab />}
+        {activeTab === 'report' && <ReportTab />}
         {activeTab === 'escalations' && (
           <EmptyStateTab icon="🔔" title={t.escalationsTitle} emptyText={t.escalationsEmpty} />
         )}
