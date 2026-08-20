@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Hero } from '@/components/marketing/Hero'
 import { AgentsSection } from '@/components/marketing/AgentsSection'
 import { StatsBand, PricingSection } from '@/components/marketing/StatsAndPricing'
+import { WhatsAppComingSoon } from '@/components/marketing/WhatsAppComingSoon'
 
 export default function LandingPage() {
   const { t } = useUI()
@@ -30,6 +31,7 @@ export default function LandingPage() {
         </section>
 
         <AgentsSection />
+        <WhatsAppComingSoon />
         <StatsBand />
         <PricingSection />
       </main>
