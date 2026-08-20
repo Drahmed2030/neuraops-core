@@ -114,6 +114,24 @@ export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack, s
         </div>
       </div>
 
+      {/* WhatsApp Business API — marketing-only "coming soon" badge.
+          No backend behind this yet, intentionally, per the 20 Aug
+          decision: advertise the differentiator without building the
+          integration before a real paying customer exists. */}
+      <div className="mt-3.5 flex items-start gap-2.5 px-3.5 py-3 rounded-xl bg-gold/[0.06] border border-gold/20">
+        <span className="text-[15px] flex-shrink-0 mt-0.5">💬</span>
+        <div>
+          <div className="text-[12.5px] font-bold text-gold mb-0.5">
+            {lang === 'ar' ? 'قريباً: ربط واتساب بزنس المباشر (API)' : 'Coming soon: Direct WhatsApp Business API'}
+          </div>
+          <div className="text-[11.5px] text-ink-950/50 dark:text-paper-50/50 leading-relaxed">
+            {lang === 'ar'
+              ? 'ردود تلقائية من رقم واتساب بزنس رسمي لمتجرك — دون تطبيق واتساب عادي.'
+              : "Automated replies from your official WhatsApp Business number — no manual app needed."}
+          </div>
+        </div>
+      </div>
+
       {errorMessage && (
         <div className="mt-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-[13px] font-medium">
           {errorMessage}
