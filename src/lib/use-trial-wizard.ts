@@ -92,6 +92,10 @@ export function useTrialWizard() {
       setStoreId(result.storeId)
       setStoreSlug(result.slug)
 
+      // TEMP DIAGNOSTIC -- remove after Meta event verification is confirmed.
+      // No PII logged: only storeId (already non-sensitive, internal ID).
+      console.info('[NeuraOps Meta] trial success reached', { storeId: result.storeId })
+
       // Real success confirmed by the backend — fire the conversion
       // event now, not before.
       trackTrialStarted(result.storeId)

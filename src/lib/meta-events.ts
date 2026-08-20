@@ -15,12 +15,25 @@
  */
 export function trackTrialStarted(storeId: string) {
   if (typeof window === 'undefined') return
-  if (!window.fbq) return // Pixel not loaded (e.g. NEXT_PUBLIC_META_PIXEL_ID not set) — no-op.
+
+  // TEMP DIAGNOSTIC -- remove after Meta event verification is confirmed.
+  console.info('[NeuraOps Meta] fbq availability', {
+    type: typeof window.fbq,
+    hasCallMethod: Boolean((window.fbq as any)?.callMethod),
+    queueLength: Array.isArray((window.fbq as any)?.queue) ? (window.fbq as any).queue.length : null,
+  })
+
+  if (!window.fbq) {
+    console.info('[NeuraOps Meta] SKIPPED -- fbq not available on window')
+    return
+  }
 
   const dedupeKey = `neuraops_trial_started_${storeId}`
 
   try {
     if (sessionStorage.getItem(dedupeKey)) {
+      // TEMP DIAGNOSTIC -- remove after Meta event verification is confirmed.
+      console.info('[NeuraOps Meta] SKIPPED -- dedupe key already set for this storeId', { dedupeKey })
       return // Already fired for this exact store in this session.
     }
     sessionStorage.setItem(dedupeKey, '1')
@@ -28,6 +41,9 @@ export function trackTrialStarted(storeId: string) {
     // sessionStorage unavailable (private browsing, etc.) — proceed
     // without dedup rather than blocking the event entirely.
   }
+
+  // TEMP DIAGNOSTIC -- remove after Meta event verification is confirmed.
+  console.info('[NeuraOps Meta] sending fbq events now', { dedupeKey })
 
   window.fbq('track', 'CompleteRegistration')
   window.fbq('trackCustom', 'trial_started', {
