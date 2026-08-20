@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useUI } from '@/lib/ui-context'
 import { Confetti } from '@/components/ui/Confetti'
 import type { TrialFormData } from '@/lib/use-trial-wizard'
@@ -20,6 +21,7 @@ const CHECKS = [
 
 export function Step4Activation({ data, demoSlug, onDone }: Props) {
   const { t } = useUI()
+  const router = useRouter()
   const [doneChecks, setDoneChecks] = useState<Set<string>>(new Set())
   const [showSuccess, setShowSuccess] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -43,20 +45,35 @@ export function Step4Activation({ data, demoSlug, onDone }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const demoUrl = `neuraops.app/demo/${demoSlug}`
+  // Real demo URL: our own /demo/<slug> route, not an external
+  // placeholder domain. This is what the customer actually reaches.
+  const demoPath = `/demo/${demoSlug}`
+  const demoUrlDisplay = typeof window !== 'undefined'
+    ? `${window.location.host}${demoPath}`
+    : `neuraops-core.vercel.app${demoPath}`
 
   function handleCopy() {
-    navigator.clipboard.writeText(demoUrl).then(() => {
+    const fullUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}${demoPath}`
+      : demoPath
+    navigator.clipboard.writeText(fullUrl).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
   }
 
+  function handleTryDemo() {
+    router.push(demoPath)
+  }
+
   function handleShare() {
+    const fullUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}${demoPath}`
+      : demoPath
     if (navigator.share) {
-      navigator.share({ title: 'NeuraOps', text: data.storeName, url: `https://${demoUrl}` })
+      navigator.share({ title: 'NeuraOps', text: data.storeName, url: fullUrl })
     } else {
-      navigator.clipboard.writeText(demoUrl)
+      navigator.clipboard.writeText(fullUrl)
     }
   }
 
@@ -126,7 +143,7 @@ export function Step4Activation({ data, demoSlug, onDone }: Props) {
 
       <div className="flex items-center gap-2.5 rounded-xl border-[1.5px] border-gold/35 bg-white dark:bg-ink-800 px-4 py-3 mb-6" dir="ltr">
         <span className="flex-1 text-[13px] font-sans text-ink-950/60 dark:text-paper-50/60 overflow-hidden text-ellipsis whitespace-nowrap">
-          {demoUrl}
+          {demoUrlDisplay}
         </span>
         <button
           type="button"
@@ -142,7 +159,7 @@ export function Step4Activation({ data, demoSlug, onDone }: Props) {
       <div className="flex flex-col gap-2.5">
         <button
           type="button"
-          onClick={() => alert('Demo redirect coming soon')}
+          onClick={handleTryDemo}
           className="w-full py-3.5 rounded-xl bg-gold text-ink-950 font-semibold text-[15px] hover:bg-gold-hover hover:-translate-y-0.5 transition-all shadow-gold-glow"
         >
           {t.tryDemoBtn}

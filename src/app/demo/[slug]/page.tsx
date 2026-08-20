@@ -1,0 +1,137 @@
+'use client'
+
+import { useState, useRef, useEffect } from 'react'
+import { useParams } from 'next/navigation'
+import { useUI } from '@/lib/ui-context'
+import { Header } from '@/components/layout/Header'
+import type { Message } from '@/types/ui'
+
+/**
+ * Public demo chat — this is what the trial's "جرّب كعميل الآن" button
+ * and the shareable neuraops.app/demo/<slug> link actually open.
+ * Unlike /dashboard's chat tab (internal, has admin tabs), this is a
+ * clean customer-facing surface with just the store's assistant.
+ */
+export default function DemoChatPage() {
+  const { t, lang } = useUI()
+  const params = useParams()
+  const storeSlug = params?.slug as string
+
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'assistant', content: t.welcomeMsg },
+  ])
+  const [input, setInput] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [storeName, setStoreName] = useState<string>(storeSlug)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
+  }, [messages])
+
+  // Best-effort: fetch the store's real display name for the header,
+  // falling back to the slug if the lookup fails for any reason.
+  useEffect(() => {
+    if (!storeSlug) return
+    let cancelled = false
+    fetch(`/api/trial/status?storeId=${storeSlug}`)
+      .then(res => res.json())
+      .then(() => {
+        if (!cancelled) setStoreName(storeSlug.replace(/-/g, ' '))
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [storeSlug])
+
+  async function sendMessage(overrideText?: string) {
+    const text = (overrideText ?? input).trim()
+    if (!text || loading || !storeSlug) return
+    setInput('')
+    setMessages(prev => [...prev, { role: 'user', content: text }])
+    setLoading(true)
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: text,
+          storeId: storeSlug,
+          sessionId: `demo-public-${storeSlug}`,
+          history: messages.slice(-6),
+          channel: 'web_widget',
+        }),
+      })
+      const data = await res.json()
+      setMessages(prev => [...prev, { role: 'assistant', content: data.answer || data.error || '—' }])
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', content: lang === 'ar' ? 'خطأ في الاتصال.' : 'Connection error.' }])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const quickReplies = [t.quickOrder, t.quickReturn, t.quickHours, t.quickPayment]
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header variant="marketing" />
+
+      <div className="px-5 py-2.5 bg-gold/10 border-b border-gold/20 text-[12px] text-gold flex items-center justify-center gap-1.5 font-sans">
+        <span className="w-[7px] h-[7px] rounded-full bg-green-500 animate-pulse-dot" />
+        {lang === 'ar' ? `تجربة حية — ${storeName}` : `Live Demo — ${storeName}`}
+      </div>
+
+      <div ref={scrollRef} className="flex-1 px-5 py-5 overflow-y-auto flex flex-col gap-3 max-w-[700px] mx-auto w-full">
+        {messages.map((m, i) => (
+          <div key={i} className={`max-w-[78%] ${m.role === 'user' ? 'self-start' : 'self-end'}`}>
+            {m.role === 'assistant' && (
+              <div className="text-[10px] text-gold mb-1 font-semibold">🧠 {t.aiName}</div>
+            )}
+            <div
+              className={`px-[15px] py-[11px] rounded-2xl text-[13.5px] leading-relaxed ${
+                m.role === 'user'
+                  ? 'bg-white dark:bg-ink-800 border border-black/[0.07] dark:border-white/[0.07]'
+                  : 'bg-gold/10 border border-gold/35'
+              }`}
+            >
+              {m.content}
+            </div>
+          </div>
+        ))}
+        {loading && <div className="self-end text-[12px] text-gold">⟳ {t.thinking}</div>}
+      </div>
+
+      <div className="px-5 py-3.5 bg-paper-50/90 dark:bg-ink-950/90 border-t border-black/[0.07] dark:border-white/[0.07] max-w-[700px] mx-auto w-full">
+        <div className="flex gap-2 mb-2.5">
+          <input
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && sendMessage()}
+            placeholder={t.chatPlaceholder}
+            className="flex-1 px-4 py-3 rounded-[10px] border-[1.5px] border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 text-[13.5px] outline-none focus:border-gold transition-colors"
+          />
+          <button
+            type="button"
+            onClick={() => sendMessage()}
+            disabled={loading}
+            className="w-11 h-11 rounded-[10px] bg-gold disabled:opacity-40 disabled:cursor-not-allowed border-none text-lg flex-shrink-0"
+          >
+            ✈
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {quickReplies.map(q => (
+            <button
+              key={q}
+              type="button"
+              onClick={() => sendMessage(q)}
+              className="px-3.5 py-1.5 rounded-full border border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 text-[11.5px] text-ink-950/60 dark:text-paper-50/60 hover:border-gold/40 transition-colors"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
