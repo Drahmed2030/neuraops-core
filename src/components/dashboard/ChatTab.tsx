@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useUI } from '@/lib/ui-context'
+import { ThinkingIndicator } from './ThinkingIndicator'
 import type { Message } from '@/types/ui'
 
 const DEMO_STORE_ID = 'demo-store'
@@ -38,6 +39,30 @@ export function ChatTab() {
           history: messages.slice(-6),
         }),
       })
+
+      // Surface the REAL error instead of a generic "connection error" —
+      // this is what lets us actually diagnose what's failing instead
+      // of guessing.
+      if (!res.ok) {
+        let detail = `HTTP ${res.status}`
+        try {
+          const errBody = await res.json()
+          detail = errBody.error || detail
+        } catch {
+          // response wasn't JSON — keep the HTTP status as the detail
+        }
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: lang === 'ar'
+              ? `⚠️ خطأ فعلي من الخادم: ${detail}`
+              : `⚠️ Real server error: ${detail}`,
+          },
+        ])
+        return
+      }
+
       const data = await res.json()
       if (data.conversationId) setConversationId(data.conversationId)
 
@@ -51,11 +76,32 @@ export function ChatTab() {
               : '🙋 Automated replies paused — your team will take it from here.',
           },
         ])
+      } else if (data.error) {
+        // API returned 200 but with an error payload — also surface
+        // this verbatim instead of masking it.
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: lang === 'ar' ? `⚠️ ${data.error}` : `⚠️ ${data.error}`,
+          },
+        ])
       } else {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.answer || data.error || '—' }])
+        setMessages(prev => [...prev, { role: 'assistant', content: data.answer || '—' }])
       }
-    } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: lang === 'ar' ? 'خطأ في الاتصال.' : 'Connection error.' }])
+    } catch (err: any) {
+      // A genuine network-level failure (DNS, offline, CORS, etc.) —
+      // this is the ONLY case that should say "connection error", and
+      // now it includes the real browser error message too.
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: lang === 'ar'
+            ? `⚠️ خطأ اتصال حقيقي: ${err?.message || 'unknown'}`
+            : `⚠️ Real connection error: ${err?.message || 'unknown'}`,
+        },
+      ])
     } finally {
       setLoading(false)
     }
@@ -104,8 +150,6 @@ export function ChatTab() {
           {t.chatLive}
         </div>
 
-        {/* Human escalation button — disabled until a conversation
-            exists, disabled again once already paused */}
         {conversationId && !isPaused && (
           <button
             type="button"
@@ -122,7 +166,6 @@ export function ChatTab() {
         )}
       </div>
 
-      {/* Confirmation dialog */}
       {showConfirm && (
         <div className="px-5 py-3.5 bg-red-500/[0.06] border-b border-red-500/20">
           <div className="text-[13px] font-semibold mb-2.5">
@@ -170,7 +213,7 @@ export function ChatTab() {
             </div>
           </div>
         ))}
-        {loading && <div className="self-end text-[12px] text-gold">⟳ {t.thinking}</div>}
+        {loading && <ThinkingIndicator />}
       </div>
 
       <div className="px-5 py-3.5 bg-paper-50/90 dark:bg-ink-950/90 border-t border-black/[0.07] dark:border-white/[0.07] max-w-[700px] mx-auto w-full">
