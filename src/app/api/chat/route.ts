@@ -13,15 +13,30 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServerClient()
 
-    const { data: store } = await supabase
+    const { data: store, error: storeError } = await supabase
       .from('stores')
       .select('id, proof_started_at')
       .eq('slug', storeId)
       .maybeSingle()
 
-    const realStoreId = store?.id || storeId
+    if (storeError) {
+      console.error('Store lookup error:', storeError)
+      return NextResponse.json({ error: `Store lookup failed: ${storeError.message}` }, { status: 500 })
+    }
 
-    if (store && !store.proof_started_at) {
+    // Real, diagnosable failure instead of silently falling back to
+    // the raw slug string (which is NOT a valid uuid and breaks every
+    // foreign-key insert downstream with a confusing null crash).
+    if (!store) {
+      return NextResponse.json(
+        { error: `Store not found for slug "${storeId}". It must exist in the stores table before chatting.` },
+        { status: 404 }
+      )
+    }
+
+    const realStoreId = store.id
+
+    if (!store.proof_started_at) {
       await startProofWeek(realStoreId, channel)
     }
 
@@ -40,9 +55,6 @@ export async function POST(req: NextRequest) {
       conversationId = existing.id
       isManuallyPaused = existing.manually_paused || false
     } else {
-      // Also check escalated conversations for this session — if a
-      // human already took over, new messages should still be logged
-      // but NOT trigger a fresh AI reply.
       const { data: escalatedExisting } = await supabase
         .from('conversations')
         .select('id, manually_paused')
@@ -55,12 +67,24 @@ export async function POST(req: NextRequest) {
         conversationId = escalatedExisting.id
         isManuallyPaused = escalatedExisting.manually_paused || false
       } else {
-        const { data: newConv } = await supabase
+        const { data: newConv, error: insertError } = await supabase
           .from('conversations')
           .insert({ store_id: realStoreId, session_id: sessionId, channel })
           .select('id')
           .single()
-        conversationId = newConv!.id
+
+        // Real, diagnosable failure instead of a null-pointer crash.
+        // This is exactly what was hiding as "Connection error" /
+        // "Cannot read properties of null" before this fix.
+        if (insertError || !newConv) {
+          console.error('Conversation insert error:', insertError)
+          return NextResponse.json(
+            { error: `Failed to create conversation: ${insertError?.message || 'unknown insert failure'}` },
+            { status: 500 }
+          )
+        }
+
+        conversationId = newConv.id
       }
     }
 
@@ -70,10 +94,6 @@ export async function POST(req: NextRequest) {
       content: message,
     })
 
-    // A human has taken this conversation over — the AI must not
-    // reply. This is what makes the escalation button trustworthy:
-    // once pressed, automation truly stops for that conversation,
-    // not just visually in the dashboard.
     if (isManuallyPaused) {
       return NextResponse.json({
         answer: null,
