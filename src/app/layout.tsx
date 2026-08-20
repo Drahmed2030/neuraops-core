@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { Inter, IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { UIProvider } from '@/lib/ui-context'
+import { MetaPixel } from '@/components/analytics/MetaPixel'
 import './globals.css'
 
 const inter = Inter({
@@ -21,9 +23,6 @@ export const metadata: Metadata = {
   description: 'AI agents that handle your customer support, 24/7.',
 }
 
-// This script runs before React hydrates and before first paint.
-// It reads localStorage and sets the correct class/dir/lang on <html>
-// synchronously, so there is zero flash of wrong theme or wrong direction.
 const antiFlashScript = `
 (function() {
   try {
@@ -52,6 +51,9 @@ export default function RootLayout({
         className={`${inter.variable} ${plexArabic.variable} font-arabic bg-paper-50 text-ink-950 dark:bg-ink-950 dark:text-paper-50 transition-colors duration-300`}
         suppressHydrationWarning
       >
+        <Suspense fallback={null}>
+          <MetaPixel />
+        </Suspense>
         <UIProvider>{children}</UIProvider>
       </body>
     </html>
