@@ -10,11 +10,12 @@ interface HeaderProps {
 }
 
 export function Header({ variant = 'marketing', activeTab, onTabChange }: HeaderProps) {
-  const { t, isDark, toggleLang, toggleTheme } = useUI()
+  const { t, isDark, toggleLang, toggleTheme, lang } = useUI()
 
   const navTabs = [
     { id: 'dashboard', icon: '🏠', label: t.navDashboard },
     { id: 'chat', icon: '💬', label: t.navChat },
+    { id: 'report', icon: '📊', label: lang === 'ar' ? 'التقرير' : 'Report' },
     { id: 'escalations', icon: '🔔', label: t.navEscalations },
     { id: 'settings', icon: '⚙️', label: t.navSettings },
   ]
