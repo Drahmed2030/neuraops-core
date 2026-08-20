@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { trackTrialStarted } from '@/lib/meta-events'
 
 export interface TrialFormData {
   type: string | null
@@ -31,9 +32,6 @@ export function useTrialWizard() {
   const [data, setData] = useState<TrialFormData>(initialData)
   const [activationDone, setActivationDone] = useState(false)
 
-  // Real store identity, set once /api/trial/create-store succeeds.
-  // Until then, storeSlug is null and no backend calls that need a
-  // real store should be made.
   const [storeSlug, setStoreSlug] = useState<string | null>(null)
   const [storeId, setStoreId] = useState<string | null>(null)
   const [creatingStore, setCreatingStore] = useState(false)
@@ -62,11 +60,10 @@ export function useTrialWizard() {
   const canProceedStep2 = data.storeName.trim().length > 1 && data.phone.trim().length >= 8
 
   /**
-   * Called when the customer completes step 2 (store info) and moves
-   * to step 3. This is what actually creates the store record in
-   * Supabase and starts the 14-day signup window. Real network call,
-   * real failure handling — if it fails, we surface the error and
-   * do NOT let the wizard silently proceed as if it worked.
+   * Calls the real backend to create a store. This is the ONLY place
+   * the Meta conversion event fires — strictly after res.ok and a
+   * real storeId comes back, never on the button click itself, per
+   * the pixel implementation spec's explicit requirement.
    */
   const createStore = useCallback(async (): Promise<boolean> => {
     setCreatingStore(true)
@@ -94,6 +91,11 @@ export function useTrialWizard() {
 
       setStoreId(result.storeId)
       setStoreSlug(result.slug)
+
+      // Real success confirmed by the backend — fire the conversion
+      // event now, not before.
+      trackTrialStarted(result.storeId)
+
       return true
     } catch {
       setCreateStoreError('تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.')
