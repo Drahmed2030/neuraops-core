@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useUI } from '@/lib/ui-context'
 import type { TrialFormData } from '@/lib/use-trial-wizard'
 
@@ -10,6 +10,7 @@ interface Props {
   toggleTopic: (tag: string) => void
   onNext: () => void
   onBack: () => void
+  storeSlug: string | null
 }
 
 const TOPICS = [
@@ -23,14 +24,43 @@ const TOPICS = [
   { tag: 'offers', key: 'tag8' },
 ] as const
 
-export function Step3Knowledge({ data, updateData, toggleTopic, onNext, onBack }: Props) {
+export function Step3Knowledge({ data, updateData, toggleTopic, onNext, onBack, storeSlug }: Props) {
   const { t } = useUI()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [activating, setActivating] = useState(false)
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
       updateData({ fileUploaded: true })
     }
+  }
+
+  /**
+   * This is the real moment the 7-day proof clock starts: activating
+   * the chosen channel via /api/trial/activate-channel. If storeSlug
+   * is somehow missing (create-store failed silently upstream), we
+   * still proceed to step 4 since the chat itself will also trigger
+   * the clock on first real message as a fallback.
+   */
+  async function handleActivate() {
+    setActivating(true)
+    if (storeSlug) {
+      try {
+        await fetch('/api/trial/activate-channel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            storeId: storeSlug,
+            channel: data.channel || 'web_widget',
+          }),
+        })
+      } catch {
+        // Non-fatal: /api/chat's first-message fallback still starts
+        // the clock if this call fails for any reason.
+      }
+    }
+    setActivating(false)
+    onNext()
   }
 
   return (
@@ -116,14 +146,16 @@ export function Step3Knowledge({ data, updateData, toggleTopic, onNext, onBack }
         <button
           type="button"
           onClick={onBack}
-          className="px-6 py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-medium text-[15px] hover:border-gold transition-colors"
+          disabled={activating}
+          className="px-6 py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-medium text-[15px] hover:border-gold transition-colors disabled:opacity-40"
         >
           {t.backBtn}
         </button>
         <button
           type="button"
-          onClick={onNext}
-          className="flex-1 py-3.5 rounded-xl bg-gold text-ink-950 font-semibold text-[15px] hover:bg-gold-hover hover:-translate-y-0.5 transition-all shadow-gold-glow"
+          onClick={handleActivate}
+          disabled={activating}
+          className="flex-1 py-3.5 rounded-xl bg-gold text-ink-950 font-semibold text-[15px] enabled:hover:bg-gold-hover enabled:hover:-translate-y-0.5 transition-all shadow-gold-glow disabled:opacity-60"
         >
           {t.nextBtnActivate}
         </button>

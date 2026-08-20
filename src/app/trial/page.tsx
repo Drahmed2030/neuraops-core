@@ -13,12 +13,25 @@ export default function TrialPage() {
   const { t, isDark, toggleLang, toggleTheme } = useUI()
   const wizard = useTrialWizard()
 
+  /**
+   * Step 2 -> Step 3 transition now actually creates the store
+   * record via /api/trial/create-store before advancing. If it
+   * fails, the wizard stays on step 2 and shows the real error —
+   * it never silently pretends the account was created.
+   */
+  async function handleStep2Next() {
+    const ok = await wizard.createStore()
+    if (ok) {
+      wizard.goNext()
+    }
+  }
+
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-50 flex items-center justify-between px-5 py-3 backdrop-blur-xl bg-paper-50/85 dark:bg-ink-950/85 border-b border-black/[0.07] dark:border-white/[0.07]" dir="ltr">
         <div className="flex items-center gap-2.5">
           <Link href="/" className="flex items-center gap-1.5 text-[13.5px] font-medium text-ink-950/60 dark:text-paper-50/60 hover:text-ink-950 dark:hover:text-paper-50 px-3 py-2 rounded-lg hover:bg-gold/10 transition-all no-underline">
-            <span>{isDark || true ? '→' : '←'}</span>
+            <span>→</span>
             {t.backLink}
           </Link>
           <button
@@ -63,9 +76,11 @@ export default function TrialPage() {
           <Step2StoreInfo
             data={wizard.data}
             updateData={wizard.updateData}
-            canProceed={wizard.canProceedStep2}
-            onNext={wizard.goNext}
+            canProceed={wizard.canProceedStep2 && !wizard.creatingStore}
+            onNext={handleStep2Next}
             onBack={wizard.goBack}
+            submitting={wizard.creatingStore}
+            errorMessage={wizard.createStoreError}
           />
         )}
         {wizard.step === 3 && (
@@ -75,6 +90,7 @@ export default function TrialPage() {
             toggleTopic={wizard.toggleTopic}
             onNext={wizard.goNext}
             onBack={wizard.goBack}
+            storeSlug={wizard.storeSlug}
           />
         )}
         {wizard.step === 4 && (
