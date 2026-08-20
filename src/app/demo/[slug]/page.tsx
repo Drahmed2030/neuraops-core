@@ -23,14 +23,15 @@ export default function DemoChatPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [storeName, setStoreName] = useState<string>(storeSlug)
+  const [conversationId, setConversationId] = useState<string | null>(null)
+  const [isPaused, setIsPaused] = useState(false)
+  const [requestingHuman, setRequestingHuman] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages])
 
-  // Best-effort: fetch the store's real display name for the header,
-  // falling back to the slug if the lookup fails for any reason.
   useEffect(() => {
     if (!storeSlug) return
     let cancelled = false
@@ -62,11 +63,57 @@ export default function DemoChatPage() {
         }),
       })
       const data = await res.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.answer || data.error || '—' }])
+      if (data.conversationId) setConversationId(data.conversationId)
+
+      if (data.manuallyPaused) {
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: lang === 'ar'
+              ? 'تم تحويل محادثتك لفريق المتجر — سيردون عليك قريباً 🙏'
+              : "Your conversation has been handed to the store's team — they'll reply soon 🙏",
+          },
+        ])
+      } else {
+        setMessages(prev => [...prev, { role: 'assistant', content: data.answer || data.error || '—' }])
+      }
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: lang === 'ar' ? 'خطأ في الاتصال.' : 'Connection error.' }])
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleRequestHuman() {
+    if (!conversationId) return
+    setRequestingHuman(true)
+    try {
+      const res = await fetch('/api/escalations/manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId,
+          storeId: storeSlug,
+          reason: lang === 'ar' ? 'العميل طلب التحدث مع موظف' : 'Customer requested a human',
+        }),
+      })
+      if (res.ok) {
+        setIsPaused(true)
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: lang === 'ar'
+              ? '🙋 تم إشعار فريق المتجر — سيتواصلون معك قريباً.'
+              : "🙋 The store's team has been notified — they'll be with you shortly.",
+          },
+        ])
+      }
+    } catch {
+      // Non-fatal
+    } finally {
+      setRequestingHuman(false)
     }
   }
 
@@ -76,9 +123,23 @@ export default function DemoChatPage() {
     <div className="min-h-screen flex flex-col">
       <Header variant="marketing" />
 
-      <div className="px-5 py-2.5 bg-gold/10 border-b border-gold/20 text-[12px] text-gold flex items-center justify-center gap-1.5 font-sans">
-        <span className="w-[7px] h-[7px] rounded-full bg-green-500 animate-pulse-dot" />
-        {lang === 'ar' ? `تجربة حية — ${storeName}` : `Live Demo — ${storeName}`}
+      <div className="px-5 py-2.5 bg-gold/10 border-b border-gold/20 text-[12px] text-gold flex items-center justify-between gap-2 font-sans">
+        <div className="flex items-center gap-1.5">
+          <span className="w-[7px] h-[7px] rounded-full bg-green-500 animate-pulse-dot" />
+          {lang === 'ar' ? `تجربة حية — ${storeName}` : `Live Demo — ${storeName}`}
+        </div>
+        {conversationId && !isPaused && (
+          <button
+            type="button"
+            onClick={handleRequestHuman}
+            disabled={requestingHuman}
+            className="text-[11px] font-semibold underline underline-offset-2 disabled:opacity-50 flex-shrink-0"
+          >
+            {requestingHuman
+              ? (lang === 'ar' ? 'جارٍ...' : 'Requesting...')
+              : (lang === 'ar' ? 'تحدث مع موظف' : 'Talk to a human')}
+          </button>
+        )}
       </div>
 
       <div ref={scrollRef} className="flex-1 px-5 py-5 overflow-y-auto flex flex-col gap-3 max-w-[700px] mx-auto w-full">
