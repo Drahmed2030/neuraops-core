@@ -16,6 +16,7 @@ export function Header({ variant = 'marketing', activeTab, onTabChange }: Header
     { id: 'dashboard', icon: '🏠', label: t.navDashboard },
     { id: 'chat', icon: '💬', label: t.navChat },
     { id: 'report', icon: '📊', label: lang === 'ar' ? 'التقرير' : 'Report' },
+    { id: 'quality', icon: '✓', label: lang === 'ar' ? 'الجودة' : 'Quality' },
     { id: 'escalations', icon: '🔔', label: t.navEscalations },
     { id: 'settings', icon: '⚙️', label: t.navSettings },
   ]
