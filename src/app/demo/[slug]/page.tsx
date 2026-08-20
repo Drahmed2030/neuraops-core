@@ -4,14 +4,9 @@ import { useState, useRef, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { useUI } from '@/lib/ui-context'
 import { Header } from '@/components/layout/Header'
+import { ThinkingIndicator } from '@/components/dashboard/ThinkingIndicator'
 import type { Message } from '@/types/ui'
 
-/**
- * Public demo chat — this is what the trial's "جرّب كعميل الآن" button
- * and the shareable neuraops.app/demo/<slug> link actually open.
- * Unlike /dashboard's chat tab (internal, has admin tabs), this is a
- * clean customer-facing surface with just the store's assistant.
- */
 export default function DemoChatPage() {
   const { t, lang } = useUI()
   const params = useParams()
@@ -62,6 +57,25 @@ export default function DemoChatPage() {
           channel: 'web_widget',
         }),
       })
+
+      if (!res.ok) {
+        let detail = `HTTP ${res.status}`
+        try {
+          const errBody = await res.json()
+          detail = errBody.error || detail
+        } catch {
+          // not JSON, keep HTTP status
+        }
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'assistant',
+            content: lang === 'ar' ? `⚠️ خطأ فعلي من الخادم: ${detail}` : `⚠️ Real server error: ${detail}`,
+          },
+        ])
+        return
+      }
+
       const data = await res.json()
       if (data.conversationId) setConversationId(data.conversationId)
 
@@ -75,11 +89,24 @@ export default function DemoChatPage() {
               : "Your conversation has been handed to the store's team — they'll reply soon 🙏",
           },
         ])
+      } else if (data.error) {
+        setMessages(prev => [
+          ...prev,
+          { role: 'assistant', content: `⚠️ ${data.error}` },
+        ])
       } else {
-        setMessages(prev => [...prev, { role: 'assistant', content: data.answer || data.error || '—' }])
+        setMessages(prev => [...prev, { role: 'assistant', content: data.answer || '—' }])
       }
-    } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: lang === 'ar' ? 'خطأ في الاتصال.' : 'Connection error.' }])
+    } catch (err: any) {
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'assistant',
+          content: lang === 'ar'
+            ? `⚠️ خطأ اتصال حقيقي: ${err?.message || 'unknown'}`
+            : `⚠️ Real connection error: ${err?.message || 'unknown'}`,
+        },
+      ])
     } finally {
       setLoading(false)
     }
@@ -159,7 +186,7 @@ export default function DemoChatPage() {
             </div>
           </div>
         ))}
-        {loading && <div className="self-end text-[12px] text-gold">⟳ {t.thinking}</div>}
+        {loading && <ThinkingIndicator />}
       </div>
 
       <div className="px-5 py-3.5 bg-paper-50/90 dark:bg-ink-950/90 border-t border-black/[0.07] dark:border-white/[0.07] max-w-[700px] mx-auto w-full">
