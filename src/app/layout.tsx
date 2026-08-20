@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { Inter, IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { UIProvider } from '@/lib/ui-context'
-import { MetaPixel } from '@/components/analytics/MetaPixel'
+import MetaPixel from '@/components/analytics/MetaPixel'
 import './globals.css'
 
 const inter = Inter({

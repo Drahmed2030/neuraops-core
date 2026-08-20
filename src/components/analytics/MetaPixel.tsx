@@ -1,73 +1,84 @@
-'use client'
+'use client';
 
-import { useEffect, useRef } from 'react'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { useEffect, useRef } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 declare global {
   interface Window {
-    fbq: any
-    _fbq: any
+    fbq: any;
+    _fbq: any;
   }
 }
 
-/**
- * Loads the Meta Pixel base script exactly once per browser session
- * (guarded by a module-level ref, survives client-side navigation
- * without React re-mounting it twice), and fires PageView on every
- * real route change — not on re-renders.
- *
- * Reads the Pixel ID from NEXT_PUBLIC_META_PIXEL_ID. If that env var
- * is not set, this component does nothing at all — safe to deploy
- * even before the ID is configured in Vercel.
- */
-export function MetaPixel() {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const initialized = useRef(false)
-  const lastTrackedPath = useRef<string | null>(null)
+// Module-level guard: survives React Strict Mode's intentional double-invoke
+// of effects in development, and prevents a second <MetaPixel/> mount (e.g.
+// from fast navigation) from re-injecting the base script.
+let pixelInitialized = false;
 
-  const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID
+// Raw env var may pick up trailing/leading whitespace or newlines depending
+// on how it was pasted into the hosting provider's dashboard. Always trim
+// before it ever reaches fbq().
+function getCleanPixelId(): string {
+  const raw = process.env.NEXT_PUBLIC_META_PIXEL_ID || '';
+  return String(raw).trim();
+}
+
+function loadFacebookPixelScript(pixelId: string) {
+  if (typeof window === 'undefined') return;
+  if (window.fbq) return; // script + init already present
+
+  /* eslint-disable */
+  (function (f: any, b: any, e: any, v: any) {
+    if (f.fbq) return;
+    var n: any = (f.fbq = function () {
+      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+    });
+    if (!f._fbq) f._fbq = n;
+    n.push = n;
+    n.loaded = true;
+    n.version = '2.0';
+    n.queue = [];
+    var t: any = b.createElement(e);
+    t.async = true;
+    t.src = v;
+    var s: any = b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t, s);
+  })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+  /* eslint-enable */
+
+  window.fbq('init', pixelId);
+}
+
+export default function MetaPixel() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const lastTrackedUrl = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!pixelId) return // Not configured yet — no-op, no error, no console noise.
-    if (typeof window === 'undefined') return
+    const pixelId = getCleanPixelId();
 
-    if (!initialized.current && !window.fbq) {
-      ;(function (f: any, b: any, e: any, v: any) {
-        if (f.fbq) return
-        let n: any = (f.fbq = function (...args: any[]) {
-          n.callMethod ? n.callMethod.apply(n, args) : n.queue.push(args)
-        })
-        if (!f._fbq) f._fbq = n
-        n.push = n
-        n.loaded = true
-        n.version = '2.0'
-        n.queue = []
-        const t = b.createElement(e)
-        t.async = true
-        t.src = v
-        const s = b.getElementsByTagName(e)[0]
-        s.parentNode.insertBefore(t, s)
-      })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js')
-
-      window.fbq('init', pixelId)
-      initialized.current = true
+    if (!pixelId) {
+      // No pixel configured for this environment (e.g. local dev without
+      // the env var set) -- fail silently, never throw.
+      return;
     }
-  }, [pixelId])
 
-  useEffect(() => {
-    if (!pixelId) return
-    if (typeof window === 'undefined' || !window.fbq) return
+    if (!pixelInitialized) {
+      loadFacebookPixelScript(pixelId);
+      pixelInitialized = true;
+    }
 
-    const currentPath = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '')
+    const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
 
-    // Guard against firing PageView twice for the exact same path
-    // (e.g. a re-render that doesn't represent a real navigation).
-    if (lastTrackedPath.current === currentPath) return
-    lastTrackedPath.current = currentPath
+    // Only fire PageView when the URL actually changed -- prevents a
+    // duplicate fire if this effect re-runs for an unrelated reason.
+    if (lastTrackedUrl.current === url) return;
+    lastTrackedUrl.current = url;
 
-    window.fbq('track', 'PageView')
-  }, [pathname, searchParams, pixelId])
+    if (window.fbq) {
+      window.fbq('track', 'PageView');
+    }
+  }, [pathname, searchParams]);
 
-  return null
+  return null;
 }
