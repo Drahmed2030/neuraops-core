@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { handleCustomerMessage } from '@/lib/agents/orchestrator'
 import { createServerClient } from '@/lib/supabase/server'
+import { startProofWeek } from '@/lib/proof-week'
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, storeId, sessionId, history = [] } = await req.json()
+    const { message, storeId, sessionId, history = [], channel = 'demo' } = await req.json()
 
     if (!message || !storeId) {
       return NextResponse.json({ error: 'message and storeId required' }, { status: 400 })
@@ -14,11 +15,18 @@ export async function POST(req: NextRequest) {
 
     const { data: store } = await supabase
       .from('stores')
-      .select('id')
+      .select('id, proof_started_at')
       .eq('slug', storeId)
       .maybeSingle()
 
     const realStoreId = store?.id || storeId
+
+    // First real message on this store starts the proof-week clock.
+    // startProofWeek is idempotent, so this is safe to call on every
+    // message without resetting an already-running clock.
+    if (store && !store.proof_started_at) {
+      await startProofWeek(realStoreId, channel)
+    }
 
     let conversationId: string
     const { data: existing } = await supabase
@@ -34,7 +42,7 @@ export async function POST(req: NextRequest) {
     } else {
       const { data: newConv } = await supabase
         .from('conversations')
-        .insert({ store_id: realStoreId, session_id: sessionId, channel: 'demo' })
+        .insert({ store_id: realStoreId, session_id: sessionId, channel })
         .select('id')
         .single()
       conversationId = newConv!.id
@@ -46,9 +54,6 @@ export async function POST(req: NextRequest) {
       content: message,
     })
 
-    // Real multi-agent routing: analyzes intent, hands off to the
-    // correct specialist (order_tracker / returns / product_expert /
-    // menu_offers / store_info), rather than a single general agent.
     const agentResponse = await handleCustomerMessage(message, realStoreId, history)
 
     await supabase.from('messages').insert({
