@@ -9,6 +9,8 @@ interface Props {
   canProceed: boolean
   onNext: () => void
   onBack: () => void
+  submitting?: boolean
+  errorMessage?: string | null
 }
 
 const PHONE_CODES = [
@@ -25,8 +27,8 @@ const PHONE_CODES = [
 const inputClass =
   'w-full px-4 py-3 rounded-xl border-[1.5px] border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 text-[14.5px] outline-none transition-all focus:border-gold focus:shadow-[0_0_0_3px_rgba(201,169,97,0.14)]'
 
-export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack }: Props) {
-  const { t } = useUI()
+export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack, submitting, errorMessage }: Props) {
+  const { t, lang } = useUI()
 
   return (
     <section className="animate-fade-slide">
@@ -48,6 +50,7 @@ export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack }:
           placeholder={t.fStoreNamePh}
           value={data.storeName}
           onChange={e => updateData({ storeName: e.target.value })}
+          disabled={submitting}
         />
       </div>
 
@@ -58,6 +61,7 @@ export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack }:
             className="w-[92px] px-2.5 py-3 rounded-xl border-[1.5px] border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 text-[14px] text-center font-semibold outline-none"
             value={data.phoneCode}
             onChange={e => updateData({ phoneCode: e.target.value })}
+            disabled={submitting}
           >
             {PHONE_CODES.map(c => (
               <option key={c.value} value={c.value}>{c.label}</option>
@@ -69,6 +73,7 @@ export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack }:
             placeholder="5X XXX XXXX"
             value={data.phone}
             onChange={e => updateData({ phone: e.target.value })}
+            disabled={submitting}
           />
         </div>
       </div>
@@ -80,6 +85,7 @@ export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack }:
             className={inputClass}
             value={data.city}
             onChange={e => updateData({ city: e.target.value })}
+            disabled={submitting}
           >
             <option value="">{t.fCityChoose}</option>
             <option value="buraidah">{t.cBuraidah}</option>
@@ -97,6 +103,7 @@ export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack }:
             className={inputClass}
             value={data.channel}
             onChange={e => updateData({ channel: e.target.value })}
+            disabled={submitting}
           >
             <option value="">{t.fChannelChoose}</option>
             <option value="whatsapp">{t.chWhats}</option>
@@ -107,11 +114,18 @@ export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack }:
         </div>
       </div>
 
+      {errorMessage && (
+        <div className="mt-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 text-[13px] font-medium">
+          {errorMessage}
+        </div>
+      )}
+
       <div className="flex gap-2.5 mt-7">
         <button
           type="button"
           onClick={onBack}
-          className="px-6 py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-medium text-[15px] hover:border-gold transition-colors"
+          disabled={submitting}
+          className="px-6 py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-medium text-[15px] hover:border-gold transition-colors disabled:opacity-40"
         >
           {t.backBtn}
         </button>
@@ -119,9 +133,16 @@ export function Step2StoreInfo({ data, updateData, canProceed, onNext, onBack }:
           type="button"
           onClick={onNext}
           disabled={!canProceed}
-          className="flex-1 py-3.5 rounded-xl bg-gold text-ink-950 font-semibold text-[15px] disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:bg-gold-hover enabled:hover:-translate-y-0.5 transition-all shadow-gold-glow"
+          className="flex-1 py-3.5 rounded-xl bg-gold text-ink-950 font-semibold text-[15px] disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:bg-gold-hover enabled:hover:-translate-y-0.5 transition-all shadow-gold-glow flex items-center justify-center gap-2"
         >
-          {t.nextBtn}
+          {submitting ? (
+            <>
+              <span className="w-4 h-4 border-2 border-ink-950/30 border-t-ink-950 rounded-full animate-spin" />
+              {lang === 'ar' ? 'جارٍ الإنشاء...' : 'Creating...'}
+            </>
+          ) : (
+            t.nextBtn
+          )}
         </button>
       </div>
     </section>

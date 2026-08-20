@@ -31,6 +31,14 @@ export function useTrialWizard() {
   const [data, setData] = useState<TrialFormData>(initialData)
   const [activationDone, setActivationDone] = useState(false)
 
+  // Real store identity, set once /api/trial/create-store succeeds.
+  // Until then, storeSlug is null and no backend calls that need a
+  // real store should be made.
+  const [storeSlug, setStoreSlug] = useState<string | null>(null)
+  const [storeId, setStoreId] = useState<string | null>(null)
+  const [creatingStore, setCreatingStore] = useState(false)
+  const [createStoreError, setCreateStoreError] = useState<string | null>(null)
+
   const totalSteps = 4
 
   const goNext = useCallback(() => setStep(s => Math.min(s + 1, totalSteps)), [])
@@ -53,10 +61,49 @@ export function useTrialWizard() {
   const canProceedStep1 = data.type !== null
   const canProceedStep2 = data.storeName.trim().length > 1 && data.phone.trim().length >= 8
 
-  const demoSlug = (data.storeName || 'demo-store')
-    .toLowerCase()
-    .replace(/[^a-z0-9\u0600-\u06FF]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'demo'
+  /**
+   * Called when the customer completes step 2 (store info) and moves
+   * to step 3. This is what actually creates the store record in
+   * Supabase and starts the 14-day signup window. Real network call,
+   * real failure handling — if it fails, we surface the error and
+   * do NOT let the wizard silently proceed as if it worked.
+   */
+  const createStore = useCallback(async (): Promise<boolean> => {
+    setCreatingStore(true)
+    setCreateStoreError(null)
+    try {
+      const res = await fetch('/api/trial/create-store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: data.type,
+          storeName: data.storeName.trim(),
+          phone: data.phone.trim(),
+          phoneCode: data.phoneCode,
+          city: data.city,
+          channel: data.channel,
+        }),
+      })
+
+      const result = await res.json()
+
+      if (!res.ok || !result.storeId) {
+        setCreateStoreError(result.error || 'حدث خطأ أثناء إنشاء حسابك. حاول مرة أخرى.')
+        return false
+      }
+
+      setStoreId(result.storeId)
+      setStoreSlug(result.slug)
+      return true
+    } catch {
+      setCreateStoreError('تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.')
+      return false
+    } finally {
+      setCreatingStore(false)
+    }
+  }, [data])
+
+  const demoSlug = storeSlug || 'demo'
 
   return {
     step,
@@ -72,5 +119,10 @@ export function useTrialWizard() {
     canProceedStep1,
     canProceedStep2,
     demoSlug,
+    storeSlug,
+    storeId,
+    creatingStore,
+    createStoreError,
+    createStore,
   }
 }
