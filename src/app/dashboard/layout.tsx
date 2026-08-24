@@ -1,4 +1,4 @@
-\
+
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
 import { logout } from '@/app/login/actions'
