@@ -1,86 +1,78 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
+import { consumeRateLimit, requestIp } from '@/lib/security/rate-limit'
 
-/**
- * "Stop automation, hand to my team" — a trustworthy manual escalation
- * trigger, independent of the AI's own confidence-based escalation.
- * This is what reduces an owner's fear of losing a customer to a
- * wrong automated reply: they (or their team) can always take over
- * a specific conversation instantly.
- */
 export async function POST(req: NextRequest) {
   try {
-    const { conversationId, storeId: storeSlug, reason } = await req.json()
+    const body = await req.json()
+    const conversationId = typeof body.conversationId === 'string' ? body.conversationId.trim().slice(0, 128) : ''
+    const storeSlug = typeof body.storeId === 'string' ? body.storeId.trim().slice(0, 120) : ''
+    const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim().slice(0, 128) : ''
+    const reason = typeof body.reason === 'string' ? body.reason.trim().slice(0, 300) : ''
 
-    if (!conversationId) {
-      return NextResponse.json({ error: 'conversationId required' }, { status: 400 })
-    }
+    if (!conversationId || !storeSlug || !sessionId)
+      return NextResponse.json({ error: 'conversationId, storeId and sessionId required.' }, { status: 400 })
+    if (!/^[A-Za-z0-9_-]{12,128}$/.test(sessionId))
+      return NextResponse.json({ error: 'invalid sessionId' }, { status: 400 })
 
-    const supabase = createServerClient()
+    const ip = requestIp(req)
+    const [ipAllowed, sessionAllowed] = await Promise.all([
+      consumeRateLimit(`human-request:ip:${ip}`, 10, 3600),
+      consumeRateLimit(`human-request:session:${storeSlug}:${sessionId}`, 3, 3600),
+    ])
+    if (!ipAllowed || !sessionAllowed)
+      return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
 
-    const { data: conversation } = await supabase
-      .from('conversations')
-      .select('id, store_id, session_id')
-      .eq('id', conversationId)
-      .maybeSingle()
+    const { data: store } = await supabaseAdmin
+      .from('stores').select('id').eq('slug', storeSlug).maybeSingle()
+    if (!store)
+      return NextResponse.json({ error: 'Store not found.' }, { status: 404 })
 
-    if (!conversation) {
-      return NextResponse.json({ error: 'conversation not found' }, { status: 404 })
-    }
+    const { data: conversation } = await supabaseAdmin
+      .from('conversations').select('id, store_id, session_id')
+      .eq('id', conversationId).eq('store_id', store.id)
+      .eq('session_id', sessionId).maybeSingle()
 
-    // Pause automation on this specific conversation
-    await supabase
-      .from('conversations')
-      .update({
-        status: 'escalated',
-        manually_paused: true,
-        paused_at: new Date().toISOString(),
-        paused_reason: reason || null,
-      })
-      .eq('id', conversationId)
+    if (!conversation)
+      return NextResponse.json({ error: 'Conversation not found.' }, { status: 404 })
 
-    // Build a context summary from the last few messages, so whoever
-    // picks this up doesn't have to re-read the whole conversation
-    // from scratch.
-    const { data: recentMessages } = await supabase
-      .from('messages')
-      .select('role, content, created_at')
-      .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: false })
-      .limit(6)
+    const { data: existingEscalation } = await supabaseAdmin
+      .from('escalations').select('id')
+      .eq('conversation_id', conversationId).eq('store_id', store.id)
+      .in('status', ['pending', 'in_progress']).maybeSingle()
 
-    const contextSummary = (recentMessages || [])
-      .reverse()
-      .map(m => `${m.role === 'user' ? 'العميل' : 'المساعد'}: ${m.content}`)
-      .join('\n')
+    if (existingEscalation)
+      return NextResponse.json({ ok: true, escalationId: existingEscalation.id })
 
-    const { data: escalation, error } = await supabase
+    await supabaseAdmin.from('conversations').update({
+      status: 'escalated',
+      manually_paused: true,
+      paused_at: new Date().toISOString(),
+      paused_reason: reason || 'Customer requested a human',
+    }).eq('id', conversationId).eq('store_id', store.id).eq('session_id', sessionId)
+
+    const { data: escalation, error } = await supabaseAdmin
       .from('escalations')
       .insert({
         conversation_id: conversationId,
-        store_id: conversation.store_id,
-        reason: reason || 'طلب تصعيد يدوي من صاحب المتجر',
+        store_id: store.id,
+        reason: reason || 'Customer requested a human',
         priority: 'high',
         confidence_score: 0,
-        triggered_by: 'manual_owner',
-        context: { context_summary: contextSummary, manual: true },
+        triggered_by: 'customer_request',
+        context: { customer_requested_human: true },
         sla_deadline: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
       })
-      .select('id')
-      .single()
+      .select('id').single()
 
-    if (error) {
-      console.error('Manual escalation error:', error)
-      return NextResponse.json({ error: 'failed to create escalation' }, { status: 500 })
+    if (error || !escalation) {
+      console.error('Customer escalation error:', error?.message)
+      return NextResponse.json({ error: 'Failed to create escalation.' }, { status: 500 })
     }
 
-    return NextResponse.json({
-      ok: true,
-      escalationId: escalation.id,
-      contextSummary,
-    })
-  } catch (err: any) {
-    console.error('Escalation route error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ ok: true, escalationId: escalation.id })
+  } catch (err) {
+    console.error('Customer escalation error:', err)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
