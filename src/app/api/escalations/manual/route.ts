@@ -1,106 +1,78 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireStoreAccess } from '@/lib/auth/require-store-access'
 import { supabaseAdmin } from '@/lib/supabase/admin'
+import { consumeRateLimit, requestIp } from '@/lib/security/rate-limit'
 
-/**
- * POST /api/escalations/manual
- * Body: { conversationId: string, storeId: string, reason?: string }
- *
- * Manually pauses automation on a conversation and creates an escalation.
- *
- * Auth: requireStoreAccess (401/403)
- * DB:   supabaseAdmin — all tables accessed via verified store anchor
- *
- * Tables accessed:
- *   conversations — SELECT (verify store_id), UPDATE (pause)
- *   messages      — SELECT (build context summary)
- *   escalations   — INSERT
- *
- * RLS why it works: supabaseAdmin bypasses RLS; store scope enforced in queries.
- *
- * Security changes from original:
- *   + requireStoreAccess guard
- *   + conversation verified by both id AND store_id (cross-store check)
- *   + raw error messages not returned to client
- *   Business logic (context summary, sla_deadline, priority): unchanged.
- */
 export async function POST(req: NextRequest) {
-  let body: { conversationId?: string; storeId?: string; reason?: string }
-  try { body = await req.json() } catch {
-    return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 })
-  }
+  try {
+    const body = await req.json()
+    const conversationId = typeof body.conversationId === 'string' ? body.conversationId.trim().slice(0, 128) : ''
+    const storeSlug = typeof body.storeId === 'string' ? body.storeId.trim().slice(0, 120) : ''
+    const sessionId = typeof body.sessionId === 'string' ? body.sessionId.trim().slice(0, 128) : ''
+    const reason = typeof body.reason === 'string' ? body.reason.trim().slice(0, 300) : ''
 
-  const { conversationId, storeId, reason } = body
+    if (!conversationId || !storeSlug || !sessionId)
+      return NextResponse.json({ error: 'conversationId, storeId and sessionId required.' }, { status: 400 })
+    if (!/^[A-Za-z0-9_-]{12,128}$/.test(sessionId))
+      return NextResponse.json({ error: 'invalid sessionId' }, { status: 400 })
 
-  if (!conversationId) {
-    return NextResponse.json({ error: 'conversationId required.' }, { status: 400 })
-  }
-  if (!storeId) {
-    return NextResponse.json({ error: 'storeId required.' }, { status: 400 })
-  }
+    const ip = requestIp(req)
+    const [ipAllowed, sessionAllowed] = await Promise.all([
+      consumeRateLimit(`human-request:ip:${ip}`, 10, 3600),
+      consumeRateLimit(`human-request:session:${storeSlug}:${sessionId}`, 3, 3600),
+    ])
+    if (!ipAllowed || !sessionAllowed)
+      return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
 
-  // 1. Auth + ownership
-  const ctx = await requireStoreAccess(req, storeId)
-  if (ctx instanceof NextResponse) return ctx
+    const { data: store } = await supabaseAdmin
+      .from('stores').select('id').eq('slug', storeSlug).maybeSingle()
+    if (!store)
+      return NextResponse.json({ error: 'Store not found.' }, { status: 404 })
 
-  // 2. Verify conversation belongs to verified store
-  const { data: conversation } = await supabaseAdmin
-    .from('conversations')
-    .select('id, store_id, session_id')
-    .eq('id', conversationId)
-    .eq('store_id', ctx.store.id)           // cross-store check
-    .maybeSingle()
+    const { data: conversation } = await supabaseAdmin
+      .from('conversations').select('id, store_id, session_id')
+      .eq('id', conversationId).eq('store_id', store.id)
+      .eq('session_id', sessionId).maybeSingle()
 
-  if (!conversation) {
-    return NextResponse.json({ error: 'Conversation not found.' }, { status: 404 })
-  }
+    if (!conversation)
+      return NextResponse.json({ error: 'Conversation not found.' }, { status: 404 })
 
-  // 3. Pause automation (unchanged business logic)
-  await supabaseAdmin
-    .from('conversations')
-    .update({
+    const { data: existingEscalation } = await supabaseAdmin
+      .from('escalations').select('id')
+      .eq('conversation_id', conversationId).eq('store_id', store.id)
+      .in('status', ['pending', 'in_progress']).maybeSingle()
+
+    if (existingEscalation)
+      return NextResponse.json({ ok: true, escalationId: existingEscalation.id })
+
+    await supabaseAdmin.from('conversations').update({
       status: 'escalated',
       manually_paused: true,
       paused_at: new Date().toISOString(),
-      paused_reason: reason || null,
-    })
-    .eq('id', conversationId)
+      paused_reason: reason || 'Customer requested a human',
+    }).eq('id', conversationId).eq('store_id', store.id).eq('session_id', sessionId)
 
-  // 4. Build context summary from last 6 messages (unchanged)
-  const { data: recentMessages } = await supabaseAdmin
-    .from('messages')
-    .select('role, content, created_at')
-    .eq('conversation_id', conversationId)
-    .order('created_at', { ascending: false })
-    .limit(6)
+    const { data: escalation, error } = await supabaseAdmin
+      .from('escalations')
+      .insert({
+        conversation_id: conversationId,
+        store_id: store.id,
+        reason: reason || 'Customer requested a human',
+        priority: 'high',
+        confidence_score: 0,
+        triggered_by: 'customer_request',
+        context: { customer_requested_human: true },
+        sla_deadline: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      })
+      .select('id').single()
 
-  const contextSummary = (recentMessages || [])
-    .reverse()
-    .map((m: { role: string; content: string }) =>
-      `${m.role === 'user' ? 'العميل' : 'المساعد'}: ${m.content}`
-    )
-    .join('\n')
+    if (error || !escalation) {
+      console.error('Customer escalation error:', error?.message)
+      return NextResponse.json({ error: 'Failed to create escalation.' }, { status: 500 })
+    }
 
-  // 5. Create escalation record (unchanged)
-  const { data: escalation, error } = await supabaseAdmin
-    .from('escalations')
-    .insert({
-      conversation_id: conversationId,
-      store_id: conversation.store_id,
-      reason: reason || 'طلب تصعيد يدوي من صاحب المتجر',
-      priority: 'high',
-      confidence_score: 0,
-      triggered_by: 'manual_owner',
-      context: { context_summary: contextSummary, manual: true },
-      sla_deadline: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-    })
-    .select('id')
-    .single()
-
-  if (error) {
-    console.error('[POST /escalations/manual]', error)
-    return NextResponse.json({ error: 'Failed to create escalation.' }, { status: 500 })
+    return NextResponse.json({ ok: true, escalationId: escalation.id })
+  } catch (err) {
+    console.error('Customer escalation error:', err)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
-
-  return NextResponse.json({ ok: true, escalationId: escalation.id, contextSummary })
 }

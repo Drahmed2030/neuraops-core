@@ -28,16 +28,18 @@ export default function DemoChatPage() {
   }, [messages])
 
   useEffect(() => {
-    if (!storeSlug) return
-    let cancelled = false
-    fetch(`/api/trial/status?storeId=${storeSlug}`)
-      .then(res => res.json())
-      .then(() => {
-        if (!cancelled) setStoreName(storeSlug.replace(/-/g, ' '))
-      })
-      .catch(() => {})
-    return () => { cancelled = true }
+    if (storeSlug) setStoreName(storeSlug.replace(/-/g, ' '))
   }, [storeSlug])
+
+  function getSessionId() {
+    const key = `neuraops-demo-session:${storeSlug}`
+    let value = window.sessionStorage.getItem(key)
+    if (!value) {
+      value = `demo-${crypto.randomUUID()}`
+      window.sessionStorage.setItem(key, value)
+    }
+    return value
+  }
 
   async function sendMessage(overrideText?: string) {
     const text = (overrideText ?? input).trim()
@@ -52,7 +54,7 @@ export default function DemoChatPage() {
         body: JSON.stringify({
           message: text,
           storeId: storeSlug,
-          sessionId: `demo-public-${storeSlug}`,
+          sessionId: getSessionId(),
           history: messages.slice(-6),
           channel: 'web_widget',
         }),
@@ -122,6 +124,7 @@ export default function DemoChatPage() {
         body: JSON.stringify({
           conversationId,
           storeId: storeSlug,
+          sessionId: getSessionId(),
           reason: lang === 'ar' ? 'العميل طلب التحدث مع موظف' : 'Customer requested a human',
         }),
       })
