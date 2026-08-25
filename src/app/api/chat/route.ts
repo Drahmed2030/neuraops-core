@@ -3,6 +3,7 @@ import { handleCustomerMessage } from '@/lib/agents/orchestrator'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { startProofWeek } from '@/lib/proof-week'
 import { consumeRateLimit, requestIp } from '@/lib/security/rate-limit'
+import { ACTIVE_ESCALATION_STATUSES, ensureActiveEscalation } from '@/lib/reliability/escalation.mjs'
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
 
     let conversationId: string
     let isManuallyPaused = false
+    let conversationWasEscalated = false
 
     const { data: existing } = await supabaseAdmin
       .from('conversations').select('id, manually_paused')
@@ -62,6 +64,7 @@ export async function POST(req: NextRequest) {
       if (escalatedExisting) {
         conversationId = escalatedExisting.id
         isManuallyPaused = escalatedExisting.manually_paused || false
+        conversationWasEscalated = true
       } else {
         const { data: newConv, error: insertError } = await supabaseAdmin
           .from('conversations')
@@ -95,11 +98,41 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Message could not be stored.' }, { status: 500 })
     }
 
-    if (isManuallyPaused) {
-      return NextResponse.json({
-        answer: null, agent: null, confidence: null,
-        escalated: true, manuallyPaused: true, conversationId,
-      })
+    if (conversationWasEscalated || isManuallyPaused) {
+      const { data: activeEscalation, error: activeEscalationError } = await supabaseAdmin
+        .from('escalations').select('id')
+        .eq('conversation_id', conversationId).eq('store_id', realStoreId)
+        .in('status', ACTIVE_ESCALATION_STATUSES).limit(1).maybeSingle()
+
+      if (activeEscalationError) {
+        console.error('Active escalation lookup error:', activeEscalationError.message)
+        return NextResponse.json({ error: 'Escalation state unavailable.' }, { status: 503 })
+      }
+
+      if (activeEscalation) {
+        return NextResponse.json({
+          answer: null, agent: null, confidence: null,
+          escalated: true, manuallyPaused: isManuallyPaused,
+          waitingForHuman: true, conversationId,
+        })
+      }
+
+      if (conversationWasEscalated) {
+        const { error: repairError } = await supabaseAdmin.from('conversations')
+          .update({ status: 'open' })
+          .eq('id', conversationId).eq('store_id', realStoreId).eq('session_id', sessionId)
+        if (repairError) {
+          console.error('Conversation state repair error:', repairError.message)
+          return NextResponse.json({ error: 'Conversation state unavailable.' }, { status: 503 })
+        }
+      }
+
+      if (isManuallyPaused) {
+        return NextResponse.json({
+          answer: null, agent: null, confidence: null,
+          escalated: false, manuallyPaused: true, conversationId,
+        })
+      }
     }
 
     const agentResponse = await handleCustomerMessage(message, realStoreId, serverHistory)
@@ -117,31 +150,91 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Assistant response could not be stored.' }, { status: 500 })
     }
 
+    let escalated = false
+
     if (agentResponse.should_escalate) {
       const slaDeadline = new Date(Date.now() + 30 * 60 * 1000).toISOString()
-      await supabaseAdmin.from('escalations').insert({
-        conversation_id: conversationId,
-        store_id: realStoreId,
+      const escalationInput = {
+        conversationId,
+        storeId: realStoreId,
+        sessionId,
         reason: agentResponse.escalation_reason || 'تصعيد تلقائي',
         priority: agentResponse.confidence < 0.3 ? 'high' : 'medium',
-        confidence_score: agentResponse.confidence,
-        triggered_by: 'ai_confidence',
-        context: {
-          routed_to: agentResponse.agent,
-          routing_reasoning: agentResponse.routingReasoning,
+        confidenceScore: agentResponse.confidence,
+        agent: agentResponse.agent,
+        routingReasoning: agentResponse.routingReasoning,
+        slaDeadline,
+      }
+
+      const adapter = {
+        findActive: async (activeConversationId: string, activeStoreId: string) => {
+          const { data, error } = await supabaseAdmin.from('escalations').select('id')
+            .eq('conversation_id', activeConversationId).eq('store_id', activeStoreId)
+            .in('status', ACTIVE_ESCALATION_STATUSES).limit(1).maybeSingle()
+          if (error) throw error
+          return data
         },
-        sla_deadline: slaDeadline,
-      })
-      await supabaseAdmin.from('conversations')
-        .update({ status: 'escalated' })
-        .eq('id', conversationId).eq('store_id', realStoreId).eq('session_id', sessionId)
+        create: async (input: typeof escalationInput) => {
+          const { data, error } = await supabaseAdmin.from('escalations').insert({
+            conversation_id: input.conversationId,
+            store_id: input.storeId,
+            reason: input.reason,
+            priority: input.priority,
+            confidence_score: input.confidenceScore,
+            triggered_by: 'ai_confidence',
+            context: {
+              routed_to: input.agent,
+              routing_reasoning: input.routingReasoning,
+            },
+            sla_deadline: input.slaDeadline,
+          }).select('id').single()
+          if (error?.code === '23505') return { duplicate: true }
+          if (error) throw error
+          return data
+        },
+        markConversationEscalated: async (input: typeof escalationInput) => {
+          const { data, error } = await supabaseAdmin.from('conversations')
+            .update({ status: 'escalated' })
+            .eq('id', input.conversationId).eq('store_id', input.storeId)
+            .eq('session_id', input.sessionId).select('id').maybeSingle()
+          if (error) {
+            console.error('Conversation escalation status error:', error.message)
+            return false
+          }
+          return Boolean(data)
+        },
+        remove: async (escalationId: string, activeStoreId: string) => {
+          const { error } = await supabaseAdmin.from('escalations').delete()
+            .eq('id', escalationId).eq('store_id', activeStoreId)
+          if (error) console.error('Escalation rollback error:', error.message)
+        },
+      }
+
+      try {
+        const persistence = await ensureActiveEscalation(adapter, escalationInput)
+        escalated = persistence.ok
+      } catch (error) {
+        console.error('Escalation persistence error:', error)
+        escalated = false
+      }
+
+      if (!escalated) {
+        return NextResponse.json({
+          answer: agentResponse.answer,
+          agent: agentResponse.agent,
+          confidence: agentResponse.confidence,
+          escalated: false,
+          conversationId,
+          error: 'Escalation could not be persisted.',
+        }, { status: 503 })
+      }
     }
 
     return NextResponse.json({
       answer: agentResponse.answer,
       agent: agentResponse.agent,
       confidence: agentResponse.confidence,
-      escalated: agentResponse.should_escalate,
+      escalated,
       conversationId,
     })
   } catch (err) {
