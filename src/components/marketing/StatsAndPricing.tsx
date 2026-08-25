@@ -67,7 +67,7 @@ export function PricingSection() {
         <div className="max-w-3xl mx-auto rounded-[24px] border-2 border-gold bg-gradient-to-b from-gold/8 to-transparent p-8 sm:p-10">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-8">
             <div>
-              <div className="text-[20px] font-extrabold mb-2">{isArabic ? 'Founder-led Pilot' : 'Founder-led Pilot'}</div>
+              <div className="text-[20px] font-extrabold mb-2">Founder-led Pilot</div>
               <div className="text-[14px] text-ink-950/55 dark:text-paper-50/55 max-w-xl">
                 {isArabic
                   ? 'مصمم للشركات الخدمية الصغيرة والوكالات والاستشارات التي تتلقى عملاء محتملين واردين ذوي قيمة.'
@@ -79,7 +79,7 @@ export function PricingSection() {
                 {isArabic ? 'نطاق التحقق المبدئي' : 'Initial validation range'}
               </div>
               <div className="text-[30px] font-extrabold text-gold">$149–299</div>
-              <div className="text-[11px] opacity-45 mt-1">{isArabic ? 'يُثبت مع العميل قبل أي تسعير عام' : 'Confirmed with each prospect before public pricing'} </div>
+              <div className="text-[11px] opacity-45 mt-1">{isArabic ? 'يُثبت مع العميل قبل أي تسعير عام' : 'Confirmed with each prospect before public pricing'}</div>
             </div>
           </div>
 
@@ -96,8 +96,8 @@ export function PricingSection() {
             <Link href="/lead/demo-store" className="flex-1 text-center py-3.5 rounded-xl bg-gold text-ink-950 font-bold text-[14px] hover:bg-gold-hover transition-colors">
               {isArabic ? 'جرّب سير العمل' : 'Try the workflow'}
             </Link>
-            <Link href="/trial" className="flex-1 text-center py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-bold text-[14px] hover:border-gold transition-colors">
-              {isArabic ? 'ابدأ إعداد Pilot' : 'Start pilot setup'}
+            <Link href="/lead/demo-store" className="flex-1 text-center py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-bold text-[14px] hover:border-gold transition-colors">
+              {isArabic ? 'اطلب Pilot' : 'Request a Pilot'}
             </Link>
           </div>
         </div>
