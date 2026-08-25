@@ -5,21 +5,35 @@ import { useUI } from '@/lib/ui-context'
 
 export function StatsBand() {
   const { t } = useUI()
-  const stats = [
-    { value: '78%', label: t.statResolve },
-    { value: '4.2s', label: t.statSpeed },
-    { value: '4.7/5', label: t.statCsat },
-    { value: '24/7', label: t.statUptime },
-  ]
+  const isArabic = t.lang === 'ar'
+  const capabilities = isArabic
+    ? [
+        { value: 'Demo', label: 'بيئة عرض تجريبية' },
+        { value: 'AI', label: 'توجيه بين وكلاء متخصصين' },
+        { value: 'Human', label: 'تصعيد بشري عند الحاجة' },
+        { value: 'Pilot', label: 'سير عمل جاهز للتجربة' },
+      ]
+    : [
+        { value: 'Demo', label: 'Demo environment' },
+        { value: 'AI', label: 'Specialized agent routing' },
+        { value: 'Human', label: 'Escalation when needed' },
+        { value: 'Pilot', label: 'Pilot-ready workflow' },
+      ]
+
   return (
     <section className="py-16 px-5 bg-black/[0.02] dark:bg-white/[0.02] border-y border-black/[0.07] dark:border-white/[0.07]">
+      <div className="max-w-5xl mx-auto mb-8 text-center">
+        <p className="text-[12px] font-semibold tracking-[0.12em] uppercase text-ink-950/45 dark:text-paper-50/45 font-sans">
+          {isArabic ? 'قدرات توضيحية — وليست نتائج إنتاج حقيقية' : 'Illustrative capabilities — not production results'}
+        </p>
+      </div>
       <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-        {stats.map((s, i) => (
-          <div key={i}>
-            <div className="text-[40px] font-extrabold font-sans tracking-tight text-gold mb-1.5">
-              {s.value}
+        {capabilities.map((item) => (
+          <div key={item.label}>
+            <div className="text-[28px] font-extrabold font-sans tracking-tight text-gold mb-1.5">
+              {item.value}
             </div>
-            <div className="text-[13.5px] text-ink-950/55 dark:text-paper-50/55">{s.label}</div>
+            <div className="text-[13.5px] text-ink-950/55 dark:text-paper-50/55">{item.label}</div>
           </div>
         ))}
       </div>
@@ -29,6 +43,7 @@ export function StatsBand() {
 
 export function PricingSection() {
   const { t } = useUI()
+  const isArabic = t.lang === 'ar'
 
   const plans = [
     { name: t.planPilotName, desc: t.planPilotDesc, price: t.planPilotPrice, period: t.planPilotPeriod, featured: false, cta: t.planCtaFree },
@@ -63,7 +78,7 @@ export function PricingSection() {
             >
               {plan.featured && (
                 <div className="absolute -top-3 right-8 bg-gold text-ink-950 text-[11px] font-extrabold px-3.5 py-1 rounded-full">
-                  {t.planBadge}
+                  {isArabic ? 'الخطة المقترحة' : 'Recommended Plan'}
                 </div>
               )}
               <div className="text-[18px] font-bold mb-2">{plan.name}</div>
