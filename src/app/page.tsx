@@ -9,8 +9,8 @@ import { StatsBand, PricingSection } from '@/components/marketing/StatsAndPricin
 import { WhatsAppComingSoon } from '@/components/marketing/WhatsAppComingSoon'
 
 export default function LandingPage() {
-  const { t } = useUI()
-  const isArabic = t.lang === 'ar'
+  const { t, lang } = useUI()
+  const isArabic = lang === 'ar'
 
   return (
     <>
