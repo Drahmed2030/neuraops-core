@@ -9,6 +9,7 @@ import {
   conversationStatusAfterResolution,
   conversationUpdateForEscalationStatus,
   ensureActiveEscalation,
+  transitionToActiveEscalationStatus,
 } from '../src/lib/reliability/escalation.mjs'
 
 test('routing response validation accepts only known agents and bounded confidence', () => {
@@ -108,4 +109,35 @@ test('active escalation status forces conversation to escalated without touching
     assert.deepEqual(update, { status: 'escalated' })
     assert.equal(Object.hasOwn(update, 'manually_paused'), false)
   }
+})
+
+test('failed active escalation write repairs conversation and cannot leave active escalation with open conversation', async () => {
+  let conversationStatus = 'open'
+  let escalationStatus = 'resolved'
+  const statusWrites = []
+
+  const result = await transitionToActiveEscalationStatus({
+    getConversationStatus: async () => ({ status: conversationStatus }),
+    setConversationStatus: async (_conversationId, _storeId, nextStatus) => {
+      statusWrites.push(nextStatus)
+      conversationStatus = nextStatus
+      return true
+    },
+    setEscalationStatus: async () => ({ ok: false, data: null }),
+    countActiveEscalations: async () => escalationStatus === 'pending' || escalationStatus === 'in_progress' ? 1 : 0,
+  }, {
+    escalationId: 'esc-1',
+    conversationId: 'conv-1',
+    storeId: 'store-1',
+    status: 'pending',
+  })
+
+  assert.equal(result.ok, false)
+  assert.equal(escalationStatus, 'resolved')
+  assert.equal(conversationStatus, 'open')
+  assert.deepEqual(statusWrites, ['escalated', 'open'])
+  assert.equal(
+    (escalationStatus === 'pending' || escalationStatus === 'in_progress') && conversationStatus === 'open',
+    false
+  )
 })
