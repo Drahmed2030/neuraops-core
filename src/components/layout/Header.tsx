@@ -7,9 +7,15 @@ interface HeaderProps {
   variant?: 'marketing' | 'app'
   activeTab?: string
   onTabChange?: (tab: string) => void
+  showDesktopAppNav?: boolean
 }
 
-export function Header({ variant = 'marketing', activeTab, onTabChange }: HeaderProps) {
+export function Header({
+  variant = 'marketing',
+  activeTab,
+  onTabChange,
+  showDesktopAppNav = true,
+}: HeaderProps) {
   const { t, isDark, toggleLang, toggleTheme, lang } = useUI()
 
   const navTabs = [
@@ -26,14 +32,14 @@ export function Header({ variant = 'marketing', activeTab, onTabChange }: Header
       <header className="sticky top-0 z-50 flex items-center justify-between gap-3 px-5 py-3 backdrop-blur-xl bg-paper-50/80 dark:bg-ink-950/85 border-b border-black/[0.07] dark:border-white/[0.07]">
         <div className="flex items-center gap-2.5">
           <Link href="/" className="flex items-center gap-2 font-semibold text-[15.5px] tracking-tight no-underline text-ink-950 dark:text-paper-50 font-sans">
-            <span className="w-7 h-7 bg-gold text-ink-950 rounded-lg flex items-center justify-center font-bold text-[13px] font-sans">
+            <span className="w-7 h-7 bg-gradient-to-br from-blue-500 to-violet-500 text-white rounded-lg flex items-center justify-center font-bold text-[13px] font-sans">
               N
             </span>
             <span className="hidden xs:inline">{t.brand}</span>
           </Link>
         </div>
 
-        {variant === 'app' && onTabChange && (
+        {variant === 'app' && onTabChange && showDesktopAppNav && (
           <nav className="hidden md:flex gap-1.5">
             {navTabs.map(tab => (
               <button
@@ -42,7 +48,7 @@ export function Header({ variant = 'marketing', activeTab, onTabChange }: Header
                 onClick={() => onTabChange(tab.id)}
                 className={`px-3.5 py-2 rounded-lg text-[12.5px] font-semibold transition-all ${
                   activeTab === tab.id
-                    ? 'bg-gold text-ink-950'
+                    ? 'bg-blue-500 text-white'
                     : 'text-ink-950/60 dark:text-paper-50/60 hover:text-ink-950 dark:hover:text-paper-50'
                 }`}
               >
@@ -56,7 +62,7 @@ export function Header({ variant = 'marketing', activeTab, onTabChange }: Header
           <button
             type="button"
             onClick={toggleLang}
-            className="px-2.5 py-1.5 rounded-lg border border-black/10 dark:border-white/10 text-[12px] font-medium text-ink-950/70 dark:text-paper-50/70 hover:border-gold transition-colors font-sans relative z-10"
+            className="px-2.5 py-1.5 rounded-lg border border-black/10 dark:border-white/10 text-[12px] font-medium text-ink-950/70 dark:text-paper-50/70 hover:border-blue-500 transition-colors font-sans relative z-10"
           >
             {t.langBtn}
           </button>
@@ -96,7 +102,7 @@ export function Header({ variant = 'marketing', activeTab, onTabChange }: Header
               onClick={() => onTabChange(tab.id)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
                 activeTab === tab.id
-                  ? 'bg-gold text-ink-950'
+                  ? 'bg-blue-500 text-white'
                   : 'text-ink-950/60 dark:text-paper-50/60'
               }`}
             >
