@@ -35,3 +35,11 @@ export async function ensureActiveEscalation(adapter, input) {
 export function conversationStatusAfterResolution(activeEscalationCount) {
   return activeEscalationCount > 0 ? 'escalated' : 'open'
 }
+
+export function conversationUpdateForEscalationStatus(escalationStatus, activeEscalationCount = 0) {
+  if (ACTIVE_ESCALATION_STATUSES.includes(escalationStatus)) {
+    return { status: 'escalated' }
+  }
+
+  return { status: conversationStatusAfterResolution(activeEscalationCount) }
+}
