@@ -13,7 +13,7 @@ export async function generateLeadResponse(input: {
 }) {
   try {
     const response = await callWithTimeoutAndRetry(
-      signal => openai.chat.completions.create({
+      (signal: AbortSignal) => openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
           {
