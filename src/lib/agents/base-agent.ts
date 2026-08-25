@@ -1,8 +1,13 @@
 import OpenAI from 'openai'
 import { retrieveContext } from './rag'
 import type { AgentName, AgentResponse, ChatHistoryMessage } from './types'
+import {
+  callWithTimeoutAndRetry,
+  parseAgentResponse,
+  providerFallbackReason,
+} from '@/lib/reliability/ai.mjs'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 })
 
 interface AgentConfig {
   name: AgentName
@@ -11,12 +16,21 @@ interface AgentConfig {
   escalationTriggers: string
 }
 
-/**
- * Runs a specialist agent: retrieves relevant knowledge-base context,
- * then generates a response using that agent's specific persona/prompt.
- * Every specialist agent (order_tracker, returns, etc.) calls this
- * with its own AgentConfig instead of duplicating the OpenAI logic.
- */
+function fallbackResponse(
+  agent: AgentName,
+  retrievedChunks: string[],
+  reason: string
+): AgentResponse {
+  return {
+    agent,
+    answer: 'أعتذر، تعذر إكمال الرد الآلي الآن. تم تحويل طلبك للمراجعة البشرية.',
+    confidence: 0,
+    should_escalate: true,
+    escalation_reason: reason,
+    retrieved_chunks: retrievedChunks,
+  }
+}
+
 export async function runSpecialistAgent(
   config: AgentConfig,
   message: string,
@@ -24,11 +38,16 @@ export async function runSpecialistAgent(
   history: ChatHistoryMessage[]
 ): Promise<AgentResponse> {
   const context = await retrieveContext(message, storeId, config.category)
+  const retrievedChunks = context.chunks.map((c: any) => c.content)
+
+  if (context.degraded) {
+    return fallbackResponse(config.name, retrievedChunks, 'تعذر الوصول إلى سياق المعرفة بشكل موثوق')
+  }
 
   const systemPrompt = `${config.persona}
 
 السياق المتاح من قاعدة المعرفة:
-${context.chunks.map((c: any) => c.content).join('\n---\n')}
+${retrievedChunks.join('\n---\n')}
 
 متى تصعّد للموظف البشري:
 ${config.escalationTriggers}
@@ -36,27 +55,39 @@ ${config.escalationTriggers}
 أجب حصراً بصيغة JSON:
 {"answer": "الرد هنا بالعربية", "confidence": 0.9, "should_escalate": false, "escalation_reason": null}`
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      ...history.slice(-4).map(m => ({ role: m.role, content: m.content })),
-      { role: 'user', content: message },
-    ],
-    response_format: { type: 'json_object' },
-    max_tokens: 500,
-    temperature: 0.3,
-  })
+  try {
+    const response = await callWithTimeoutAndRetry(
+      (signal: AbortSignal) => openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...history.slice(-4).map(m => ({ role: m.role, content: m.content })),
+          { role: 'user', content: message },
+        ],
+        response_format: { type: 'json_object' },
+        max_tokens: 500,
+        temperature: 0.3,
+      }, { signal }),
+      { timeoutMs: 10_000, retries: 1 }
+    )
 
-  const raw = response.choices[0].message.content || '{}'
-  const parsed = JSON.parse(raw)
+    const raw = response.choices[0]?.message?.content || ''
+    const parsed = parseAgentResponse(raw)
 
-  return {
-    agent: config.name,
-    answer: parsed.answer || 'عذراً، لم أتمكن من فهم سؤالك.',
-    confidence: parsed.confidence ?? 0,
-    should_escalate: parsed.should_escalate ?? false,
-    escalation_reason: parsed.escalation_reason ?? null,
-    retrieved_chunks: context.chunks.map((c: any) => c.content),
+    return {
+      agent: config.name,
+      ...parsed,
+      retrieved_chunks: retrievedChunks,
+    }
+  } catch (error) {
+    const reason = providerFallbackReason(error)
+    console.error(`[agent:${config.name}] controlled provider fallback:`, reason)
+    return fallbackResponse(
+      config.name,
+      retrievedChunks,
+      reason === 'invalid_provider_response'
+        ? 'استجابة غير صالحة من مزود الذكاء الاصطناعي'
+        : 'تعذر الوصول إلى مزود الذكاء الاصطناعي'
+    )
   }
 }

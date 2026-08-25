@@ -1,16 +1,25 @@
 import OpenAI from 'openai'
 import { createServerClient } from '@/lib/supabase/server'
+import { callWithTimeoutAndRetry } from '@/lib/reliability/ai.mjs'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 })
 
 export async function retrieveContext(query: string, storeId: string, category?: string) {
   try {
     const supabase = createServerClient()
-    const embeddingResponse = await openai.embeddings.create({
-      model: 'text-embedding-3-small',
-      input: query,
-    })
-    const embedding = embeddingResponse.data[0].embedding
+    const embeddingResponse = await callWithTimeoutAndRetry(
+      (signal: AbortSignal) => openai.embeddings.create({
+        model: 'text-embedding-3-small',
+        input: query,
+      }, { signal }),
+      { timeoutMs: 8_000, retries: 1 }
+    )
+
+    const embedding = embeddingResponse.data[0]?.embedding
+    if (!embedding) {
+      console.error('RAG embedding response missing embedding')
+      return { chunks: [], degraded: true }
+    }
 
     const { data: chunks, error } = await supabase.rpc('match_documents', {
       query_embedding: embedding,
@@ -21,19 +30,18 @@ export async function retrieveContext(query: string, storeId: string, category?:
 
     if (error) {
       console.error('RAG error:', error)
-      return { chunks: [] }
+      return { chunks: [], degraded: true }
     }
 
-    // Optional: prefer chunks matching the target category if provided
     let results = chunks || []
     if (category && results.length > 0) {
       const matching = results.filter((c: any) => c.category === category)
       if (matching.length > 0) results = matching
     }
 
-    return { chunks: results }
+    return { chunks: results, degraded: false }
   } catch (err) {
     console.error('RAG exception:', err)
-    return { chunks: [] }
+    return { chunks: [], degraded: true }
   }
 }
