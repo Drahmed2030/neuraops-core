@@ -43,3 +43,42 @@ export function conversationUpdateForEscalationStatus(escalationStatus, activeEs
 
   return { status: conversationStatusAfterResolution(activeEscalationCount) }
 }
+
+export async function transitionToActiveEscalationStatus(adapter, input) {
+  const conversation = await adapter.getConversationStatus(input.conversationId, input.storeId)
+  if (!conversation?.status) return { ok: false, stage: 'conversation_read' }
+
+  const conversationSynced = await adapter.setConversationStatus(
+    input.conversationId,
+    input.storeId,
+    'escalated'
+  )
+  if (!conversationSynced) return { ok: false, stage: 'conversation_sync' }
+
+  const escalationUpdate = await adapter.setEscalationStatus(
+    input.escalationId,
+    input.storeId,
+    input.status
+  )
+  if (escalationUpdate?.ok) {
+    return { ok: true, data: escalationUpdate.data }
+  }
+
+  const activeEscalationCount = await adapter.countActiveEscalations(
+    input.conversationId,
+    input.storeId
+  )
+  const repairStatus = activeEscalationCount > 0 ? 'escalated' : conversation.status
+  const repaired = await adapter.setConversationStatus(
+    input.conversationId,
+    input.storeId,
+    repairStatus
+  )
+
+  return {
+    ok: false,
+    stage: 'escalation_update',
+    repaired: Boolean(repaired),
+    repairStatus,
+  }
+}
