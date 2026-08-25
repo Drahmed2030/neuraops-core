@@ -9,7 +9,8 @@ import { StatsBand, PricingSection } from '@/components/marketing/StatsAndPricin
 import { WhatsAppComingSoon } from '@/components/marketing/WhatsAppComingSoon'
 
 export default function LandingPage() {
-  const { t } = useUI()
+  const { t, lang } = useUI()
+  const isArabic = lang === 'ar'
 
   return (
     <>
@@ -18,16 +19,14 @@ export default function LandingPage() {
         <Hero />
 
         <section className="px-5 py-10 text-center">
-          <div className="text-[12px] font-semibold tracking-[0.15em] uppercase mb-7 text-ink-950/40 dark:text-paper-50/40 font-sans">
-            {t.trustLabel}
+          <div className="text-[12px] font-semibold tracking-[0.15em] uppercase mb-4 text-ink-950/40 dark:text-paper-50/40 font-sans">
+            {isArabic ? 'مرحلة التحقق التجريبي' : 'Pilot validation stage'}
           </div>
-          <div className="flex justify-center gap-10 flex-wrap opacity-50 font-sans font-bold text-[17px] tracking-tight">
-            <span>القصيم كافيه</span>
-            <span>نكهات</span>
-            <span>أصالة</span>
-            <span>بريدة مول</span>
-            <span>دلة</span>
-          </div>
+          <p className="max-w-2xl mx-auto text-[14px] leading-relaxed text-ink-950/55 dark:text-paper-50/55">
+            {isArabic
+              ? 'NeuraOps في مرحلة تجريبية مبكرة. الأمثلة والسيناريوهات المعروضة توضيحية ولا تمثل أسماء عملاء أو نتائج إنتاج موثقة.'
+              : 'NeuraOps is in an early pilot stage. Examples and scenarios shown are illustrative and do not represent verified customer names or production results.'}
+          </p>
         </section>
 
         <AgentsSection />

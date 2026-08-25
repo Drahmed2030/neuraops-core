@@ -1,37 +1,15 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useUI } from '@/lib/ui-context'
 
-function useAnimatedCounter(target: number, durationMs: number, start: boolean) {
-  const [value, setValue] = useState(0)
-  const startedRef = useRef(false)
-
-  useEffect(() => {
-    if (!start || startedRef.current) return
-    startedRef.current = true
-
-    const startTime = performance.now()
-    function tick(now: number) {
-      const elapsed = now - startTime
-      const progress = Math.min(elapsed / durationMs, 1)
-      // ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setValue(Math.floor(eased * target))
-      if (progress < 1) requestAnimationFrame(tick)
-      else setValue(target)
-    }
-    requestAnimationFrame(tick)
-  }, [start, target, durationMs])
-
-  return value
-}
-
 export function Hero() {
-  const { t, mounted } = useUI()
-  const convos = useAnimatedCounter(247, 1400, mounted)
-  const rate = useAnimatedCounter(78, 1400, mounted)
+  const { t, lang } = useUI()
+  const isArabic = lang === 'ar'
+
+  const credibilityItems = isArabic
+    ? ['بيئة عرض تجريبية', 'وكلاء ذكاء اصطناعي متخصصون', 'تصعيد بشري عند الحاجة']
+    : ['Demo environment', 'Specialized AI agents', 'Human escalation when needed']
 
   return (
     <section className="relative overflow-hidden px-5 pt-10 pb-16 sm:px-10 sm:pt-20 sm:pb-24">
@@ -74,33 +52,23 @@ export function Hero() {
             >
               {t.ctaPrimary} ←
             </Link>
-            <button className="px-7 py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-semibold text-[14.5px] hover:border-gold transition-colors">
+            <Link
+              href="/demo/demo-store"
+              className="px-7 py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-semibold text-[14.5px] hover:border-gold transition-colors"
+            >
               {t.ctaSecondary}
-            </button>
+            </Link>
           </div>
 
-          <div className="flex flex-wrap gap-9">
-            <div>
-              <div className="text-[28px] font-extrabold font-sans tracking-tight flex items-baseline gap-1">
-                {convos}
-                <span className="text-[13px] font-medium text-ink-950/50 dark:text-paper-50/50">{t.tickerConvos}</span>
+          <div className="flex flex-wrap gap-3">
+            {credibilityItems.map((item) => (
+              <div
+                key={item}
+                className="px-3.5 py-2 rounded-lg text-[12px] font-medium bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.06] dark:border-white/[0.07] text-ink-950/65 dark:text-paper-50/65"
+              >
+                {item}
               </div>
-              <div className="text-[12px] text-ink-950/50 dark:text-paper-50/50">{t.tickerConvosLabel}</div>
-            </div>
-            <div>
-              <div className="text-[28px] font-extrabold font-sans tracking-tight flex items-baseline gap-1">
-                {rate}
-                <span className="text-[13px] font-medium text-ink-950/50 dark:text-paper-50/50">{t.tickerRate}</span>
-              </div>
-              <div className="text-[12px] text-ink-950/50 dark:text-paper-50/50">{t.tickerRateLabel}</div>
-            </div>
-            <div>
-              <div className="text-[28px] font-extrabold font-sans tracking-tight flex items-baseline gap-1">
-                4.2
-                <span className="text-[13px] font-medium text-ink-950/50 dark:text-paper-50/50">{t.tickerSpeed}</span>
-              </div>
-              <div className="text-[12px] text-ink-950/50 dark:text-paper-50/50">{t.tickerSpeedLabel}</div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -111,11 +79,13 @@ export function Hero() {
 }
 
 function HeroVisual() {
-  const { t } = useUI()
+  const { t, lang } = useUI()
+  const isArabic = lang === 'ar'
+
   return (
     <div className="relative">
       <div className="absolute -top-4 -right-4 px-4 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-1.5 shadow-lg bg-white dark:bg-ink-800 border border-gold text-gold z-10">
-        ✨ AI Live
+        ✨ {isArabic ? 'عرض تجريبي' : 'Demo'}
       </div>
       <div className="rounded-[20px] overflow-hidden border border-black/10 dark:border-white/10 bg-white dark:bg-ink-800 shadow-2xl">
         <div className="px-5 py-4 flex items-center justify-between border-b border-black/[0.07] dark:border-white/[0.07]">
@@ -126,7 +96,7 @@ function HeroVisual() {
           </div>
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gold font-sans">
             <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-dot" />
-            Live
+            {isArabic ? 'سيناريو توضيحي' : 'Illustrative scenario'}
           </div>
         </div>
         <div className="p-6 space-y-4">
@@ -148,12 +118,20 @@ function HeroVisual() {
           </div>
           <div className="grid grid-cols-2 gap-3 pt-4 mt-2 border-t border-black/[0.07] dark:border-white/[0.07]">
             <div className="rounded-xl p-3.5 bg-black/[0.03] dark:bg-white/[0.03]">
-              <div className="text-xl font-extrabold font-sans text-gold">247</div>
-              <div className="text-[11px] text-ink-950/50 dark:text-paper-50/50 mt-0.5">{t.tickerConvosLabel}</div>
+              <div className="text-sm font-extrabold font-sans text-gold">
+                {isArabic ? 'بيانات تجريبية' : 'Demo data'}
+              </div>
+              <div className="text-[11px] text-ink-950/50 dark:text-paper-50/50 mt-0.5">
+                {isArabic ? 'ليست نتائج إنتاج حقيقية' : 'Not production results'}
+              </div>
             </div>
             <div className="rounded-xl p-3.5 bg-black/[0.03] dark:bg-white/[0.03]">
-              <div className="text-xl font-extrabold font-sans text-gold">78%</div>
-              <div className="text-[11px] text-ink-950/50 dark:text-paper-50/50 mt-0.5">{t.tickerRateLabel}</div>
+              <div className="text-sm font-extrabold font-sans text-gold">
+                {isArabic ? 'عرض الوظائف' : 'Feature preview'}
+              </div>
+              <div className="text-[11px] text-ink-950/50 dark:text-paper-50/50 mt-0.5">
+                {isArabic ? 'للتوضيح فقط' : 'Illustrative only'}
+              </div>
             </div>
           </div>
         </div>
