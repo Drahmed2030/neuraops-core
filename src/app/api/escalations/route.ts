@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 import {
   ACTIVE_ESCALATION_STATUSES,
   conversationUpdateForEscalationStatus,
+  transitionToActiveEscalationStatus,
 } from '@/lib/reliability/escalation.mjs'
 
 const VALID_ESCALATION_STATUSES = ['pending', 'in_progress', 'resolved', 'closed'] as const
@@ -47,6 +48,50 @@ export async function PATCH(req: NextRequest) {
 
   if (existingError || !existing)
     return NextResponse.json({ error: 'Access denied.' }, { status: 403 })
+
+  if (ACTIVE_ESCALATION_STATUSES.includes(status)) {
+    const transition = await transitionToActiveEscalationStatus({
+      getConversationStatus: async (conversationId: string, scopedStoreId: string) => {
+        const { data, error } = await supabaseAdmin.from('conversations')
+          .select('status').eq('id', conversationId).eq('store_id', scopedStoreId).single()
+        return error ? null : data
+      },
+      setConversationStatus: async (conversationId: string, scopedStoreId: string, nextStatus: string) => {
+        const { data, error } = await supabaseAdmin.from('conversations')
+          .update({ status: nextStatus }).eq('id', conversationId).eq('store_id', scopedStoreId)
+          .select('id').single()
+        return !error && Boolean(data)
+      },
+      setEscalationStatus: async (escalationId: string, scopedStoreId: string, nextStatus: string) => {
+        const { data, error } = await supabaseAdmin.from('escalations')
+          .update({ status: nextStatus }).eq('id', escalationId).eq('store_id', scopedStoreId)
+          .select().single()
+        return error ? { ok: false, data: null } : { ok: true, data }
+      },
+      countActiveEscalations: async (conversationId: string, scopedStoreId: string) => {
+        const { count, error } = await supabaseAdmin.from('escalations')
+          .select('id', { count: 'exact', head: true })
+          .eq('conversation_id', conversationId).eq('store_id', scopedStoreId)
+          .in('status', ACTIVE_ESCALATION_STATUSES)
+        return error ? 1 : (count || 0)
+      },
+    }, {
+      escalationId: id,
+      conversationId: existing.conversation_id,
+      storeId: ctx.store.id,
+      status,
+    })
+
+    if (!transition.ok) {
+      console.error('[PATCH /escalations] active lifecycle transition failed:', transition.stage)
+      return NextResponse.json(
+        { error: 'Escalation state could not be synchronized safely.' },
+        { status: 503 }
+      )
+    }
+
+    return NextResponse.json({ escalation: transition.data })
+  }
 
   const update: Record<string, unknown> = { status }
   if (status === 'resolved' || status === 'closed') update.resolved_at = new Date().toISOString()
