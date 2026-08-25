@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireStoreAccess } from '@/lib/auth/require-store-access'
 import { supabaseAdmin } from '@/lib/supabase/admin'
-import { ACTIVE_ESCALATION_STATUSES, conversationStatusAfterResolution } from '@/lib/reliability/escalation.mjs'
+import {
+  ACTIVE_ESCALATION_STATUSES,
+  conversationUpdateForEscalationStatus,
+} from '@/lib/reliability/escalation.mjs'
 
 const VALID_ESCALATION_STATUSES = ['pending', 'in_progress', 'resolved', 'closed'] as const
 type EscalationStatus = typeof VALID_ESCALATION_STATUSES[number]
@@ -56,6 +59,7 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to update escalation.' }, { status: 500 })
   }
 
+  let activeEscalationCount = 0
   if (status === 'resolved' || status === 'closed') {
     const { count, error: countError } = await supabaseAdmin.from('escalations')
       .select('id', { count: 'exact', head: true })
@@ -66,18 +70,16 @@ export async function PATCH(req: NextRequest) {
       console.error('[PATCH /escalations] lifecycle count error:', countError)
       return NextResponse.json({ error: 'Escalation updated but conversation state could not be verified.' }, { status: 503 })
     }
+    activeEscalationCount = count || 0
+  }
 
-    const nextConversationStatus = conversationStatusAfterResolution(count || 0)
-    const conversationUpdate: Record<string, unknown> = { status: nextConversationStatus }
-    if (nextConversationStatus === 'open') conversationUpdate.manually_paused = false
+  const conversationUpdate = conversationUpdateForEscalationStatus(status, activeEscalationCount)
+  const { error: conversationError } = await supabaseAdmin.from('conversations')
+    .update(conversationUpdate).eq('id', existing.conversation_id).eq('store_id', ctx.store.id)
 
-    const { error: conversationError } = await supabaseAdmin.from('conversations')
-      .update(conversationUpdate).eq('id', existing.conversation_id).eq('store_id', ctx.store.id)
-
-    if (conversationError) {
-      console.error('[PATCH /escalations] conversation lifecycle error:', conversationError)
-      return NextResponse.json({ error: 'Escalation updated but conversation state update failed.' }, { status: 503 })
-    }
+  if (conversationError) {
+    console.error('[PATCH /escalations] conversation lifecycle error:', conversationError)
+    return NextResponse.json({ error: 'Escalation updated but conversation state update failed.' }, { status: 503 })
   }
 
   return NextResponse.json({ escalation: data })
