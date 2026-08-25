@@ -7,6 +7,7 @@ import {
 } from '../src/lib/reliability/ai.mjs'
 import {
   conversationStatusAfterResolution,
+  conversationUpdateForEscalationStatus,
   ensureActiveEscalation,
 } from '../src/lib/reliability/escalation.mjs'
 
@@ -93,4 +94,18 @@ test('no false-positive escalation when conversation status persistence fails', 
 test('resolved escalation reopens conversation only when no active escalation remains', () => {
   assert.equal(conversationStatusAfterResolution(0), 'open')
   assert.equal(conversationStatusAfterResolution(1), 'escalated')
+})
+
+test('resolution lifecycle update preserves manual pause semantics', () => {
+  const update = conversationUpdateForEscalationStatus('resolved', 0)
+  assert.deepEqual(update, { status: 'open' })
+  assert.equal(Object.hasOwn(update, 'manually_paused'), false)
+})
+
+test('active escalation status forces conversation to escalated without touching manual pause', () => {
+  for (const status of ['pending', 'in_progress']) {
+    const update = conversationUpdateForEscalationStatus(status)
+    assert.deepEqual(update, { status: 'escalated' })
+    assert.equal(Object.hasOwn(update, 'manually_paused'), false)
+  }
 })
