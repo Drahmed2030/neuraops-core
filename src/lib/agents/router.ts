@@ -1,7 +1,12 @@
 import OpenAI from 'openai'
 import type { AgentName, RoutingDecision, ChatHistoryMessage } from './types'
+import {
+  callWithTimeoutAndRetry,
+  parseRoutingResponse,
+  providerFallbackReason,
+} from '@/lib/reliability/ai.mjs'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 })
 
 const AGENT_DESCRIPTIONS: Record<Exclude<AgentName, 'router'>, string> = {
   order_tracker: 'أسئلة عن حالة الطلب، رقم التتبع، وقت التوصيل، هل الطلب شُحن أو وصل',
@@ -14,7 +19,8 @@ const AGENT_DESCRIPTIONS: Record<Exclude<AgentName, 'router'>, string> = {
 /**
  * Analyzes the customer's message BEFORE any response is generated,
  * and decides which single specialist agent should handle it.
- * This is a real routing decision, not a fallback chain.
+ * Provider failures degrade to a deterministic low-confidence route so
+ * the orchestrator can escalate instead of throwing an unhandled 500.
  */
 export async function routeMessage(
   message: string,
@@ -37,29 +43,31 @@ ${agentList}
 أجب حصراً بصيغة JSON:
 {"agent": "order_tracker", "reasoning": "سبب مختصر", "confidence": 0.9}`
 
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
-    messages: [
-      { role: 'system', content: systemPrompt },
-      ...history.slice(-4).map(m => ({ role: m.role, content: m.content })),
-      { role: 'user', content: message },
-    ],
-    response_format: { type: 'json_object' },
-    max_tokens: 150,
-    temperature: 0.1,
-  })
+  try {
+    const response = await callWithTimeoutAndRetry(
+      (signal: AbortSignal) => openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...history.slice(-4).map(m => ({ role: m.role, content: m.content })),
+          { role: 'user', content: message },
+        ],
+        response_format: { type: 'json_object' },
+        max_tokens: 150,
+        temperature: 0.1,
+      }, { signal }),
+      { timeoutMs: 8_000, retries: 1 }
+    )
 
-  const raw = response.choices[0].message.content || '{}'
-  const parsed = JSON.parse(raw)
-
-  const validAgents: AgentName[] = [
-    'order_tracker', 'returns', 'product_expert', 'menu_offers', 'store_info',
-  ]
-  const agent: AgentName = validAgents.includes(parsed.agent) ? parsed.agent : 'store_info'
-
-  return {
-    agent,
-    reasoning: parsed.reasoning || '',
-    confidence: parsed.confidence ?? 0.5,
+    const raw = response.choices[0]?.message?.content || ''
+    return parseRoutingResponse(raw) as RoutingDecision
+  } catch (error) {
+    const reason = providerFallbackReason(error)
+    console.error('[router] controlled provider fallback:', reason)
+    return {
+      agent: 'store_info',
+      reasoning: reason,
+      confidence: 0,
+    }
   }
 }
