@@ -4,7 +4,10 @@ import { consumeRateLimit, requestIp } from '@/lib/security/rate-limit'
 import { ACTIVE_ESCALATION_STATUSES, ensureActiveEscalation } from '@/lib/reliability/escalation.mjs'
 import { generateLeadResponse } from '@/lib/leadops/ai'
 import { normalizeLeadInput, qualificationDecision, scoreLead } from '@/lib/leadops/qualification.mjs'
-import { persistLeadIdempotently } from '@/lib/leadops/persistence.mjs'
+import {
+  isTerminalConversionStatus,
+  persistPublicLeadIdempotently,
+} from '@/lib/leadops/persistence.mjs'
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,6 +35,44 @@ export async function POST(req: NextRequest) {
       .from('stores').select('id').eq('slug', storeSlug).maybeSingle()
     if (storeError) return NextResponse.json({ error: 'Store lookup failed.' }, { status: 500 })
     if (!store) return NextResponse.json({ error: 'Store not found.' }, { status: 404 })
+
+    const publicPersistenceAdapter = {
+      find: async (storeId: string, activeSessionId: string) => {
+        const { data, error } = await supabaseAdmin.from('leads').select('*')
+          .eq('store_id', storeId).eq('session_id', activeSessionId).maybeSingle()
+        if (error) throw error
+        return data
+      },
+      updateNonTerminal: async (leadId: string, storeId: string, record: Record<string, unknown>) => {
+        const { data, error } = await supabaseAdmin.from('leads').update(record)
+          .eq('id', leadId).eq('store_id', storeId)
+          .not('conversion_status', 'in', '(won,lost)')
+          .select('*').maybeSingle()
+        if (error) throw error
+        return data
+      },
+      insert: async (record: Record<string, unknown>) => {
+        const { data, error } = await supabaseAdmin.from('leads').insert(record).select('*').single()
+        if (error?.code === '23505') return null
+        if (error) throw error
+        return data
+      },
+    }
+
+    const existingLead = await publicPersistenceAdapter.find(store.id, sessionId)
+    if (isTerminalConversionStatus(existingLead?.conversion_status)) {
+      return NextResponse.json({
+        leadId: existingLead.id,
+        score: existingLead.score,
+        qualificationStatus: existingLead.qualification_status,
+        reason: existingLead.qualification_reason,
+        answer: existingLead.ai_response,
+        aiConfidence: existingLead.ai_confidence,
+        escalated: false,
+        terminal: true,
+        conversionStatus: existingLead.conversion_status,
+      })
+    }
 
     const lead = normalizeLeadInput(body)
     const deterministicScore = scoreLead(lead)
@@ -63,19 +104,39 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString(),
     }
 
-    const persistenceAdapter = {
-      upsert: async (record: typeof baseRecord & { conversation_id?: string; follow_up_status?: string; qualification_status: string }) => {
-        const { data, error } = await supabaseAdmin.from('leads')
-          .upsert(record, { onConflict: 'store_id,session_id' })
-          .select('*').single()
-        if (error) throw error
-        return data
-      },
+    const firstPersistence = await persistPublicLeadIdempotently(publicPersistenceAdapter, baseRecord)
+    let savedLead = firstPersistence.lead
+
+    if (firstPersistence.terminal) {
+      return NextResponse.json({
+        leadId: savedLead.id,
+        score: savedLead.score,
+        qualificationStatus: savedLead.qualification_status,
+        reason: savedLead.qualification_reason,
+        answer: savedLead.ai_response,
+        aiConfidence: savedLead.ai_confidence,
+        escalated: false,
+        terminal: true,
+        conversionStatus: savedLead.conversion_status,
+      })
     }
 
-    let savedLead = await persistLeadIdempotently(persistenceAdapter, baseRecord)
-
     if (decision.status === 'needs_human') {
+      const canonicalBeforeEscalation = await publicPersistenceAdapter.find(store.id, sessionId)
+      if (isTerminalConversionStatus(canonicalBeforeEscalation?.conversion_status)) {
+        return NextResponse.json({
+          leadId: canonicalBeforeEscalation.id,
+          score: canonicalBeforeEscalation.score,
+          qualificationStatus: canonicalBeforeEscalation.qualification_status,
+          reason: canonicalBeforeEscalation.qualification_reason,
+          answer: canonicalBeforeEscalation.ai_response,
+          aiConfidence: canonicalBeforeEscalation.ai_confidence,
+          escalated: false,
+          terminal: true,
+          conversionStatus: canonicalBeforeEscalation.conversion_status,
+        })
+      }
+
       let conversationId = savedLead.conversation_id as string | null
 
       if (!conversationId) {
@@ -97,12 +158,27 @@ export async function POST(req: NextRequest) {
         const { data: claimedLead, error: claimError } = await supabaseAdmin.from('leads')
           .update({ conversation_id: conversationId })
           .eq('id', savedLead.id).eq('store_id', store.id).is('conversation_id', null)
+          .not('conversion_status', 'in', '(won,lost)')
           .select('id, conversation_id').maybeSingle()
 
         if (claimError) return NextResponse.json({ error: 'Lead captured but human review could not be initialized.' }, { status: 503 })
         if (!claimedLead) {
           const { data: canonicalLead } = await supabaseAdmin.from('leads')
-            .select('conversation_id').eq('id', savedLead.id).eq('store_id', store.id).single()
+            .select('conversation_id, conversion_status').eq('id', savedLead.id).eq('store_id', store.id).single()
+          if (isTerminalConversionStatus(canonicalLead?.conversion_status)) {
+            await supabaseAdmin.from('conversations').delete().eq('id', conversationId).eq('store_id', store.id)
+            return NextResponse.json({
+              leadId: savedLead.id,
+              score: savedLead.score,
+              qualificationStatus: savedLead.qualification_status,
+              reason: savedLead.qualification_reason,
+              answer: savedLead.ai_response,
+              aiConfidence: savedLead.ai_confidence,
+              escalated: false,
+              terminal: true,
+              conversionStatus: canonicalLead?.conversion_status,
+            })
+          }
           if (canonicalLead?.conversation_id && canonicalLead.conversation_id !== conversationId) {
             await supabaseAdmin.from('conversations').delete().eq('id', conversationId).eq('store_id', store.id)
             conversationId = canonicalLead.conversation_id
@@ -165,15 +241,17 @@ export async function POST(req: NextRequest) {
       if (!escalationOk) {
         await supabaseAdmin.from('leads').update({ follow_up_status: 'escalation_failed' })
           .eq('id', savedLead.id).eq('store_id', store.id)
+          .not('conversion_status', 'in', '(won,lost)')
         return NextResponse.json({ error: 'Lead captured but human escalation could not be persisted.' }, { status: 503 })
       }
 
-      savedLead = await persistLeadIdempotently(persistenceAdapter, {
+      const finalPersistence = await persistPublicLeadIdempotently(publicPersistenceAdapter, {
         ...baseRecord,
         conversation_id: conversationId,
         qualification_status: 'needs_human',
         follow_up_status: 'pending',
       })
+      savedLead = finalPersistence.lead
     }
 
     return NextResponse.json({
