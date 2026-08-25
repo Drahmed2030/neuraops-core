@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server'
 import { Header } from '@/components/layout/Header'
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar'
+import { DashboardMobileNav } from '@/components/dashboard/DashboardMobileNav'
 import { LeadsOperatorView } from '@/components/leadops/LeadsOperatorView'
 
 export default async function LeadsPage() {
@@ -20,6 +21,7 @@ export default async function LeadsPage() {
   return (
     <div className="min-h-screen">
       <Header variant="app" />
+      <DashboardMobileNav activeSection="leads" />
       <DashboardSidebar activeTab="leads" />
       <main className="md:ps-60">
         {!store ? (
