@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { useUI } from '@/lib/ui-context'
 
 export function StatsBand() {
-  const { t } = useUI()
-  const isArabic = t.lang === 'ar'
+  const { t, lang } = useUI()
+  const isArabic = lang === 'ar'
   const capabilities = isArabic
     ? [
         { value: 'Demo', label: 'بيئة عرض تجريبية' },
@@ -42,8 +42,8 @@ export function StatsBand() {
 }
 
 export function PricingSection() {
-  const { t } = useUI()
-  const isArabic = t.lang === 'ar'
+  const { t, lang } = useUI()
+  const isArabic = lang === 'ar'
 
   const plans = [
     { name: t.planPilotName, desc: t.planPilotDesc, price: t.planPilotPrice, period: t.planPilotPeriod, featured: false, cta: t.planCtaFree },
