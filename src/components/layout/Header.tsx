@@ -77,10 +77,10 @@ export function Header({ variant = 'marketing', activeTab, onTabChange }: Header
 
           {variant === 'marketing' && (
             <Link
-              href="/trial"
+              href="/lead/demo-store"
               className="px-3.5 sm:px-4 py-2 rounded-lg bg-gold text-ink-950 text-[12.5px] sm:text-[13px] font-bold hover:bg-gold-hover transition-colors shadow-gold-glow whitespace-nowrap"
             >
-              {t.startNow}
+              {lang === 'ar' ? 'جرّب LeadOps' : 'Try LeadOps'}
             </Link>
           )}
         </div>
