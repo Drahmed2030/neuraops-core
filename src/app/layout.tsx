@@ -19,8 +19,8 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 })
 
 export const metadata: Metadata = {
-  title: 'NeuraOps — Intelligent Operations',
-  description: 'AI agents that handle your customer support, 24/7.',
+  title: 'NeuraOps LeadOps — Qualify and Prioritize Inbound Leads',
+  description: 'Lead qualification, scoring, AI-assisted response, and human handoff for service businesses.',
 }
 
 const antiFlashScript = `
