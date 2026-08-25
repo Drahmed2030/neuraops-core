@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { useUI } from '@/lib/ui-context'
 
 export function Hero() {
-  const { t } = useUI()
-  const isArabic = t.lang === 'ar'
+  const { t, lang } = useUI()
+  const isArabic = lang === 'ar'
 
   const credibilityItems = isArabic
     ? ['بيئة عرض تجريبية', 'وكلاء ذكاء اصطناعي متخصصون', 'تصعيد بشري عند الحاجة']
@@ -79,8 +79,8 @@ export function Hero() {
 }
 
 function HeroVisual() {
-  const { t } = useUI()
-  const isArabic = t.lang === 'ar'
+  const { t, lang } = useUI()
+  const isArabic = lang === 'ar'
 
   return (
     <div className="relative">
