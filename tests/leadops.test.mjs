@@ -6,7 +6,13 @@ import {
   qualificationDecision,
   scoreLead,
 } from '../src/lib/leadops/qualification.mjs'
-import { leadScopedToStore, persistLeadIdempotently } from '../src/lib/leadops/persistence.mjs'
+import {
+  isTerminalConversionStatus,
+  leadScopedToStore,
+  persistLeadIdempotently,
+  persistPublicLeadIdempotently,
+  publicLeadSubmissionAction,
+} from '../src/lib/leadops/persistence.mjs'
 
 test('score boundaries are deterministic and bounded', () => {
   assert.equal(scoreLead({ need: null, budgetBand: 'unknown', urgency: 'unknown', decisionAuthority: 'unknown' }), 0)
@@ -88,4 +94,93 @@ test('conversion and follow-up lifecycle rules prevent unsafe reopening', () => 
   assert.equal(canTransitionFollowUp('none', 'pending'), true)
   assert.equal(canTransitionFollowUp('pending', 'in_progress'), true)
   assert.equal(canTransitionFollowUp('in_progress', 'done'), true)
+})
+
+test('terminal won and lost leads are immutable from public resubmission', async () => {
+  for (const terminalStatus of ['won', 'lost']) {
+    const canonical = {
+      id: `lead-${terminalStatus}`,
+      store_id: 'store-a',
+      session_id: 'terminal-session-123',
+      conversion_status: terminalStatus,
+      score: 88,
+      qualification_status: 'qualified',
+      follow_up_status: 'done',
+    }
+    let updates = 0
+    let inserts = 0
+    const adapter = {
+      find: async () => canonical,
+      updateNonTerminal: async () => { updates += 1; return null },
+      insert: async () => { inserts += 1; return null },
+    }
+
+    const result = await persistPublicLeadIdempotently(adapter, {
+      store_id: 'store-a',
+      session_id: 'terminal-session-123',
+      score: 10,
+      qualification_status: 'unqualified',
+      follow_up_status: 'pending',
+    })
+
+    assert.equal(result.terminal, true)
+    assert.equal(result.lead.score, 88)
+    assert.equal(result.lead.qualification_status, 'qualified')
+    assert.equal(result.lead.follow_up_status, 'done')
+    assert.equal(result.lead.conversion_status, terminalStatus)
+    assert.equal(updates, 0)
+    assert.equal(inserts, 0)
+    assert.equal(isTerminalConversionStatus(terminalStatus), true)
+  }
+})
+
+test('non-terminal public lead remains idempotently updateable', async () => {
+  let row = {
+    id: 'lead-1',
+    store_id: 'store-a',
+    session_id: 'nonterminal-session-123',
+    conversion_status: 'new',
+    score: 40,
+    qualification_status: 'needs_human',
+    follow_up_status: 'pending',
+  }
+  let updates = 0
+  const adapter = {
+    find: async () => row,
+    updateNonTerminal: async (_id, _storeId, record) => {
+      updates += 1
+      row = { ...row, ...record }
+      return row
+    },
+    insert: async () => null,
+  }
+
+  const result = await persistPublicLeadIdempotently(adapter, {
+    store_id: 'store-a',
+    session_id: 'nonterminal-session-123',
+    score: 75,
+    qualification_status: 'qualified',
+    follow_up_status: 'pending',
+  })
+
+  assert.equal(result.terminal, false)
+  assert.equal(result.updated, true)
+  assert.equal(result.lead.id, 'lead-1')
+  assert.equal(result.lead.score, 75)
+  assert.equal(result.lead.qualification_status, 'qualified')
+  assert.equal(updates, 1)
+})
+
+test('terminal repeated public submission exits before any new escalation', async () => {
+  for (const terminalStatus of ['won', 'lost']) {
+    const existing = { conversion_status: terminalStatus }
+    let escalationCreates = 0
+
+    if (publicLeadSubmissionAction(existing) === 'process') {
+      escalationCreates += 1
+    }
+
+    assert.equal(publicLeadSubmissionAction(existing), 'terminal')
+    assert.equal(escalationCreates, 0)
+  }
 })
