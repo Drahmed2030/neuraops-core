@@ -59,8 +59,8 @@ export function PricingSection() {
           </h2>
           <p className="text-[16px] leading-relaxed text-ink-950/60 dark:text-paper-50/60">
             {isArabic
-              ? 'نبدأ بسير عمل واحد فقط، نثبت أنه يساعدك فعليًا على تأهيل الطلبات الواردة ومتابعتها، ثم نقرر معك ما يستحق التوسع.'
-              : 'We start with one inbound workflow, prove whether it improves qualification and follow-up, then decide together what is worth expanding.'}
+              ? 'نبدأ بسير عمل واحد فقط، نختبر أثره على التأهيل والمتابعة، ثم نقرر معك ما يستحق التوسع.'
+              : 'We start with one inbound workflow, measure its effect on qualification and follow-up, then decide together what is worth expanding.'}
           </p>
         </div>
 
@@ -74,12 +74,16 @@ export function PricingSection() {
                   : 'Designed for small service businesses, agencies, and consultancies with valuable inbound leads.'}
               </div>
             </div>
-            <div className="sm:text-right">
+            <div className="sm:text-right max-w-[230px]">
               <div className="text-[12px] uppercase tracking-[0.12em] text-ink-950/45 dark:text-paper-50/45 mb-1">
-                {isArabic ? 'نطاق التحقق المبدئي' : 'Initial validation range'}
+                {isArabic ? 'تسعير الـPilot' : 'Pilot pricing'}
               </div>
-              <div className="text-[30px] font-extrabold text-gold">$149–299</div>
-              <div className="text-[11px] opacity-45 mt-1">{isArabic ? 'يُثبت مع العميل قبل أي تسعير عام' : 'Confirmed with each prospect before public pricing'}</div>
+              <div className="text-[22px] font-extrabold text-gold leading-tight">
+                {isArabic ? 'يُحدد بعد التحقق من الملاءمة' : 'Confirmed after fit check'}
+              </div>
+              <div className="text-[11px] opacity-45 mt-2">
+                {isArabic ? 'نختبر الاستعداد للدفع قبل اعتماد سعر عام.' : 'We validate willingness to pay before setting public pricing.'}
+              </div>
             </div>
           </div>
 
@@ -97,7 +101,7 @@ export function PricingSection() {
               {isArabic ? 'جرّب سير العمل' : 'Try the workflow'}
             </Link>
             <Link href="/lead/demo-store" className="flex-1 text-center py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-bold text-[14px] hover:border-gold transition-colors">
-              {isArabic ? 'اطلب Pilot' : 'Request a Pilot'}
+              {isArabic ? 'تحقق من ملاءمة الـPilot' : 'Check pilot fit'}
             </Link>
           </div>
         </div>
