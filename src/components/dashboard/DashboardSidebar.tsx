@@ -66,7 +66,7 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
               onClick={() => selectItem(item.id)}
               className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start text-[13px] font-semibold transition-all ${
                 selected
-                  ? 'bg-brand-primary/10 text-brand-primary dark:bg-brand-azure/10 dark:text-blue-300 ring-1 ring-inset ring-brand-primary/15'
+                  ? 'bg-brand-primary/10 text-brand-primary dark:bg-brand-azure/10 dark:text-brand-azure ring-1 ring-inset ring-brand-primary/15'
                   : 'text-ink-950/60 dark:text-paper-50/60 hover:bg-black/[0.04] hover:text-ink-950 dark:hover:bg-white/[0.05] dark:hover:text-paper-50'
               }`}
             >
