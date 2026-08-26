@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { BrandMark } from '@/components/brand/BrandMark'
 import { useUI } from '@/lib/ui-context'
 
 interface HeaderProps {
@@ -32,10 +33,7 @@ export function Header({
       <header className="sticky top-0 z-50 flex items-center justify-between gap-3 px-5 py-3 backdrop-blur-xl bg-paper-50/80 dark:bg-ink-950/85 border-b border-black/[0.07] dark:border-white/[0.07]">
         <div className="flex items-center gap-2.5">
           <Link href="/" className="flex items-center gap-2 font-semibold text-[15.5px] tracking-tight no-underline text-ink-950 dark:text-paper-50 font-sans">
-            <span className="w-7 h-7 bg-gradient-to-br from-blue-500 to-violet-500 text-white rounded-lg flex items-center justify-center font-bold text-[13px] font-sans">
-              N
-            </span>
-            <span className="hidden xs:inline">{t.brand}</span>
+            <BrandMark size={30} />
           </Link>
         </div>
 
@@ -48,7 +46,7 @@ export function Header({
                 onClick={() => onTabChange(tab.id)}
                 className={`px-3.5 py-2 rounded-lg text-[12.5px] font-semibold transition-all ${
                   activeTab === tab.id
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-brand-primary text-white'
                     : 'text-ink-950/60 dark:text-paper-50/60 hover:text-ink-950 dark:hover:text-paper-50'
                 }`}
               >
@@ -62,7 +60,7 @@ export function Header({
           <button
             type="button"
             onClick={toggleLang}
-            className="px-2.5 py-1.5 rounded-lg border border-black/10 dark:border-white/10 text-[12px] font-medium text-ink-950/70 dark:text-paper-50/70 hover:border-blue-500 transition-colors font-sans relative z-10"
+            className="px-2.5 py-1.5 rounded-lg border border-black/10 dark:border-white/10 text-[12px] font-medium text-ink-950/70 dark:text-paper-50/70 hover:border-brand-primary transition-colors font-sans relative z-10"
           >
             {t.langBtn}
           </button>
@@ -84,7 +82,7 @@ export function Header({
           {variant === 'marketing' && (
             <Link
               href="/lead/demo-store"
-              className="px-3.5 sm:px-4 py-2 rounded-lg bg-gold text-ink-950 text-[12.5px] sm:text-[13px] font-bold hover:bg-gold-hover transition-colors shadow-gold-glow whitespace-nowrap"
+              className="px-3.5 sm:px-4 py-2 rounded-lg bg-brand-primary text-white text-[12.5px] sm:text-[13px] font-bold hover:bg-brand-azure transition-colors shadow-brand-glow whitespace-nowrap"
             >
               {lang === 'ar' ? 'جرّب LeadOps' : 'Try LeadOps'}
             </Link>
@@ -102,7 +100,7 @@ export function Header({
               onClick={() => onTabChange(tab.id)}
               className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold whitespace-nowrap transition-all flex-shrink-0 ${
                 activeTab === tab.id
-                  ? 'bg-blue-500 text-white'
+                  ? 'bg-brand-primary text-white'
                   : 'text-ink-950/60 dark:text-paper-50/60'
               }`}
             >

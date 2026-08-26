@@ -16,6 +16,20 @@ const config: Config = {
     },
     extend: {
       colors: {
+        brand: {
+          navy: '#0B0F19',
+          ink: '#111827',
+          primary: '#2563EB',
+          azure: '#3B82F6',
+          violet: '#7C3AED',
+          cyan: '#06B6D4',
+          mist: '#E5E7EB',
+        },
+        attention: {
+          DEFAULT: '#D6B15E',
+          dark: '#B89445',
+          soft: '#F4E4C1',
+        },
         gold: {
           DEFAULT: '#C9A961',
           hover: '#B8944F',
@@ -36,6 +50,7 @@ const config: Config = {
         arabic: ['var(--font-plex-arabic)', 'var(--font-inter)', 'sans-serif'],
       },
       boxShadow: {
+        'brand-glow': '0 10px 32px -10px rgba(37, 99, 235, 0.45)',
         'gold-glow': '0 8px 30px -8px rgba(201, 169, 97, 0.35)',
         'card-dark': '0 8px 30px rgba(0,0,0,0.45)',
         'card-light': '0 8px 30px rgba(0,0,0,0.06)',

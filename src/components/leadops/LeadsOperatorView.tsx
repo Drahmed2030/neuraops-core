@@ -74,13 +74,13 @@ export function LeadsOperatorView({ storeSlug }: { storeSlug: string }) {
       <div className="max-w-6xl mx-auto">
         <div className="mb-7 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <div className="text-xs uppercase tracking-[0.18em] text-gold font-bold">LeadOps Operator</div>
+            <div className="text-xs uppercase tracking-[0.18em] text-brand-primary font-bold">LeadOps Operator</div>
             <h1 className="text-3xl font-extrabold mt-1">{isArabic ? 'العملاء المحتملون الواردون' : 'Inbound leads'}</h1>
             <p className="text-sm opacity-60 mt-2 max-w-2xl">
               {isArabic ? 'راجع التأهيل، أعطِ الأولوية للحالات المهمة، وسجّل المتابعة والنتيجة من مكان واحد.' : 'Review qualification, prioritize important cases, and track follow-up and outcome from one place.'}
             </p>
           </div>
-          <button onClick={() => load().catch(e => setError(e.message))} className="self-start sm:self-auto px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold hover:border-gold transition-colors">
+          <button onClick={() => load().catch(e => setError(e.message))} className="self-start sm:self-auto px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 text-xs font-bold hover:border-brand-primary transition-colors">
             {loading ? (isArabic ? 'جارٍ التحديث…' : 'Refreshing…') : (isArabic ? 'تحديث' : 'Refresh')}
           </button>
         </div>
@@ -111,9 +111,9 @@ export function LeadsOperatorView({ storeSlug }: { storeSlug: string }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <strong className="text-[16px]">{lead.name || (isArabic ? 'عميل محتمل بدون اسم' : 'Unnamed lead')}</strong>
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-gold/15 text-gold font-bold">{lead.score}/100</span>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-brand-primary/10 text-brand-primary dark:text-brand-azure font-bold">{lead.score}/100</span>
                     <span className="text-xs px-2.5 py-1 rounded-full bg-black/5 dark:bg-white/10 capitalize">{qLabel(lead.qualification_status)}</span>
-                    {lead.qualification_status === 'needs_human' && <span className="text-xs px-2.5 py-1 rounded-full border border-gold/25 text-gold">{isArabic ? 'أولوية مراجعة' : 'Review priority'}</span>}
+                    {lead.qualification_status === 'needs_human' && <span className="text-xs px-2.5 py-1 rounded-full border border-attention/25 text-attention-dark dark:text-attention">{isArabic ? 'أولوية مراجعة' : 'Review priority'}</span>}
                   </div>
 
                   <div className="text-sm opacity-60 mt-2 break-words">{[lead.email, lead.phone, lead.source].filter(Boolean).join(' · ')}</div>
@@ -129,21 +129,21 @@ export function LeadsOperatorView({ storeSlug }: { storeSlug: string }) {
 
                 <div className="flex flex-wrap lg:flex-col gap-2 lg:min-w-[170px]">
                   {lead.follow_up_status === 'none' && (
-                    <button onClick={() => updateLead(lead.id, { followUpStatus: 'pending' })} className="px-3 py-2.5 rounded-lg border border-black/10 dark:border-white/10 text-xs font-bold hover:border-gold transition-colors">{isArabic ? 'أضف للمتابعة' : 'Queue follow-up'}</button>
+                    <button onClick={() => updateLead(lead.id, { followUpStatus: 'pending' })} className="px-3 py-2.5 rounded-lg border border-black/10 dark:border-white/10 text-xs font-bold hover:border-brand-primary transition-colors">{isArabic ? 'أضف للمتابعة' : 'Queue follow-up'}</button>
                   )}
                   {lead.follow_up_status === 'pending' && (
-                    <button onClick={() => updateLead(lead.id, { followUpStatus: 'in_progress' })} className="px-3 py-2.5 rounded-lg border border-black/10 dark:border-white/10 text-xs font-bold hover:border-gold transition-colors">{isArabic ? 'ابدأ المتابعة' : 'Start follow-up'}</button>
+                    <button onClick={() => updateLead(lead.id, { followUpStatus: 'in_progress' })} className="px-3 py-2.5 rounded-lg border border-black/10 dark:border-white/10 text-xs font-bold hover:border-brand-primary transition-colors">{isArabic ? 'ابدأ المتابعة' : 'Start follow-up'}</button>
                   )}
                   {lead.follow_up_status === 'in_progress' && (
-                    <button onClick={() => updateLead(lead.id, { followUpStatus: 'done' })} className="px-3 py-2.5 rounded-lg border border-black/10 dark:border-white/10 text-xs font-bold hover:border-gold transition-colors">{isArabic ? 'أكمل المتابعة' : 'Mark done'}</button>
+                    <button onClick={() => updateLead(lead.id, { followUpStatus: 'done' })} className="px-3 py-2.5 rounded-lg border border-black/10 dark:border-white/10 text-xs font-bold hover:border-brand-primary transition-colors">{isArabic ? 'أكمل المتابعة' : 'Mark done'}</button>
                   )}
                   {lead.conversion_status === 'new' && (
-                    <button onClick={() => updateLead(lead.id, { conversionStatus: 'contacted' })} className="px-3 py-2.5 rounded-lg bg-gold text-ink-950 text-xs font-bold hover:bg-gold-hover transition-colors">{isArabic ? 'تم التواصل' : 'Mark contacted'}</button>
+                    <button onClick={() => updateLead(lead.id, { conversionStatus: 'contacted' })} className="px-3 py-2.5 rounded-lg bg-brand-primary text-white text-xs font-bold hover:bg-brand-azure transition-colors">{isArabic ? 'تم التواصل' : 'Mark contacted'}</button>
                   )}
                   {lead.conversion_status === 'contacted' && (
                     <>
-                      <button onClick={() => updateLead(lead.id, { conversionStatus: 'won' })} className="px-3 py-2.5 rounded-lg bg-gold text-ink-950 text-xs font-bold hover:bg-gold-hover transition-colors">{isArabic ? 'فوز' : 'Won'}</button>
-                      <button onClick={() => updateLead(lead.id, { conversionStatus: 'lost' })} className="px-3 py-2.5 rounded-lg border border-black/10 dark:border-white/10 text-xs font-bold hover:border-gold transition-colors">{isArabic ? 'خسارة' : 'Lost'}</button>
+                      <button onClick={() => updateLead(lead.id, { conversionStatus: 'won' })} className="px-3 py-2.5 rounded-lg bg-brand-primary text-white text-xs font-bold hover:bg-brand-azure transition-colors">{isArabic ? 'فوز' : 'Won'}</button>
+                      <button onClick={() => updateLead(lead.id, { conversionStatus: 'lost' })} className="px-3 py-2.5 rounded-lg border border-black/10 dark:border-white/10 text-xs font-bold hover:border-brand-primary transition-colors">{isArabic ? 'خسارة' : 'Lost'}</button>
                     </>
                   )}
                 </div>

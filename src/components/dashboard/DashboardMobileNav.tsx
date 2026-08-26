@@ -41,7 +41,7 @@ export function DashboardMobileNav({ activeSection }: { activeSection: MobileSec
             onClick={() => go(item.id)}
             className={`flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all ${
               selected
-                ? 'bg-blue-500 text-white'
+                ? 'bg-brand-primary text-white'
                 : 'text-ink-950/60 dark:text-paper-50/60'
             }`}
           >

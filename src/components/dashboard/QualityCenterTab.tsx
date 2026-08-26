@@ -94,7 +94,7 @@ export function QualityCenterTab() {
               {lang === 'ar' ? 'تم تقييمها' : 'Reviewed'}
             </div>
           </div>
-          <div className="rounded-2xl p-4 border border-gold/35 bg-gradient-to-b from-gold/10 to-white dark:to-ink-800">
+          <div className="rounded-2xl p-4 border border-brand-primary/35 bg-gradient-to-b from-brand-primary/10 to-white dark:to-ink-800">
             <div className="text-[20px] font-extrabold font-sans">
               {ratedCount > 0 ? Math.round((correctCount / ratedCount) * 100) : 0}%
             </div>
@@ -107,7 +107,7 @@ export function QualityCenterTab() {
 
       {loading && (
         <div className="flex items-center justify-center py-20">
-          <span className="w-6 h-6 border-2 border-black/15 dark:border-white/15 border-t-gold rounded-full animate-spin" />
+          <span className="w-6 h-6 border-2 border-black/15 dark:border-white/15 border-t-brand-primary rounded-full animate-spin" />
         </div>
       )}
 
@@ -131,7 +131,7 @@ export function QualityCenterTab() {
             className="rounded-2xl border border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 p-5"
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-semibold text-gold font-sans">
+              <span className="text-[11px] font-semibold text-brand-primary font-sans">
                 {item.agentUsed ? (AGENT_LABELS[item.agentUsed]?.[lang] || item.agentUsed) : '—'}
               </span>
               <span className="text-[10.5px] text-ink-950/35 dark:text-paper-50/35 font-sans">
@@ -154,7 +154,7 @@ export function QualityCenterTab() {
               <div className="text-[10.5px] text-ink-950/40 dark:text-paper-50/40 mb-1 font-semibold">
                 {lang === 'ar' ? 'رد المساعد' : "Assistant's reply"}
               </div>
-              <div className="text-[13px] px-3 py-2 rounded-lg bg-gold/[0.06] border border-gold/15">
+              <div className="text-[13px] px-3 py-2 rounded-lg bg-brand-primary/[0.06] border border-brand-primary/15">
                 {item.assistantReply}
               </div>
             </div>
