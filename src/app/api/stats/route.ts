@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireStoreAccess } from '@/lib/auth/require-store-access'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   try {
     const storeSlug = new URL(req.url).searchParams.get('storeId')

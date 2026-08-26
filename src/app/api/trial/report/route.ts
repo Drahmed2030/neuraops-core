@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getLatestProofReport } from '@/lib/proof-report'
 import { requireStoreAccess } from '@/lib/auth/require-store-access'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { resolveCurrentTrialState, daysRemaining } from '@/lib/proof-week'
 import { requireStoreAccess } from '@/lib/auth/require-store-access'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   try {
     const storeSlug = new URL(req.url).searchParams.get('storeId')
