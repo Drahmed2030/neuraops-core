@@ -30,7 +30,7 @@ export function AgentsSection() {
     <section className="px-5 py-20 sm:px-10 sm:py-24">
       <div className="max-w-6xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="text-[12px] font-bold tracking-[0.15em] uppercase mb-4 text-gold font-sans">
+          <div className="text-[12px] font-bold tracking-[0.15em] uppercase mb-4 text-brand-primary font-sans">
             {isArabic ? 'سير العمل' : 'The workflow'}
           </div>
           <h2 className="text-[clamp(1.75rem,3.5vw,2.6rem)] font-extrabold tracking-tight mb-4 leading-tight">
@@ -47,12 +47,12 @@ export function AgentsSection() {
           {capabilities.map((item, i) => (
             <div
               key={item.name}
-              className="relative p-8 rounded-[18px] border border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 hover:-translate-y-1.5 hover:border-gold hover:shadow-gold-glow transition-all cursor-default"
+              className="relative p-8 rounded-[18px] border border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 hover:-translate-y-1.5 hover:border-brand-primary hover:shadow-brand-glow transition-all cursor-default"
             >
-              <div className="absolute top-7 right-7 text-[13px] font-bold text-gold/60 font-sans">
+              <div className="absolute top-7 right-7 text-[13px] font-bold text-brand-primary/60 font-sans">
                 {String(i + 1).padStart(2, '0')}
               </div>
-              <div className="w-[52px] h-[52px] rounded-2xl bg-gold/10 border border-gold/25 flex items-center justify-center text-2xl mb-5">
+              <div className="w-[52px] h-[52px] rounded-2xl bg-brand-primary/10 border border-brand-primary/25 flex items-center justify-center text-2xl mb-5">
                 {CAPABILITY_ICONS[i]}
               </div>
               <div className="text-[19px] font-bold mb-2.5">{item.name}</div>

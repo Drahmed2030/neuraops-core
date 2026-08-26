@@ -38,7 +38,7 @@ Scope:
 - simple operator view and follow-up state;
 - direct support during the pilot.
 
-The pilot is paid. Public numeric pricing is intentionally not fixed yet. Pricing is confirmed after fit check while willingness to pay is being validated.
+The pilot is paid. The approved validation band is **SAR 2,500–5,000 one-time**, depending on lead volume and workflow complexity. The final quote is confirmed after the fit check; record buyer reaction and do not discount or expand scope without evidence.
 
 ## Prospect qualification gate
 A prospect is a strong pilot candidate when most of these are true:

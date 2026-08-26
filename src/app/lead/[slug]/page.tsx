@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { BrandMark } from '@/components/brand/BrandMark'
 import { FormEvent, useState } from 'react'
 import { useUI } from '@/lib/ui-context'
 
@@ -72,24 +73,23 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
     return status
   }
 
-  const inputClass = 'mt-1.5 w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.015] dark:bg-white/[0.025] px-3.5 py-3 outline-none transition focus:border-gold/60 focus:ring-2 focus:ring-gold/10'
+  const inputClass = 'mt-1.5 w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/[0.015] dark:bg-white/[0.025] px-3.5 py-3 outline-none transition focus:border-brand-primary/60 focus:ring-2 focus:ring-brand-primary/10'
 
   return (
     <main className="min-h-screen bg-paper-50 dark:bg-ink-950 text-ink-950 dark:text-paper-50 px-4 py-5 sm:p-6" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="max-w-2xl mx-auto py-4 sm:py-8">
         <div className="flex items-center justify-between gap-4 mb-8">
-          <Link href="/" className="flex items-center gap-2.5 font-semibold no-underline">
-            <span className="w-8 h-8 bg-gold text-ink-950 rounded-xl flex items-center justify-center font-extrabold text-[13px] font-sans">N</span>
-            <span className="font-sans">NeuraOps</span>
+          <Link href="/" className="font-semibold no-underline">
+            <BrandMark size={32} showProduct />
           </Link>
-          <button type="button" onClick={toggleLang} className="px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold hover:border-gold transition-colors">
+          <button type="button" onClick={toggleLang} className="px-3 py-2 rounded-xl border border-black/10 dark:border-white/10 text-xs font-semibold hover:border-brand-primary transition-colors">
             {isArabic ? 'EN' : 'عربي'}
           </button>
         </div>
 
         <div className="mb-7">
-          <div className="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-3 py-1.5 text-[11px] font-bold text-gold mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-brand-primary/25 bg-brand-primary/10 px-3 py-1.5 text-[11px] font-bold text-brand-primary mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
             {isArabic ? 'LeadOps · تجربة تأهيل حقيقية' : 'LeadOps · Live qualification demo'}
           </div>
           <h1 className="text-[clamp(2rem,8vw,2.65rem)] leading-[1.15] font-extrabold tracking-tight">
@@ -105,7 +105,7 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
         {!result && (
           <form onSubmit={submit} className="space-y-5 rounded-[24px] border border-black/10 dark:border-white/10 bg-white dark:bg-ink-800 p-5 sm:p-7 shadow-sm">
             <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-gold mb-3">{isArabic ? '1 · بيانات التواصل' : '1 · Contact details'}</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand-primary mb-3">{isArabic ? '1 · بيانات التواصل' : '1 · Contact details'}</div>
               <div className="grid md:grid-cols-2 gap-4">
                 <label className="text-sm font-medium">{isArabic ? 'الاسم' : 'Name'} <span className="opacity-40 font-normal">({isArabic ? 'اختياري' : 'optional'})</span><input name="name" maxLength={160} className={inputClass} /></label>
                 <label className="text-sm font-medium">{isArabic ? 'البريد الإلكتروني' : 'Email'} <span className="opacity-40 font-normal">({isArabic ? 'اختياري' : 'optional'})</span><input name="email" type="email" inputMode="email" maxLength={320} className={inputClass} /></label>
@@ -115,12 +115,12 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
             </div>
 
             <div className="border-t border-black/[0.06] dark:border-white/[0.06] pt-5">
-              <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-gold mb-3">{isArabic ? '2 · الاحتياج' : '2 · Need'}</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand-primary mb-3">{isArabic ? '2 · الاحتياج' : '2 · Need'}</div>
               <label className="text-sm font-medium block">{isArabic ? 'ما الذي تحتاجه؟' : 'What do you need?'}<textarea name="need" required maxLength={3000} rows={5} placeholder={isArabic ? 'مثال: نحتاج نظامًا يؤهل العملاء المحتملين الواردين قبل أن يتواصل معهم فريق المبيعات…' : 'Example: We need a system that qualifies inbound leads before our sales team follows up…'} className={inputClass} /></label>
             </div>
 
             <div className="border-t border-black/[0.06] dark:border-white/[0.06] pt-5">
-              <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-gold mb-3">{isArabic ? '3 · أولوية الفرصة' : '3 · Opportunity priority'}</div>
+              <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand-primary mb-3">{isArabic ? '3 · أولوية الفرصة' : '3 · Opportunity priority'}</div>
               <div className="grid sm:grid-cols-3 gap-4">
                 <label className="text-sm font-medium">{isArabic ? 'الميزانية' : 'Budget'}<select name="budgetBand" defaultValue="unknown" className={inputClass}><option value="unknown">{isArabic ? 'غير متأكد' : 'Not sure'}</option><option value="low">{isArabic ? 'منخفضة' : 'Low'}</option><option value="medium">{isArabic ? 'متوسطة' : 'Medium'}</option><option value="high">{isArabic ? 'مرتفعة' : 'High'}</option></select></label>
                 <label className="text-sm font-medium">{isArabic ? 'الإطار الزمني' : 'Timeline'}<select name="urgency" defaultValue="unknown" className={inputClass}><option value="unknown">{isArabic ? 'غير متأكد' : 'Not sure'}</option><option value="later">{isArabic ? 'لاحقًا' : 'Later'}</option><option value="30d">{isArabic ? 'خلال 30 يومًا' : 'Within 30 days'}</option><option value="7d">{isArabic ? 'خلال 7 أيام' : 'Within 7 days'}</option><option value="now">{isArabic ? 'الآن' : 'Now'}</option></select></label>
@@ -128,7 +128,7 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
               </div>
             </div>
 
-            <button disabled={loading} className="w-full rounded-xl bg-gold text-ink-950 font-extrabold px-5 py-3.5 text-[14px] disabled:opacity-60 hover:bg-gold-hover transition-colors shadow-gold-glow">
+            <button disabled={loading} className="w-full rounded-xl bg-gradient-to-r from-brand-primary to-brand-violet text-white font-extrabold px-5 py-3.5 text-[14px] disabled:opacity-60 hover:opacity-90 transition-opacity shadow-brand-glow">
               {loading ? (isArabic ? 'جارٍ التأهيل…' : 'Qualifying…') : (isArabic ? 'حلّل هذه الفرصة' : 'Qualify this opportunity')}
             </button>
           </form>
@@ -137,7 +137,7 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
         {error && <div role="alert" className="mt-4 rounded-xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-500">{error}</div>}
 
         {result && (
-          <section className="rounded-[24px] border border-gold/30 bg-white dark:bg-ink-800 p-5 sm:p-7 shadow-sm">
+          <section className="rounded-[24px] border border-brand-primary/30 bg-white dark:bg-ink-800 p-5 sm:p-7 shadow-sm">
             <div className="flex items-start justify-between gap-4 flex-wrap mb-6">
               <div>
                 <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-gold mb-2">{isArabic ? 'نتيجة التأهيل' : 'Qualification result'}</div>
@@ -167,10 +167,10 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
             </div>
 
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <Link href="/" className="flex-1 text-center rounded-xl bg-gold text-ink-950 font-bold px-5 py-3.5 hover:bg-gold-hover transition-colors">
+              <Link href="/" className="flex-1 text-center rounded-xl bg-gradient-to-r from-brand-primary to-brand-violet text-white font-bold px-5 py-3.5 hover:opacity-90 transition-opacity shadow-brand-glow">
                 {isArabic ? 'العودة إلى NeuraOps' : 'Back to NeuraOps'}
               </Link>
-              <button type="button" onClick={() => setResult(null)} className="flex-1 rounded-xl border border-black/10 dark:border-white/10 font-bold px-5 py-3.5 hover:border-gold transition-colors">
+              <button type="button" onClick={() => setResult(null)} className="flex-1 rounded-xl border border-black/10 dark:border-white/10 font-bold px-5 py-3.5 hover:border-brand-primary transition-colors">
                 {isArabic ? 'مراجعة البيانات' : 'Review submission'}
               </button>
             </div>

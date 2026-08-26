@@ -31,7 +31,7 @@ const antiFlashScript = `
 (function() {
   try {
     var theme = localStorage.getItem('neuraops-theme') || 'dark';
-    var lang = localStorage.getItem('neuraops-lang') || 'ar';
+    var lang = localStorage.getItem('neuraops-lang') || 'en';
     var html = document.documentElement;
     if (theme === 'dark') html.classList.add('dark');
     else html.classList.remove('dark');
@@ -47,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ar" dir="rtl" className="dark" suppressHydrationWarning>
+    <html lang="en" dir="ltr" className="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: antiFlashScript }} />
       </head>

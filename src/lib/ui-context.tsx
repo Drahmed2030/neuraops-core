@@ -20,13 +20,13 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
   // Read initial values synchronously from the DOM attributes the
   // blocking <head> script already set — this guarantees the first
   // React render matches what's already painted (no hydration flash).
-  const [lang, setLang] = useState<Lang>('ar')
+  const [lang, setLang] = useState<Lang>('en')
   const [theme, setTheme] = useState<ThemeMode>('dark')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const htmlEl = document.documentElement
-    const currentLang = (htmlEl.lang as Lang) || 'ar'
+    const currentLang = (htmlEl.lang as Lang) || 'en'
     const currentTheme = htmlEl.classList.contains('dark') ? 'dark' : 'light'
     setLang(currentLang)
     setTheme(currentTheme)
