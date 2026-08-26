@@ -58,12 +58,12 @@ export const translations = {
     // Pricing
     pricingEyebrow: 'الأسعار',
     pricingTitle: 'خطة تناسب حجم عملك',
-    pricingSub: 'ابدأ مجاناً، وارتقِ عندما تحتاج قدرة أكبر — بدون عقود طويلة الأمد.',
-    planPilotName: 'Pilot', planPilotDesc: 'للتجربة الأولى قبل الاشتراك', planPilotPrice: 'مجاني', planPilotPeriod: '/ 30 يوم',
+    pricingSub: 'Pilot مدفوع ومحدود لمدة 14 يومًا على سير عمل وارد واحد.',
+    planPilotName: 'Pilot', planPilotDesc: 'برنامج تجريبي مؤسس ومدفوع', planPilotPrice: '2,500–5,000', planPilotPeriod: 'ر.س / مرة واحدة',
     planStarterName: 'Starter', planStarterDesc: 'للمقاهي والمتاجر الصغيرة', planStarterPrice: '349', planStarterPeriod: 'ر.س / شهرياً',
     planProName: 'Pro', planProDesc: 'للمطاعم والمتاجر الأكبر', planProPrice: '699', planProPeriod: 'ر.س / شهرياً',
     planBadge: 'الأكثر طلباً',
-    planCta: 'اشترك الآن', planCtaFree: 'ابدأ التجربة',
+    planCta: 'اشترك الآن', planCtaFree: 'تحقق من الملاءمة',
 
     // Footer
     footerTagline: 'دعم ذكي للأعمال الحديثة.',
@@ -100,10 +100,10 @@ export const translations = {
     check1: 'بناء قاعدة المعرفة', check2: 'تفعيل الوكلاء الذكيين', check3: 'ربط قناة التواصل', check4: 'اختبار جودة الردود',
     successTitle: 'تم التفعيل بنجاح 🎉', successSub: 'مساعدك الذكي جاهز للعمل. جرّبه الآن أو شاركه مع فريقك.',
     revStore: 'المتجر', revAgents: 'الوكلاء المفعّلون', revAgentsVal: '6 وكلاء ذكاء اصطناعي',
-    revPlan: 'الخطة', revPlanVal: 'Pilot — مجاني 30 يوم',
+    revPlan: 'الخطة', revPlanVal: 'Pilot مدفوع — 14 يومًا',
     copyBtn: 'نسخ', copiedBtn: 'تم النسخ ✓',
     tryDemoBtn: '🚀 جرّب كعميل الآن', shareBtn: '↗ شارك مع فريقك',
-    trust1: 'بياناتك آمنة', trust2: 'بدون بطاقة ائتمان',
+    trust1: 'بياناتك آمنة', trust2: 'النطاق والسعر يؤكدان بعد فحص الملاءمة',
 
     // Dashboard
     dashTitle: 'لوحة مؤشرات الـ Pilot', dashSub: 'نظرة عامة على أداء المساعد الذكي',
@@ -153,12 +153,12 @@ export const translations = {
     statResolve: 'Full Auto-Resolution Rate', statSpeed: 'Avg First Response Time', statCsat: 'Measured CSAT', statUptime: 'Uninterrupted Coverage',
 
     pricingEyebrow: 'Pricing', pricingTitle: 'A plan that fits your business size',
-    pricingSub: 'Start free, upgrade when you need more — no long-term contracts.',
-    planPilotName: 'Pilot', planPilotDesc: 'For your first trial before subscribing', planPilotPrice: 'Free', planPilotPeriod: '/ 30 days',
+    pricingSub: 'A focused 14-day paid pilot on one inbound workflow.',
+    planPilotName: 'Pilot', planPilotDesc: 'Founder-led paid pilot', planPilotPrice: '2,500–5,000', planPilotPeriod: 'SAR / one-time',
     planStarterName: 'Starter', planStarterDesc: 'For cafes and small stores', planStarterPrice: '93', planStarterPeriod: 'USD / month',
     planProName: 'Pro', planProDesc: 'For larger restaurants and stores', planProPrice: '186', planProPeriod: 'USD / month',
     planBadge: 'Most Popular',
-    planCta: 'Subscribe Now', planCtaFree: 'Start Trial',
+    planCta: 'Subscribe Now', planCtaFree: 'Check fit',
 
     footerTagline: 'Intelligent support for modern business.',
     footerRights: '© 2026 NeuraOps. All rights reserved.',
@@ -193,10 +193,10 @@ export const translations = {
     check1: 'Building knowledge base', check2: 'Activating AI agents', check3: 'Connecting channel', check4: 'Testing response quality',
     successTitle: 'Activated Successfully 🎉', successSub: 'Your AI assistant is ready. Try it now or share with your team.',
     revStore: 'Store', revAgents: 'Active Agents', revAgentsVal: '6 AI Agents',
-    revPlan: 'Plan', revPlanVal: 'Pilot — Free for 30 days',
+    revPlan: 'Plan', revPlanVal: 'Paid Pilot — 14 days',
     copyBtn: 'Copy', copiedBtn: 'Copied ✓',
     tryDemoBtn: '🚀 Try it as a customer', shareBtn: '↗ Share with your team',
-    trust1: 'Your data is secure', trust2: 'No credit card required',
+    trust1: 'Your data is secure', trust2: 'Scope and final quote confirmed after fit check',
 
     dashTitle: 'Pilot Dashboard', dashSub: 'Overview of your AI assistant performance',
     statConvos: 'Conversations Today', statRate: 'Auto-Resolution Rate', statResponse: 'Avg Response Time', statSatisfaction: 'Customer Satisfaction',

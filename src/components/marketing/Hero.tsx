@@ -17,9 +17,9 @@ export function Hero() {
         className="absolute inset-0 -z-10"
         style={{
           backgroundImage: `
-            radial-gradient(ellipse 70% 50% at 80% 0%, rgba(201,169,97,0.10) 0%, transparent 55%),
-            linear-gradient(rgba(201,169,97,0.025) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(201,169,97,0.025) 1px, transparent 1px)
+            radial-gradient(ellipse 70% 50% at 80% 0%, rgba(37,99,235,0.16) 0%, transparent 55%),
+            linear-gradient(rgba(59,130,246,0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(124,58,237,0.035) 1px, transparent 1px)
           `,
           backgroundSize: '100% 100%, 56px 56px, 56px 56px',
         }}
@@ -27,8 +27,8 @@ export function Hero() {
 
       <div className="max-w-6xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-10 lg:gap-12 items-center">
         <div>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[12px] font-semibold mb-5 sm:mb-6 bg-gold/10 border border-gold/25 text-gold font-sans">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse-dot" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[12px] font-semibold mb-5 sm:mb-6 bg-brand-primary/10 border border-brand-primary/25 text-brand-primary font-sans">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-azure animate-pulse-dot" />
             {isArabic ? 'LeadOps · برنامج تجريبي لمدة 14 يومًا' : 'LeadOps · 14-day founder-led pilot'}
           </div>
 
@@ -37,13 +37,13 @@ export function Hero() {
               <>
                 حوّل العملاء المحتملين الواردين
                 <br className="hidden sm:block" />
-                {' '}إلى فرص <span className="text-gold">مؤهلة وقابلة للمتابعة</span>
+                {' '}إلى فرص <span className="text-brand-azure">مؤهلة وقابلة للمتابعة</span>
               </>
             ) : (
               <>
                 Turn inbound leads
                 <br className="hidden sm:block" />
-                {' '}into <span className="text-gold">qualified opportunities</span>
+                {' '}into <span className="text-brand-azure">qualified opportunities</span>
               </>
             )}
           </h1>
@@ -57,13 +57,13 @@ export function Hero() {
           <div className="flex flex-col sm:flex-row gap-3 mb-8 sm:mb-10">
             <Link
               href="/lead/demo-store"
-              className="w-full sm:w-auto justify-center px-7 py-3.5 rounded-xl bg-gold text-ink-950 font-bold text-[14.5px] hover:bg-gold-hover hover:-translate-y-0.5 transition-all shadow-gold-glow flex items-center gap-2"
+              className="w-full sm:w-auto justify-center px-7 py-3.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-violet text-white font-bold text-[14.5px] hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-brand-glow flex items-center gap-2"
             >
               {isArabic ? 'جرّب LeadOps الآن' : 'Try LeadOps now'} {isArabic ? '←' : '→'}
             </Link>
             <a
               href="#pilot"
-              className="w-full sm:w-auto text-center px-7 py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-semibold text-[14.5px] hover:border-gold transition-colors"
+              className="w-full sm:w-auto text-center px-7 py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-semibold text-[14.5px] hover:border-brand-primary transition-colors"
             >
               {isArabic ? 'شاهد تفاصيل الـPilot' : 'See the pilot offer'}
             </a>
@@ -93,7 +93,7 @@ function HeroVisual() {
 
   return (
     <div className="relative mt-2 lg:mt-0">
-      <div className="absolute -top-3 right-3 sm:-top-4 sm:-right-4 px-4 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-1.5 shadow-lg bg-white dark:bg-ink-800 border border-gold text-gold z-10">
+      <div className="absolute -top-3 right-3 sm:-top-4 sm:-right-4 px-4 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-1.5 shadow-lg bg-white dark:bg-ink-800 border border-brand-primary text-brand-primary z-10">
         ✨ LeadOps Demo
       </div>
       <div className="rounded-[20px] overflow-hidden border border-black/10 dark:border-white/10 bg-white dark:bg-ink-800 shadow-2xl">
@@ -103,7 +103,7 @@ function HeroVisual() {
             <span className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
             <span className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
           </div>
-          <div className="text-[11px] font-semibold text-gold font-sans">
+          <div className="text-[11px] font-semibold text-brand-primary font-sans">
             {isArabic ? 'سيناريو توضيحي' : 'Illustrative scenario'}
           </div>
         </div>

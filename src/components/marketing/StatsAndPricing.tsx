@@ -30,7 +30,7 @@ export function StatsBand() {
       <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
         {capabilities.map((item) => (
           <div key={item.label}>
-            <div className="text-[28px] font-extrabold font-sans tracking-tight text-gold mb-1.5">{item.value}</div>
+            <div className="text-[28px] font-extrabold font-sans tracking-tight text-brand-primary dark:text-brand-azure mb-1.5">{item.value}</div>
             <div className="text-[13.5px] text-ink-950/55 dark:text-paper-50/55">{item.label}</div>
           </div>
         ))}
@@ -51,7 +51,7 @@ export function PricingSection() {
     <section id="pilot" className="px-5 py-20 sm:px-10 sm:py-24">
       <div className="max-w-5xl mx-auto">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="text-[12px] font-bold tracking-[0.15em] uppercase mb-4 text-gold font-sans">
+          <div className="text-[12px] font-bold tracking-[0.15em] uppercase mb-4 text-brand-primary dark:text-brand-azure font-sans">
             {isArabic ? 'العرض الأول' : 'First paid offer'}
           </div>
           <h2 className="text-[clamp(1.75rem,3.5vw,2.6rem)] font-extrabold tracking-tight mb-4">
@@ -64,7 +64,7 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto rounded-[24px] border-2 border-gold bg-gradient-to-b from-gold/8 to-transparent p-8 sm:p-10">
+        <div className="max-w-3xl mx-auto rounded-[24px] border-2 border-brand-primary/60 bg-gradient-to-b from-brand-primary/10 to-transparent p-8 sm:p-10">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-8">
             <div>
               <div className="text-[20px] font-extrabold mb-2">Founder-led Pilot</div>
@@ -78,11 +78,11 @@ export function PricingSection() {
               <div className="text-[12px] uppercase tracking-[0.12em] text-ink-950/45 dark:text-paper-50/45 mb-1">
                 {isArabic ? 'تسعير الـPilot' : 'Pilot pricing'}
               </div>
-              <div className="text-[22px] font-extrabold text-gold leading-tight">
-                {isArabic ? 'يُحدد بعد التحقق من الملاءمة' : 'Confirmed after fit check'}
+              <div className="text-[22px] font-extrabold text-brand-primary dark:text-brand-azure leading-tight">
+                {isArabic ? '2,500–5,000 ر.س' : 'SAR 2,500–5,000'}
               </div>
               <div className="text-[11px] opacity-45 mt-2">
-                {isArabic ? 'نختبر الاستعداد للدفع قبل اعتماد سعر عام.' : 'We validate willingness to pay before setting public pricing.'}
+                {isArabic ? 'دفعة واحدة؛ يُؤكد السعر النهائي بعد فحص الملاءمة حسب الحجم وتعقيد سير العمل.' : 'One-time fee; final quote is confirmed after fit check based on volume and workflow complexity.'}
               </div>
             </div>
           </div>
@@ -90,17 +90,17 @@ export function PricingSection() {
           <div className="grid sm:grid-cols-2 gap-3 mb-8">
             {included.map((item) => (
               <div key={item} className="flex gap-2 items-start rounded-xl bg-white/60 dark:bg-ink-800/60 border border-black/[0.06] dark:border-white/[0.06] p-3.5 text-[13px]">
-                <span className="text-gold font-bold">✓</span>
+                <span className="text-brand-primary font-bold">✓</span>
                 <span>{item}</span>
               </div>
             ))}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <Link href="/lead/demo-store" className="flex-1 text-center py-3.5 rounded-xl bg-gold text-ink-950 font-bold text-[14px] hover:bg-gold-hover transition-colors">
+            <Link href="/lead/demo-store" className="flex-1 text-center py-3.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-violet text-white font-bold text-[14px] hover:opacity-90 transition-opacity shadow-brand-glow">
               {isArabic ? 'جرّب سير العمل' : 'Try the workflow'}
             </Link>
-            <Link href="/lead/demo-store" className="flex-1 text-center py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-bold text-[14px] hover:border-gold transition-colors">
+            <Link href="/lead/demo-store" className="flex-1 text-center py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-bold text-[14px] hover:border-brand-primary transition-colors">
               {isArabic ? 'تحقق من ملاءمة الـPilot' : 'Check pilot fit'}
             </Link>
           </div>

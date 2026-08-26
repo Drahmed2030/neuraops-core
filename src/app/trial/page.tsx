@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { BrandMark } from '@/components/brand/BrandMark'
 import { useUI } from '@/lib/ui-context'
 import { useTrialWizard } from '@/lib/use-trial-wizard'
 import { StepProgress } from '@/components/ui/StepProgress'
@@ -57,11 +58,8 @@ export default function TrialPage() {
           >
             {t.langBtn}
           </button>
-          <Link href="/" className="flex items-center gap-1.5 font-semibold text-[15.5px] no-underline text-ink-950 dark:text-paper-50">
-            {t.brand}
-            <span className="w-[26px] h-[26px] bg-gold text-ink-950 rounded-[7px] flex items-center justify-center font-bold text-[13px] font-sans">
-              N
-            </span>
+          <Link href="/" className="font-semibold no-underline">
+            <BrandMark size={30} />
           </Link>
         </div>
       </header>
