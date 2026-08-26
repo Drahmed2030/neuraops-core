@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 :root {
+  --brand-navy: #0B0F19;
+  --brand-ink: #111827;
+  --brand-primary: #2563EB;
+  --brand-azure: #3B82F6;
+  --brand-violet: #7C3AED;
+  --brand-cyan: #06B6D4;
+  --brand-mist: #E5E7EB;
+  --attention: #D6B15E;
   --gold: #C9A961;
 }
 
@@ -35,6 +43,6 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--brand-primary);
   outline-offset: 2px;
 }

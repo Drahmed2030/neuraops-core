@@ -47,7 +47,7 @@ export function StatsTab() {
             key={i}
             className={`rounded-2xl p-[18px] border ${
               s.highlight
-                ? 'border-gold/35 bg-gradient-to-b from-gold/10 to-white dark:to-ink-800'
+                ? 'border-brand-primary/35 bg-gradient-to-b from-brand-primary/10 to-white dark:to-ink-800'
                 : 'border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800'
             }`}
           >
@@ -67,12 +67,12 @@ export function StatsTab() {
           type="button"
           onClick={checkHealth}
           disabled={health.status === 'checking'}
-          className="px-5 py-2.5 rounded-lg bg-gold text-ink-950 font-bold text-[13px] disabled:opacity-60 enabled:hover:bg-gold-hover transition-colors"
+          className="px-5 py-2.5 rounded-lg bg-brand-primary text-ink-950 font-bold text-[13px] disabled:opacity-60 enabled:hover:bg-brand-azure transition-colors"
         >
           {t.checkNow}
         </button>
         {health.text && (
-          <div className="mt-3 text-[13px] font-semibold text-gold">{health.text}</div>
+          <div className="mt-3 text-[13px] font-semibold text-brand-primary">{health.text}</div>
         )}
       </div>
 
@@ -84,7 +84,7 @@ export function StatsTab() {
               <div className="text-[12.5px] mb-1 text-ink-950/60 dark:text-paper-50/60">{a.name}</div>
               <div className="h-1 rounded-full bg-black/[0.07] dark:bg-white/[0.07]">
                 <div
-                  className="h-full rounded-full bg-gold"
+                  className="h-full rounded-full bg-brand-primary"
                   style={{ width: `${a.pct}%` }}
                 />
               </div>

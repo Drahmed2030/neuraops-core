@@ -145,7 +145,7 @@ export function ChatTab() {
   return (
     <div className="flex flex-col h-[calc(100dvh-61px)] -mx-6 -my-6">
       <div className="px-5 py-2.5 bg-paper-50/90 dark:bg-ink-950/90 border-b border-black/[0.07] dark:border-white/[0.07] flex items-center justify-between gap-3">
-        <div className="text-[12px] text-gold flex items-center gap-1.5 font-sans">
+        <div className="text-[12px] text-brand-primary flex items-center gap-1.5 font-sans">
           <span className="w-[7px] h-[7px] rounded-full bg-green-500 animate-pulse-dot" />
           {t.chatLive}
         </div>
@@ -160,7 +160,7 @@ export function ChatTab() {
           </button>
         )}
         {isPaused && (
-          <span className="px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/25 text-gold text-[11.5px] font-bold flex-shrink-0">
+          <span className="px-3 py-1.5 rounded-lg bg-brand-primary/10 border border-brand-primary/25 text-brand-primary text-[11.5px] font-bold flex-shrink-0">
             {lang === 'ar' ? '🙋 مع فريقكم الآن' : '🙋 With your team now'}
           </span>
         )}
@@ -200,13 +200,13 @@ export function ChatTab() {
         {messages.map((m, i) => (
           <div key={i} className={`max-w-[78%] ${m.role === 'user' ? 'self-start' : 'self-end'}`}>
             {m.role === 'assistant' && (
-              <div className="text-[10px] text-gold mb-1 font-semibold">🧠 {t.aiName}</div>
+              <div className="text-[10px] text-brand-primary mb-1 font-semibold">🧠 {t.aiName}</div>
             )}
             <div
               className={`px-[15px] py-[11px] rounded-2xl text-[13.5px] leading-relaxed ${
                 m.role === 'user'
                   ? 'bg-white dark:bg-ink-800 border border-black/[0.07] dark:border-white/[0.07]'
-                  : 'bg-gold/10 border border-gold/35'
+                  : 'bg-brand-primary/10 border border-brand-primary/35'
               }`}
             >
               {m.content}
@@ -223,13 +223,13 @@ export function ChatTab() {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && sendMessage()}
             placeholder={t.chatPlaceholder}
-            className="flex-1 px-4 py-3 rounded-[10px] border-[1.5px] border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 text-[13.5px] outline-none focus:border-gold transition-colors"
+            className="flex-1 px-4 py-3 rounded-[10px] border-[1.5px] border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 text-[13.5px] outline-none focus:border-brand-primary transition-colors"
           />
           <button
             type="button"
             onClick={() => sendMessage()}
             disabled={loading}
-            className="w-11 h-11 rounded-[10px] bg-gold disabled:bg-black/10 dark:disabled:bg-white/10 disabled:cursor-not-allowed text-lg flex-shrink-0"
+            className="w-11 h-11 rounded-[10px] bg-brand-primary disabled:bg-black/10 dark:disabled:bg-white/10 disabled:cursor-not-allowed text-lg flex-shrink-0"
           >
             ✈
           </button>
@@ -240,7 +240,7 @@ export function ChatTab() {
               key={q}
               type="button"
               onClick={() => sendMessage(q)}
-              className="px-3.5 py-1.5 rounded-full border border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 text-[11.5px] text-ink-950/60 dark:text-paper-50/60 hover:border-gold/40 transition-colors"
+              className="px-3.5 py-1.5 rounded-full border border-black/[0.07] dark:border-white/[0.07] bg-white dark:bg-ink-800 text-[11.5px] text-ink-950/60 dark:text-paper-50/60 hover:border-brand-primary/40 transition-colors"
             >
               {q}
             </button>

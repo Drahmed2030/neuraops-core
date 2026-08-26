@@ -2,6 +2,7 @@
 
 import { useUI } from '@/lib/ui-context'
 import { login } from './actions'
+import { BrandMark } from '@/components/brand/BrandMark'
 
 export default function LoginShell({ error }: { error?: string }) {
   const { lang, toggleLang, mounted } = useUI()
@@ -14,17 +15,10 @@ export default function LoginShell({ error }: { error?: string }) {
     >
       <section className="w-full max-w-[440px]">
         <div className="mb-5 flex items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-2">
-            <div className="h-9 w-9 rounded-xl border border-gold/30 bg-gold/10 flex items-center justify-center font-extrabold text-gold">
-              N
-            </div>
-            <div>
-              <div className="text-[15px] font-extrabold tracking-tight">NeuraOps</div>
-              <div className="text-[11px] text-ink-950/45 dark:text-paper-50/45">
-                {ar ? 'لوحة العمليات الآمنة' : 'Secure operations console'}
-              </div>
-            </div>
-          </div>
+          <BrandMark
+            size={42}
+            tagline={ar ? 'لوحة العمليات الآمنة' : 'Secure operations console'}
+          />
 
           <button
             type="button"
@@ -38,7 +32,7 @@ export default function LoginShell({ error }: { error?: string }) {
 
         <div className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-white dark:bg-ink-900 shadow-sm p-6 sm:p-8">
           <div className="mb-7">
-            <div className="mb-2 inline-flex items-center rounded-full border border-gold/25 bg-gold/[0.08] px-2.5 py-1 text-[10.5px] font-bold text-gold">
+            <div className="mb-2 inline-flex items-center rounded-full border border-brand-primary/25 bg-brand-primary/[0.08] px-2.5 py-1 text-[10.5px] font-bold text-brand-primary">
               {ar ? 'وصول إداري محمي' : 'Protected admin access'}
             </div>
             <h1 className="text-[26px] sm:text-[30px] font-extrabold tracking-tight">
@@ -74,7 +68,7 @@ export default function LoginShell({ error }: { error?: string }) {
                 autoComplete="email"
                 required
                 dir="ltr"
-                className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] px-4 py-3 text-[14px] outline-none transition focus:border-gold/60 focus:ring-2 focus:ring-gold/10"
+                className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] px-4 py-3 text-[14px] outline-none transition focus:border-brand-primary/60 focus:ring-2 focus:ring-brand-primary/10"
                 placeholder="name@example.com"
               />
             </div>
@@ -90,13 +84,13 @@ export default function LoginShell({ error }: { error?: string }) {
                 autoComplete="current-password"
                 required
                 dir="ltr"
-                className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] px-4 py-3 text-[14px] outline-none transition focus:border-gold/60 focus:ring-2 focus:ring-gold/10"
+                className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.03] px-4 py-3 text-[14px] outline-none transition focus:border-brand-primary/60 focus:ring-2 focus:ring-brand-primary/10"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full rounded-2xl bg-gold px-4 py-3 text-[13px] font-extrabold text-ink-950 transition hover:opacity-90 active:scale-[0.99]"
+              className="w-full rounded-2xl bg-gradient-to-r from-brand-primary to-brand-violet px-4 py-3 text-[13px] font-extrabold text-white shadow-brand-glow transition hover:opacity-90 active:scale-[0.99]"
             >
               {ar ? 'دخول آمن' : 'Secure sign in'}
             </button>

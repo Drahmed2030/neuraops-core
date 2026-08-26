@@ -32,7 +32,7 @@ export function ReportTab() {
             onClick={() => setActiveDay(day)}
             className={`px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all ${
               activeDay === day
-                ? 'bg-gold text-ink-950'
+                ? 'bg-brand-primary text-ink-950'
                 : 'bg-white dark:bg-ink-800 border border-black/[0.07] dark:border-white/[0.07] text-ink-950/50 dark:text-paper-50/50'
             }`}
           >

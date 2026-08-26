@@ -21,6 +21,10 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 export const metadata: Metadata = {
   title: 'NeuraOps LeadOps — Qualify and Prioritize Inbound Leads',
   description: 'Lead qualification, scoring, AI-assisted response, and human handoff for service businesses.',
+  icons: {
+    icon: '/brand/neuraops-edge-n-app.png',
+    apple: '/brand/neuraops-edge-n-app.png',
+  },
 }
 
 const antiFlashScript = `
