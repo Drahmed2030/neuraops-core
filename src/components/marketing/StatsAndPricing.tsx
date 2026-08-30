@@ -76,13 +76,13 @@ export function PricingSection() {
             </div>
             <div className="sm:text-right max-w-[230px]">
               <div className="text-[12px] uppercase tracking-[0.12em] text-ink-950/45 dark:text-paper-50/45 mb-1">
-                {isArabic ? 'تسعير الـPilot' : 'Pilot pricing'}
+                {isArabic ? 'برنامج المؤسسين' : 'Founding pilot'}
               </div>
               <div className="text-[22px] font-extrabold text-brand-primary dark:text-brand-azure leading-tight">
-                {isArabic ? '2,500–5,000 ر.س' : 'SAR 2,500–5,000'}
+                {isArabic ? 'أماكن محدودة' : 'Limited availability'}
               </div>
               <div className="text-[11px] opacity-45 mt-2">
-                {isArabic ? 'دفعة واحدة؛ يُؤكد السعر النهائي بعد فحص الملاءمة حسب الحجم وتعقيد سير العمل.' : 'One-time fee; final quote is confirmed after fit check based on volume and workflow complexity.'}
+                {isArabic ? 'يُؤكد النطاق والرسوم كتابةً بعد فحص الملاءمة. إرسال الطلب لا ينشئ التزامًا بالدفع.' : 'Scope and fee are confirmed in writing after a fit check. Submitting a request creates no payment obligation.'}
               </div>
             </div>
           </div>
@@ -100,8 +100,8 @@ export function PricingSection() {
             <Link href="/lead/demo-store" className="flex-1 text-center py-3.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-violet text-white font-bold text-[14px] hover:opacity-90 transition-opacity shadow-brand-glow">
               {isArabic ? 'جرّب سير العمل' : 'Try the workflow'}
             </Link>
-            <Link href="/lead/demo-store" className="flex-1 text-center py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-bold text-[14px] hover:border-brand-primary transition-colors">
-              {isArabic ? 'تحقق من ملاءمة الـPilot' : 'Check pilot fit'}
+            <Link href="/lead/demo-store?intent=pilot" className="flex-1 text-center py-3.5 rounded-xl border-[1.5px] border-black/10 dark:border-white/10 font-bold text-[14px] hover:border-brand-primary transition-colors">
+              {isArabic ? 'اطلب فحص ملاءمة الـPilot' : 'Request a pilot fit check'}
             </Link>
           </div>
         </div>
