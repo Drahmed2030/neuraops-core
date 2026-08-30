@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { BrandMark } from '@/components/brand/BrandMark'
 import { FormEvent, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useUI } from '@/lib/ui-context'
 
 type Result = {
@@ -24,7 +25,12 @@ function sessionIdFor(slug: string) {
 
 export default function LeadIntakePage({ params }: { params: { slug: string } }) {
   const { lang, toggleLang } = useUI()
+  const searchParams = useSearchParams()
   const isArabic = lang === 'ar'
+  const intent = searchParams.get('intent')
+  const requestIntent = ['pilot', 'privacy', 'security', 'feedback'].includes(intent || '') ? intent! : 'demo'
+  const isPilotRequest = requestIntent === 'pilot'
+  const isTrustRequest = ['privacy', 'security', 'feedback'].includes(requestIntent)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<Result | null>(null)
@@ -39,7 +45,7 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
     const payload = {
       storeId: params.slug,
       sessionId: sessionIdFor(params.slug),
-      source: 'web',
+      source: requestIntent === 'demo' ? 'web-demo' : requestIntent,
       name: form.get('name'),
       email: form.get('email'),
       phone: form.get('phone'),
@@ -90,15 +96,31 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
         <div className="mb-7">
           <div className="inline-flex items-center gap-2 rounded-full border border-brand-primary/25 bg-brand-primary/10 px-3 py-1.5 text-[11px] font-bold text-brand-primary mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-primary" />
-            {isArabic ? 'LeadOps · تجربة تأهيل حقيقية' : 'LeadOps · Live qualification demo'}
+            {isPilotRequest
+              ? (isArabic ? 'LeadOps · فحص ملاءمة الـPilot' : 'LeadOps · Pilot fit check')
+              : isTrustRequest
+                ? (isArabic ? 'NeuraOps · طلب ثقة ودعم' : 'NeuraOps · Trust and support request')
+                : (isArabic ? 'LeadOps · تجربة تأهيل حقيقية' : 'LeadOps · Live qualification demo')}
           </div>
           <h1 className="text-[clamp(2rem,8vw,2.65rem)] leading-[1.15] font-extrabold tracking-tight">
-            {isArabic ? 'أخبرنا عن الفرصة الواردة' : 'Tell us about the inbound opportunity'}
+            {isPilotRequest
+              ? (isArabic ? 'صف سير العمل الذي تريد تحسينه' : 'Describe the workflow you want to improve')
+              : isTrustRequest
+                ? (isArabic ? 'صف طلبك بأقل قدر لازم من المعلومات' : 'Describe your request with the minimum necessary detail')
+                : (isArabic ? 'أخبرنا عن الفرصة الواردة' : 'Tell us about the inbound opportunity')}
           </h1>
           <p className="text-[14px] sm:text-[15px] leading-7 opacity-60 mt-3 max-w-xl">
-            {isArabic
-              ? 'يستغرق أقل من دقيقتين. نستخدم إجاباتك لتقدير الأولوية، تحديد مستوى التأهيل، ومعرفة متى يجب أن يراجع الطلب شخص حقيقي.'
-              : 'It takes under two minutes. We use your answers to estimate priority, determine qualification, and decide when a human should review the request.'}
+            {isPilotRequest
+              ? (isArabic
+                  ? 'نستخدم إجاباتك لتقييم ملاءمة برنامج Pilot محدود قبل مناقشة النطاق أو الرسوم. إرسال الطلب لا ينشئ عقدًا أو التزامًا بالدفع.'
+                  : 'We use your answers to assess fit for a limited pilot before discussing scope or fees. Submitting this request creates no contract or payment obligation.')
+              : isTrustRequest
+                ? (isArabic
+                    ? 'لا ترسل كلمات مرور أو مفاتيح API أو بيانات مرضى أو بطاقات دفع. سيتم تسجيل الطلب للمراجعة البشرية.'
+                    : 'Do not submit passwords, API keys, patient data, or payment-card details. The request will be recorded for human review.')
+                : (isArabic
+                    ? 'يستغرق أقل من دقيقتين. نستخدم إجاباتك لتقدير الأولوية، تحديد مستوى التأهيل، ومعرفة متى يجب أن يراجع الطلب شخص حقيقي.'
+                    : 'It takes under two minutes. We use your answers to estimate priority, determine qualification, and decide when a human should review the request.')}
           </p>
         </div>
 
@@ -129,7 +151,13 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
             </div>
 
             <button disabled={loading} className="w-full rounded-xl bg-gradient-to-r from-brand-primary to-brand-violet text-white font-extrabold px-5 py-3.5 text-[14px] disabled:opacity-60 hover:opacity-90 transition-opacity shadow-brand-glow">
-              {loading ? (isArabic ? 'جارٍ التأهيل…' : 'Qualifying…') : (isArabic ? 'حلّل هذه الفرصة' : 'Qualify this opportunity')}
+              {loading
+                ? (isArabic ? 'جارٍ الإرسال…' : 'Submitting…')
+                : isPilotRequest
+                  ? (isArabic ? 'أرسل طلب فحص الملاءمة' : 'Submit pilot fit request')
+                  : isTrustRequest
+                    ? (isArabic ? 'أرسل للمراجعة البشرية' : 'Submit for human review')
+                    : (isArabic ? 'حلّل هذه الفرصة' : 'Qualify this opportunity')}
             </button>
           </form>
         )}
@@ -178,7 +206,12 @@ export default function LeadIntakePage({ params }: { params: { slug: string } })
         )}
 
         <div className="mt-6 text-center text-[11px] leading-5 opacity-40">
-          {isArabic ? 'تجربة Pilot محدودة — لا ندّعي نتائج أو نسب تحويل غير موثقة.' : 'Limited pilot experience — no fabricated customer results or conversion claims.'}
+          <div>{isArabic ? 'تجربة Pilot محدودة — لا ندّعي نتائج أو نسب تحويل غير موثقة.' : 'Limited pilot experience — no fabricated customer results or conversion claims.'}</div>
+          <div className="mt-2">
+            <Link href="/privacy" className="underline hover:text-brand-primary">{isArabic ? 'الخصوصية' : 'Privacy'}</Link>
+            {' · '}
+            <Link href="/terms" className="underline hover:text-brand-primary">{isArabic ? 'الشروط' : 'Terms'}</Link>
+          </div>
         </div>
       </div>
     </main>
