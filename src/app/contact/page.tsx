@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
 import { TrustPage } from '@/components/trust/TrustPage'
 
-export const metadata: Metadata = { title: 'Contact NeuraOps', description: 'Request a LeadOps pilot fit check or contact NeuraOps about privacy, security, or product feedback.' }
+export const metadata: Metadata = {
+  title: 'Contact NeuraOps',
+  description: 'Request a LeadOps pilot fit check or contact NeuraOps about privacy, security, or product feedback.',
+  alternates: { canonical: '/contact' },
+  openGraph: { url: '/contact' },
+}
 
 export default function ContactPage({ searchParams }: { searchParams: { intent?: string } }) {
   const intent = ['privacy', 'security', 'feedback'].includes(searchParams.intent || '') ? searchParams.intent : 'pilot'
