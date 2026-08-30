@@ -1,7 +1,12 @@
 import type { Metadata } from 'next'
 import { TrustPage } from '@/components/trust/TrustPage'
 
-export const metadata: Metadata = { title: 'Website Terms — NeuraOps', description: 'Pilot-stage website and LeadOps demonstration terms.' }
+export const metadata: Metadata = {
+  title: 'Website Terms — NeuraOps',
+  description: 'Pilot-stage website and LeadOps demonstration terms.',
+  alternates: { canonical: '/terms' },
+  openGraph: { url: '/terms' },
+}
 
 export default function TermsPage() {
   return <TrustPage
