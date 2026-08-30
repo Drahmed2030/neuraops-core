@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import { Inter, IBM_Plex_Sans_Arabic } from 'next/font/google'
 import { UIProvider } from '@/lib/ui-context'
 import MetaPixel from '@/components/analytics/MetaPixel'
+import { siteUrl } from '@/lib/site-url'
 import './globals.css'
 
 const inter = Inter({
@@ -19,8 +20,35 @@ const plexArabic = IBM_Plex_Sans_Arabic({
 })
 
 export const metadata: Metadata = {
+  metadataBase: siteUrl(),
   title: 'NeuraOps LeadOps — Qualify and Prioritize Inbound Leads',
   description: 'Lead qualification, scoring, AI-assisted response, and human handoff for service businesses.',
+  alternates: {
+    canonical: '/',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    siteName: 'NeuraOps',
+    title: 'NeuraOps LeadOps — Qualify and Prioritize Inbound Leads',
+    description: 'Explainable lead qualification, AI-assisted response, and human handoff for service businesses.',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'NeuraOps LeadOps',
+    description: 'Explainable lead qualification with human handoff when needed.',
+  },
   icons: {
     icon: '/brand/neuraops-edge-n-app.png',
     apple: '/brand/neuraops-edge-n-app.png',
