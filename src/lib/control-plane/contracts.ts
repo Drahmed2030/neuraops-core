@@ -100,6 +100,8 @@ export type PaymentRecord = {
   amountMinor: number
   currency: string
   status: PaymentStatus
+  idempotencyKey?: string
+  providerReference?: string
   createdAt: string
   paidAt?: string
 }
