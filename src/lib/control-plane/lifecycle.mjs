@@ -1,4 +1,4 @@
-import { appendEvent } from './event-ledger.mjs'
+import { appendEvent, findEventById, sameEvent } from './event-ledger.mjs'
 import { grantEntitlement } from './entitlements.mjs'
 import { transitionEngagement } from './state-machine.mjs'
 
@@ -8,6 +8,23 @@ export function applyLifecycleEvent({ engagement, events, grants, event, entitle
   }
   if (event?.engagementId !== engagement.engagementId || event?.organizationId !== engagement.organizationId) {
     return { ok: false, reason: 'event_scope_mismatch' }
+  }
+
+  const existingEvent = findEventById(events, event.eventId)
+  if (existingEvent) {
+    if (!sameEvent(existingEvent, event)) {
+      return { ok: false, reason: 'event_id_conflict', existingEvent }
+    }
+    return {
+      ok: true,
+      duplicate: true,
+      engagement,
+      events,
+      grants,
+      transition: null,
+      eventCreated: false,
+      entitlement: null,
+    }
   }
 
   const transition = transitionEngagement(engagement.state, event.type)
@@ -31,6 +48,7 @@ export function applyLifecycleEvent({ engagement, events, grants, event, entitle
 
   return {
     ok: true,
+    duplicate: false,
     engagement: { ...engagement, state: transition.to },
     events: eventResult.events,
     grants: nextGrants,
