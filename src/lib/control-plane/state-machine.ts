@@ -1,4 +1,4 @@
-import type { ControlPlaneEventType, EngagementState } from './contracts'
+import type { ControlPlaneEventType, EngagementKind, EngagementState } from './contracts'
 import {
   allowedEvents as allowedEventsRuntime,
   canTransition as canTransitionRuntime,
@@ -12,12 +12,17 @@ export type TransitionResult =
 export function transitionEngagement(
   from: EngagementState,
   event: ControlPlaneEventType,
+  kind: EngagementKind = 'pilot',
 ): TransitionResult {
-  return transitionEngagementRuntime(from, event) as TransitionResult
+  return transitionEngagementRuntime(from, event, kind) as TransitionResult
 }
 
-export function canTransition(from: EngagementState, event: ControlPlaneEventType): boolean {
-  return canTransitionRuntime(from, event)
+export function canTransition(
+  from: EngagementState,
+  event: ControlPlaneEventType,
+  kind: EngagementKind = 'pilot',
+): boolean {
+  return canTransitionRuntime(from, event, kind)
 }
 
 export function allowedEvents(from: EngagementState): ControlPlaneEventType[] {
