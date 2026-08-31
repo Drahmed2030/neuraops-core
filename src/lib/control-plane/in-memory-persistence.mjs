@@ -7,6 +7,7 @@ function clone(value) {
 
 export function createInMemoryControlPlanePersistence(initialBundles = []) {
   const store = new Map()
+  const sourceRefs = new Map()
 
   for (const bundle of initialBundles) {
     if (!bundle?.engagement?.engagementId) throw new Error('invalid_initial_bundle')
@@ -17,9 +18,41 @@ export function createInMemoryControlPlanePersistence(initialBundles = []) {
       payments: bundle.payments ?? [],
       version: bundle.version ?? 0,
     }))
+    if (bundle.sourceRef) sourceRefs.set(bundle.sourceRef, bundle.engagement.engagementId)
   }
 
   return {
+    async bootstrapEngagement(input) {
+      if (!input?.sourceRef || !input?.organizationId || !input?.engagementId) {
+        return { ok: false, reason: 'invalid_bootstrap' }
+      }
+      const existingId = sourceRefs.get(input.sourceRef)
+      if (existingId) {
+        const existing = store.get(existingId)
+        if (!existing || existing.engagement.engagementId !== input.engagementId || existing.engagement.organizationId !== input.organizationId || existing.engagement.product !== input.product || existing.engagement.kind !== input.kind) {
+          return { ok: false, reason: 'source_ref_conflict' }
+        }
+        return { ok: true, created: false, engagementId: existingId, organizationId: input.organizationId, version: existing.version }
+      }
+
+      const bundle = {
+        engagement: {
+          engagementId: input.engagementId,
+          organizationId: input.organizationId,
+          product: input.product,
+          kind: input.kind,
+          state: input.initialState,
+        },
+        events: [],
+        entitlements: [],
+        payments: [],
+        version: 0,
+      }
+      store.set(input.engagementId, clone(bundle))
+      sourceRefs.set(input.sourceRef, input.engagementId)
+      return { ok: true, created: true, engagementId: input.engagementId, organizationId: input.organizationId, version: 0 }
+    },
+
     async loadEngagementBundle(engagementId) {
       const bundle = store.get(engagementId)
       return bundle ? clone(bundle) : null
@@ -33,9 +66,6 @@ export function createInMemoryControlPlanePersistence(initialBundles = []) {
         return { ok: false, reason: 'persistence_failed' }
       }
 
-      // Idempotency is checked before optimistic concurrency. This covers the case
-      // where the first commit succeeded but its response was lost and the caller
-      // retries the exact same event with a stale expectedVersion.
       const existingEvent = event?.eventId ? findEventById(current.events, event.eventId) : null
       if (existingEvent) {
         if (!sameEvent(existingEvent, event)) {
@@ -67,12 +97,10 @@ export function createInMemoryControlPlanePersistence(initialBundles = []) {
         version: current.version + 1,
       }
 
-      // Atomic swap: nothing is visible until the whole domain operation succeeds.
       store.set(engagementId, clone(next))
       return { ok: true, version: next.version, duplicate: false }
     },
 
-    // Test/dev-only introspection. Not part of the production persistence port.
     snapshot(engagementId) {
       const bundle = store.get(engagementId)
       return bundle ? clone(bundle) : null
