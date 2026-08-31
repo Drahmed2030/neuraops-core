@@ -1,4 +1,5 @@
 import { findEventById, sameEvent } from './event-ledger.mjs'
+import { fulfillVerifiedPayment } from './fulfillment.mjs'
 import { applyLifecycleEvent } from './lifecycle.mjs'
 
 function clone(value) {
@@ -185,11 +186,109 @@ export function createInMemoryControlPlanePersistence(initialBundles = []) {
     return { ok: true, version: next.version, duplicate: false, payment: clone(payment) }
   }
 
+  async function linkCheckoutReference({ engagementId, paymentId, providerReference }) {
+    const current = store.get(engagementId)
+    if (!current) return { ok: false, reason: 'payment_not_found' }
+    const index = current.payments.findIndex(item => item.paymentId === paymentId)
+    if (index < 0) return { ok: false, reason: 'payment_not_found' }
+    const payment = current.payments[index]
+
+    if (payment.providerReference) {
+      if (payment.providerReference === providerReference) {
+        return { ok: true, duplicate: true, payment: clone(payment) }
+      }
+      return { ok: false, reason: 'provider_reference_conflict' }
+    }
+
+    for (const bundle of store.values()) {
+      const conflict = bundle.payments.some(item =>
+        item.provider === payment.provider && item.providerReference === providerReference
+      )
+      if (conflict) return { ok: false, reason: 'provider_reference_conflict' }
+    }
+
+    const next = clone(current)
+    next.payments[index].providerReference = providerReference
+    store.set(engagementId, next)
+    return { ok: true, duplicate: false, payment: clone(next.payments[index]) }
+  }
+
+  async function settleVerifiedPayment({ engagement, expectedVersion, expectedPayment, verifiedPayment, entitlement }) {
+    const current = store.get(engagement?.engagementId)
+    if (!current) return { ok: false, reason: 'persistence_failed', domainReason: 'engagement_not_found' }
+    const paymentIndex = current.payments.findIndex(item => item.paymentId === expectedPayment?.paymentId)
+    if (paymentIndex < 0) return { ok: false, reason: 'persistence_failed', domainReason: 'payment_not_found' }
+    const storedPayment = current.payments[paymentIndex]
+
+    if (storedPayment.status === 'paid') {
+      const exact =
+        storedPayment.providerReference === verifiedPayment?.providerReference &&
+        storedPayment.amountMinor === verifiedPayment?.amountMinor &&
+        storedPayment.currency === verifiedPayment?.currency &&
+        storedPayment.idempotencyKey === verifiedPayment?.idempotencyKey
+      if (!exact) return { ok: false, reason: 'persistence_failed', domainReason: 'paid_payment_conflict' }
+      const active = current.entitlements.find(item =>
+        item.organizationId === current.engagement.organizationId &&
+        item.key === entitlement?.key && item.status === 'active'
+      )
+      return {
+        ok: true,
+        duplicate: true,
+        version: current.version,
+        payment: clone(storedPayment),
+        entitlement: clone(active ?? entitlement),
+        engagement: clone(current.engagement),
+      }
+    }
+
+    if (current.version !== expectedVersion) {
+      return { ok: false, reason: 'version_conflict', currentVersion: current.version }
+    }
+    if (!storedPayment.providerReference || storedPayment.providerReference !== verifiedPayment?.providerReference) {
+      return { ok: false, reason: 'persistence_failed', domainReason: 'provider_reference_mismatch' }
+    }
+
+    const domain = fulfillVerifiedPayment({
+      engagement: current.engagement,
+      events: current.events,
+      grants: current.entitlements,
+      expectedPayment: storedPayment,
+      verifiedPayment,
+      entitlementGrant: entitlement,
+    })
+    if (!domain.ok) {
+      return { ok: false, reason: 'persistence_failed', domainReason: domain.reason }
+    }
+
+    const next = clone(current)
+    next.engagement = clone(domain.engagement)
+    next.events = clone(domain.events)
+    next.entitlements = clone(domain.grants)
+    next.payments[paymentIndex] = {
+      ...storedPayment,
+      status: 'paid',
+      paidAt: verifiedPayment.occurredAt,
+    }
+    next.version = current.version + 1
+    store.set(engagement.engagementId, next)
+
+    return {
+      ok: true,
+      duplicate: false,
+      version: next.version,
+      payment: clone(next.payments[paymentIndex]),
+      entitlement: clone(next.entitlements.find(item => item.key === entitlement.key && item.status === 'active')),
+      engagement: clone(next.engagement),
+    }
+  }
+
   return {
     bootstrapEngagement,
     loadEngagementBundle,
     commitLifecycle,
     createPaymentIntent,
+    linkCheckoutReference,
+    settleVerifiedPayment,
     snapshot(engagementId) {
       const bundle = store.get(engagementId)
       return bundle ? clone(bundle) : null
