@@ -4,14 +4,14 @@
 alter table control_plane.engagements
   drop constraint if exists engagements_kind_check;
 
-alter table control_plane.engagements
-  add constraint engagements_kind_check
-  check (kind in ('nexus_lifecycle', 'subscription'));
-
 update control_plane.engagements
 set kind = 'nexus_lifecycle'
 where product = 'nexus'
   and kind in ('audit', 'review', 'pilot');
+
+alter table control_plane.engagements
+  add constraint engagements_kind_check
+  check (kind in ('nexus_lifecycle', 'subscription'));
 
 create or replace function public.control_plane_bootstrap_engagement(
   p_source_ref text,
