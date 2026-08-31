@@ -27,7 +27,7 @@ export function applyLifecycleEvent({ engagement, events, grants, event, entitle
     }
   }
 
-  const transition = transitionEngagement(engagement.state, event.type)
+  const transition = transitionEngagement(engagement.state, event.type, engagement.kind ?? 'pilot')
   if (!transition.ok) return { ok: false, reason: transition.reason, transition }
 
   let nextGrants = grants
