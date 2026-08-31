@@ -109,12 +109,7 @@ export function createSupabaseControlPlanePersistence(supabase) {
       return { ok: false, reason: 'persistence_failed', domainReason: data?.reason }
     }
 
-    return {
-      ok: true,
-      version: data.version,
-      duplicate: Boolean(data.duplicate),
-      payment: data.payment,
-    }
+    return { ok: true, version: data.version, duplicate: Boolean(data.duplicate), payment: data.payment }
   }
 
   async function linkCheckoutReference({ engagementId, paymentId, providerReference }) {
@@ -144,9 +139,7 @@ export function createSupabaseControlPlanePersistence(supabase) {
       verifiedPayment,
       entitlementGrant: entitlement,
     })
-    if (!domain.ok) {
-      return { ok: false, reason: 'persistence_failed', domainReason: domain.reason }
-    }
+    if (!domain.ok) return { ok: false, reason: 'persistence_failed', domainReason: domain.reason }
 
     const paymentEvent = domain.events.find(event => event.type === 'PAYMENT_RECEIVED' && event.payload?.paymentId === expectedPayment.paymentId)
     const entitlementEvent = domain.events.find(event => event.type === 'ENTITLEMENT_GRANTED' && event.payload?.key === entitlement.key)
@@ -182,6 +175,32 @@ export function createSupabaseControlPlanePersistence(supabase) {
     }
   }
 
+  async function recordPilotMeasurement({ engagement, expectedVersion, stage, event, measurement }) {
+    const { data, error } = await supabase.rpc('control_plane_record_pilot_measurement', {
+      p_engagement_id: engagement.engagementId,
+      p_expected_version: expectedVersion,
+      p_stage: stage,
+      p_event: event,
+      p_metrics: measurement.metrics,
+    })
+    if (error) return mapRpcError(error)
+    if (!data?.ok) {
+      if (data?.reason === 'version_conflict') {
+        return { ok: false, reason: 'version_conflict', currentVersion: data.currentVersion }
+      }
+      return { ok: false, reason: 'persistence_failed', domainReason: data?.reason }
+    }
+    return { ok: true, version: data.version, duplicate: Boolean(data.duplicate) }
+  }
+
+  async function loadPilotMeasurements(engagementId) {
+    const { data, error } = await supabase.rpc('control_plane_load_pilot_measurements', {
+      p_engagement_id: engagementId,
+    })
+    if (error) throw new Error(`control_plane_measurements_load_failed:${error.message}`)
+    return Array.isArray(data) ? data : []
+  }
+
   return {
     bootstrapEngagement,
     loadEngagementBundle,
@@ -189,5 +208,7 @@ export function createSupabaseControlPlanePersistence(supabase) {
     createPaymentIntent,
     linkCheckoutReference,
     settleVerifiedPayment,
+    recordPilotMeasurement,
+    loadPilotMeasurements,
   }
 }
