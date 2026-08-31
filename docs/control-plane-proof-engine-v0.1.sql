@@ -33,12 +33,12 @@ security definer
 set search_path = ''
 as $$
 declare
-  v_engagement control_plane.engagements%rowtype;
+  v_row control_plane.engagements%rowtype;
   v_existing control_plane.pilot_measurements%rowtype;
   v_next_state text;
   v_event_id text;
   v_org uuid;
-  v_engagement uuid;
+  v_event_engagement uuid;
   v_allowed_keys text[] := array[
     'referralVolumePerMonth',
     'medianReferralResponseHours',
@@ -63,25 +63,25 @@ begin
     end if;
   end loop;
 
-  select * into v_engagement
+  select * into v_row
   from control_plane.engagements
   where id = p_engagement_id
   for update;
 
   if not found then return jsonb_build_object('ok', false, 'reason', 'engagement_not_found'); end if;
-  if v_engagement.product <> 'nexus' or v_engagement.kind <> 'nexus_lifecycle' then
+  if v_row.product <> 'nexus' or v_row.kind <> 'nexus_lifecycle' then
     return jsonb_build_object('ok', false, 'reason', 'not_nexus_lifecycle');
   end if;
 
   v_event_id := p_event->>'eventId';
   begin
     v_org := (p_event->>'organizationId')::uuid;
-    v_engagement := (p_event->>'engagementId')::uuid;
+    v_event_engagement := (p_event->>'engagementId')::uuid;
   exception when others then
     return jsonb_build_object('ok', false, 'reason', 'invalid_event_scope');
   end;
 
-  if v_org <> v_engagement.organization_id or v_engagement <> v_engagement.id then
+  if v_org <> v_row.organization_id or v_event_engagement <> v_row.id then
     return jsonb_build_object('ok', false, 'reason', 'event_scope_mismatch');
   end if;
 
@@ -91,22 +91,22 @@ begin
 
   if found then
     if v_existing.metrics = p_metrics and v_existing.source_event_id = v_event_id then
-      return jsonb_build_object('ok', true, 'version', v_engagement.version, 'duplicate', true);
+      return jsonb_build_object('ok', true, 'version', v_row.version, 'duplicate', true);
     end if;
     return jsonb_build_object('ok', false, 'reason', 'measurement_stage_conflict');
   end if;
 
-  if v_engagement.version <> p_expected_version then
-    return jsonb_build_object('ok', false, 'reason', 'version_conflict', 'currentVersion', v_engagement.version);
+  if v_row.version <> p_expected_version then
+    return jsonb_build_object('ok', false, 'reason', 'version_conflict', 'currentVersion', v_row.version);
   end if;
 
   if p_stage = 'baseline' then
-    if v_engagement.state <> 'PILOT_ACTIVE' or p_event->>'type' <> 'BASELINE_CAPTURED' then
+    if v_row.state <> 'PILOT_ACTIVE' or p_event->>'type' <> 'BASELINE_CAPTURED' then
       return jsonb_build_object('ok', false, 'reason', 'baseline_not_recordable');
     end if;
     v_next_state := 'PILOT_ACTIVE';
   elsif p_stage = 'checkpoint' then
-    if v_engagement.state <> 'PILOT_ACTIVE' or p_event->>'type' <> 'CHECKPOINT_COMPLETED' then
+    if v_row.state <> 'PILOT_ACTIVE' or p_event->>'type' <> 'CHECKPOINT_COMPLETED' then
       return jsonb_build_object('ok', false, 'reason', 'checkpoint_not_recordable');
     end if;
     if not exists (
@@ -117,7 +117,7 @@ begin
     end if;
     v_next_state := 'CHECKPOINT_COMPLETED';
   else
-    if v_engagement.state not in ('PILOT_ACTIVE','CHECKPOINT_COMPLETED') or p_event->>'type' <> 'OUTCOME_RECORDED' then
+    if v_row.state not in ('PILOT_ACTIVE','CHECKPOINT_COMPLETED') or p_event->>'type' <> 'OUTCOME_RECORDED' then
       return jsonb_build_object('ok', false, 'reason', 'outcome_not_recordable');
     end if;
     if not exists (
@@ -154,7 +154,7 @@ begin
   set state = v_next_state, version = version + 1, updated_at = now()
   where id = p_engagement_id;
 
-  return jsonb_build_object('ok', true, 'version', v_engagement.version + 1, 'duplicate', false);
+  return jsonb_build_object('ok', true, 'version', v_row.version + 1, 'duplicate', false);
 exception
   when unique_violation then
     return jsonb_build_object('ok', false, 'reason', 'measurement_conflict');
