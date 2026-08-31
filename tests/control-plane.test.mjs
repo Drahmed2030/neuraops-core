@@ -43,6 +43,16 @@ test('event ledger is idempotent by eventId and ordered by occurredAt', () => {
   assert.equal(latestEvent(duplicate.events, 'AUDIT_COMPLETED', 'eng-1').eventId, 'evt-2')
 })
 
+test('same eventId with different content is rejected', () => {
+  const original = { eventId: 'evt-1', type: 'AUDIT_STARTED', occurredAt: '2026-09-01T00:00:00Z', organizationId: 'org-1', engagementId: 'eng-1', actor: { type: 'system' }, payload: {} }
+  const conflicting = { ...original, type: 'AUDIT_COMPLETED' }
+  const first = appendEvent([], original)
+  const second = appendEvent(first.events, conflicting)
+
+  assert.equal(second.ok, false)
+  assert.equal(second.reason, 'event_id_conflict')
+})
+
 test('entitlement grants are idempotent and revocation removes access', () => {
   const grant = {
     organizationId: 'org-1',
@@ -89,6 +99,33 @@ test('lifecycle orchestration scopes events and requires entitlement data before
   })
   assert.equal(wrongScope.ok, false)
   assert.equal(wrongScope.reason, 'event_scope_mismatch')
+})
+
+test('lifecycle retry with exact same event is a successful no-op', () => {
+  const engagement = { engagementId: 'eng-1', organizationId: 'org-1', state: 'AUDIT_STARTED' }
+  const event = { eventId: 'evt-audit-1', type: 'AUDIT_COMPLETED', occurredAt: '2026-09-01T00:05:00Z', organizationId: 'org-1', engagementId: 'eng-1', actor: { type: 'system' }, payload: { score: 81 } }
+
+  const first = applyLifecycleEvent({ engagement, events: [], grants: [], event })
+  assert.equal(first.ok, true)
+  assert.equal(first.engagement.state, 'AUDIT_COMPLETED')
+
+  const retry = applyLifecycleEvent({ engagement: first.engagement, events: first.events, grants: first.grants, event })
+  assert.equal(retry.ok, true)
+  assert.equal(retry.duplicate, true)
+  assert.equal(retry.eventCreated, false)
+  assert.equal(retry.engagement.state, 'AUDIT_COMPLETED')
+  assert.equal(retry.events.length, 1)
+})
+
+test('lifecycle retry rejects eventId reuse with conflicting payload', () => {
+  const engagement = { engagementId: 'eng-1', organizationId: 'org-1', state: 'AUDIT_STARTED' }
+  const event = { eventId: 'evt-audit-1', type: 'AUDIT_COMPLETED', occurredAt: '2026-09-01T00:05:00Z', organizationId: 'org-1', engagementId: 'eng-1', actor: { type: 'system' }, payload: { score: 81 } }
+  const first = applyLifecycleEvent({ engagement, events: [], grants: [], event })
+  const conflicting = { ...event, payload: { score: 42 } }
+
+  const retry = applyLifecycleEvent({ engagement: first.engagement, events: first.events, grants: first.grants, event: conflicting })
+  assert.equal(retry.ok, false)
+  assert.equal(retry.reason, 'event_id_conflict')
 })
 
 test('invalid events and entitlements are rejected', () => {
