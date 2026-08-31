@@ -1,3 +1,4 @@
+import { findEventById, sameEvent } from './event-ledger.mjs'
 import { applyLifecycleEvent } from './lifecycle.mjs'
 
 function clone(value) {
@@ -28,11 +29,23 @@ export function createInMemoryControlPlanePersistence(initialBundles = []) {
       const engagementId = engagement?.engagementId
       const current = engagementId ? store.get(engagementId) : null
       if (!current) return { ok: false, reason: 'persistence_failed' }
-      if (current.version !== expectedVersion) {
-        return { ok: false, reason: 'version_conflict', currentVersion: current.version }
-      }
       if (engagement.organizationId !== current.engagement.organizationId) {
         return { ok: false, reason: 'persistence_failed' }
+      }
+
+      // Idempotency is checked before optimistic concurrency. This covers the case
+      // where the first commit succeeded but its response was lost and the caller
+      // retries the exact same event with a stale expectedVersion.
+      const existingEvent = event?.eventId ? findEventById(current.events, event.eventId) : null
+      if (existingEvent) {
+        if (!sameEvent(existingEvent, event)) {
+          return { ok: false, reason: 'persistence_failed', domainReason: 'event_id_conflict' }
+        }
+        return { ok: true, version: current.version, duplicate: true }
+      }
+
+      if (current.version !== expectedVersion) {
+        return { ok: false, reason: 'version_conflict', currentVersion: current.version }
       }
 
       const applied = applyLifecycleEvent({
@@ -44,11 +57,6 @@ export function createInMemoryControlPlanePersistence(initialBundles = []) {
       })
       if (!applied.ok) {
         return { ok: false, reason: 'persistence_failed', domainReason: applied.reason }
-      }
-
-      // Exact webhook retries are successful no-ops and do not advance the version.
-      if (applied.duplicate) {
-        return { ok: true, version: current.version, duplicate: true }
       }
 
       const next = {
