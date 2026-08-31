@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
-import { Inter, IBM_Plex_Sans_Arabic } from 'next/font/google'
+import { Cairo, Inter } from 'next/font/google'
 import { UIProvider } from '@/lib/ui-context'
 import MetaPixel from '@/components/analytics/MetaPixel'
 import { siteUrl } from '@/lib/site-url'
@@ -12,10 +12,10 @@ const inter = Inter({
   display: 'swap',
 })
 
-const plexArabic = IBM_Plex_Sans_Arabic({
-  subsets: ['arabic'],
+const cairo = Cairo({
+  subsets: ['arabic', 'latin'],
   weight: ['400', '500', '600', '700'],
-  variable: '--font-plex-arabic',
+  variable: '--font-cairo',
   display: 'swap',
 })
 
@@ -80,7 +80,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: antiFlashScript }} />
       </head>
       <body
-        className={`${inter.variable} ${plexArabic.variable} font-arabic bg-paper-50 text-ink-950 dark:bg-ink-950 dark:text-paper-50 transition-colors duration-300`}
+        className={`${inter.variable} ${cairo.variable} font-arabic bg-paper-50 text-ink-950 dark:bg-ink-950 dark:text-paper-50 transition-colors duration-300`}
         suppressHydrationWarning
       >
         <Suspense fallback={null}>
