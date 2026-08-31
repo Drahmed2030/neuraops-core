@@ -30,6 +30,7 @@ export const CONTROL_PLANE_EVENTS = [
   'PAYMENT_RECEIVED',
   'ENTITLEMENT_GRANTED',
   'PILOT_STARTED',
+  'BASELINE_CAPTURED',
   'CHECKPOINT_COMPLETED',
   'OUTCOME_RECORDED',
   'ENGAGEMENT_RENEWED',
@@ -114,4 +115,14 @@ export type OperationalAuditSnapshot = {
   followUpCompletionPercent?: number
   leakagePercent?: number
   locationOrHandoffCount?: number
+}
+
+export type PilotMeasurementStage = 'baseline' | 'checkpoint' | 'outcome'
+
+export type PilotMeasurement = {
+  engagementId: string
+  organizationId: string
+  stage: PilotMeasurementStage
+  recordedAt: string
+  metrics: OperationalAuditSnapshot
 }
