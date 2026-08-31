@@ -13,6 +13,20 @@ export type EngagementBundle = {
   version: number
 }
 
+export type BootstrapEngagementInput = {
+  sourceRef: string
+  organizationId: string
+  organizationName: string
+  engagementId: string
+  product: 'nexus' | 'cliniverse'
+  kind: 'audit' | 'review' | 'pilot' | 'subscription'
+  initialState: string
+}
+
+export type BootstrapEngagementResult =
+  | { ok: true; created: boolean; engagementId: string; organizationId: string; version: number }
+  | { ok: false; reason: string }
+
 export type LifecycleCommit = {
   engagement: EngagementRef
   event: ControlPlaneEvent
@@ -28,10 +42,12 @@ export type LifecycleCommitResult =
 /**
  * Persistence boundary for the Control Plane.
  * Implementations may use Supabase/Postgres later, but domain code must not depend on either.
+ * Bootstrap must be idempotent by sourceRef.
  * Commits must be atomic and optimistic-concurrency protected by expectedVersion.
  * Exact duplicate events are successful no-ops even when the caller retries with a stale version.
  */
 export interface ControlPlanePersistencePort {
+  bootstrapEngagement(input: BootstrapEngagementInput): Promise<BootstrapEngagementResult>
   loadEngagementBundle(engagementId: string): Promise<EngagementBundle | null>
   commitLifecycle(input: LifecycleCommit): Promise<LifecycleCommitResult>
 }
@@ -85,12 +101,6 @@ export type VerifiedPaymentEvent = {
   idempotencyKey: string
 }
 
-/**
- * Payment providers live behind this interface.
- * Callers must run Commerce Policy before createCheckout and pass the approved rail.
- * Provider webhooks must be verified before producing a VerifiedPaymentEvent.
- * The Control Plane never stores raw card data.
- */
 export interface PaymentPort {
   rail: CommerceRail
   createCheckout(input: CheckoutRequest): Promise<CheckoutResult>
@@ -111,7 +121,6 @@ export type ReviewBookingResult = {
   status: 'held' | 'confirmed' | 'cancelled'
 }
 
-/** Booking remains a replaceable integration, not lifecycle state storage. */
 export interface BookingPort {
   createReviewBooking(input: ReviewBookingRequest): Promise<ReviewBookingResult>
   cancelReviewBooking(bookingId: string): Promise<{ ok: boolean }>
