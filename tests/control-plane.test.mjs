@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { appendEvent, eventsForEngagement, latestEvent } from '../src/lib/control-plane/event-ledger.mjs'
 import { grantEntitlement, hasEntitlement, revokeEntitlement } from '../src/lib/control-plane/entitlements.mjs'
+import { applyLifecycleEvent } from '../src/lib/control-plane/lifecycle.mjs'
 import { allowedEvents, canTransition, transitionEngagement } from '../src/lib/control-plane/state-machine.mjs'
 
 test('pilot lifecycle requires payment confirmation, entitlement, and explicit start', () => {
@@ -12,8 +13,8 @@ test('pilot lifecycle requires payment confirmation, entitlement, and explicit s
     event: 'PAYMENT_RECEIVED',
   })
   assert.equal(canTransition('PAYMENT_CONFIRMED', 'PILOT_STARTED'), false)
-  assert.deepEqual(transitionEngagement('PAYMENT_CONFIRMED', 'ENTITLEMENT_GRANTED').to, 'PILOT_READY')
-  assert.deepEqual(transitionEngagement('PILOT_READY', 'PILOT_STARTED').to, 'PILOT_ACTIVE')
+  assert.equal(transitionEngagement('PAYMENT_CONFIRMED', 'ENTITLEMENT_GRANTED').to, 'PILOT_READY')
+  assert.equal(transitionEngagement('PILOT_READY', 'PILOT_STARTED').to, 'PILOT_ACTIVE')
 })
 
 test('invalid lifecycle jumps are rejected', () => {
@@ -62,6 +63,32 @@ test('entitlement grants are idempotent and revocation removes access', () => {
   const revoked = revokeEntitlement(duplicate.grants, 'org-1', 'nexus.pilot_workspace')
   assert.equal(revoked.changed, true)
   assert.equal(hasEntitlement(revoked.grants, 'org-1', 'nexus.pilot_workspace', '2026-09-02T00:00:00Z'), false)
+})
+
+test('lifecycle orchestration scopes events and requires entitlement data before pilot readiness', () => {
+  const engagement = { engagementId: 'eng-1', organizationId: 'org-1', state: 'PAYMENT_CONFIRMED' }
+  const event = { eventId: 'evt-ent-1', type: 'ENTITLEMENT_GRANTED', occurredAt: '2026-09-01T00:10:00Z', organizationId: 'org-1', engagementId: 'eng-1', actor: { type: 'system' }, payload: {} }
+
+  const missingGrant = applyLifecycleEvent({ engagement, events: [], grants: [], event })
+  assert.equal(missingGrant.ok, false)
+  assert.equal(missingGrant.reason, 'entitlement_grant_required')
+
+  const grant = { organizationId: 'org-1', key: 'nexus.pilot_workspace', status: 'active', source: 'payment', startsAt: '2026-09-01T00:10:00Z' }
+  const applied = applyLifecycleEvent({ engagement, events: [], grants: [], event, entitlementGrant: grant })
+  assert.equal(applied.ok, true)
+  assert.equal(applied.engagement.state, 'PILOT_READY')
+  assert.equal(applied.events.length, 1)
+  assert.equal(applied.grants.length, 1)
+
+  const wrongScope = applyLifecycleEvent({
+    engagement,
+    events: [],
+    grants: [],
+    event: { ...event, eventId: 'evt-ent-2', organizationId: 'org-2' },
+    entitlementGrant: grant,
+  })
+  assert.equal(wrongScope.ok, false)
+  assert.equal(wrongScope.reason, 'event_scope_mismatch')
 })
 
 test('invalid events and entitlements are rejected', () => {
