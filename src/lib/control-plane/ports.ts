@@ -19,7 +19,7 @@ export type BootstrapEngagementInput = {
   organizationName: string
   engagementId: string
   product: 'nexus' | 'cliniverse'
-  kind: 'audit' | 'review' | 'pilot' | 'subscription'
+  kind: 'nexus_lifecycle' | 'subscription'
   initialState: string
 }
 
@@ -39,17 +39,23 @@ export type LifecycleCommitResult =
   | { ok: false; reason: 'version_conflict'; currentVersion: number }
   | { ok: false; reason: 'persistence_failed'; domainReason?: string }
 
-/**
- * Persistence boundary for the Control Plane.
- * Implementations may use Supabase/Postgres later, but domain code must not depend on either.
- * Bootstrap must be idempotent by sourceRef.
- * Commits must be atomic and optimistic-concurrency protected by expectedVersion.
- * Exact duplicate events are successful no-ops even when the caller retries with a stale version.
- */
+export type PaymentIntentCommit = {
+  engagement: EngagementRef
+  event: ControlPlaneEvent
+  payment: PaymentRecord
+  expectedVersion: number
+}
+
+export type PaymentIntentCommitResult =
+  | { ok: true; version: number; duplicate: boolean; payment: PaymentRecord }
+  | { ok: false; reason: 'version_conflict'; currentVersion: number }
+  | { ok: false; reason: 'persistence_failed'; domainReason?: string }
+
 export interface ControlPlanePersistencePort {
   bootstrapEngagement(input: BootstrapEngagementInput): Promise<BootstrapEngagementResult>
   loadEngagementBundle(engagementId: string): Promise<EngagementBundle | null>
   commitLifecycle(input: LifecycleCommit): Promise<LifecycleCommitResult>
+  createPaymentIntent(input: PaymentIntentCommit): Promise<PaymentIntentCommitResult>
 }
 
 export type CommerceProduct = 'nexus' | 'cliniverse'
