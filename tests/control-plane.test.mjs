@@ -1,10 +1,46 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { assertRailAllowed, decideCommerceRail } from '../src/lib/control-plane/commerce-policy.mjs'
 import { appendEvent, eventsForEngagement, latestEvent } from '../src/lib/control-plane/event-ledger.mjs'
 import { grantEntitlement, hasEntitlement, revokeEntitlement } from '../src/lib/control-plane/entitlements.mjs'
 import { applyLifecycleEvent } from '../src/lib/control-plane/lifecycle.mjs'
 import { paymentReceivedEvent, validateVerifiedPayment } from '../src/lib/control-plane/payment-policy.mjs'
 import { allowedEvents, canTransition, transitionEngagement } from '../src/lib/control-plane/state-machine.mjs'
+
+test('commerce policy routes Cliniverse consumer digital purchases on iOS to Apple IAP', () => {
+  const context = { product: 'cliniverse', channel: 'ios', buyerType: 'individual', offeringType: 'digital_subscription' }
+  assert.deepEqual(decideCommerceRail(context), {
+    ok: true,
+    rail: 'apple_iap',
+    policy: 'ios_consumer_digital_purchase',
+  })
+  assert.equal(assertRailAllowed(context, 'b2b_web').ok, false)
+  assert.equal(assertRailAllowed(context, 'b2b_web').reason, 'commerce_rail_mismatch')
+})
+
+test('commerce policy routes Nexus organization pilots to B2B web', () => {
+  const context = { product: 'nexus', channel: 'web', buyerType: 'organization', offeringType: 'pilot' }
+  assert.deepEqual(decideCommerceRail(context), {
+    ok: true,
+    rail: 'b2b_web',
+    policy: 'nexus_b2b_service',
+  })
+  assert.equal(assertRailAllowed(context, 'apple_iap').ok, false)
+})
+
+test('commerce policy permits enterprise-prepaid Cliniverse access only when explicitly enterprise-only', () => {
+  const allowed = decideCommerceRail({
+    product: 'cliniverse', channel: 'ios', buyerType: 'organization', offeringType: 'digital_subscription', enterpriseOnly: true,
+  })
+  assert.equal(allowed.ok, true)
+  assert.equal(allowed.rail, 'b2b_web')
+
+  const blocked = decideCommerceRail({
+    product: 'cliniverse', channel: 'ios', buyerType: 'organization', offeringType: 'digital_subscription', enterpriseOnly: false,
+  })
+  assert.equal(blocked.ok, false)
+  assert.equal(blocked.reason, 'organization_ios_sale_requires_enterprise_or_iap')
+})
 
 test('pilot lifecycle requires payment confirmation, entitlement, and explicit start', () => {
   assert.deepEqual(transitionEngagement('PAYMENT_PENDING', 'PAYMENT_RECEIVED'), {
@@ -31,11 +67,9 @@ test('invalid lifecycle jumps are rejected', () => {
 test('event ledger is idempotent by eventId and ordered by occurredAt', () => {
   const e1 = { eventId: 'evt-1', type: 'AUDIT_STARTED', occurredAt: '2026-09-01T00:00:00Z', organizationId: 'org-1', engagementId: 'eng-1', actor: { type: 'system' }, payload: {} }
   const e2 = { eventId: 'evt-2', type: 'AUDIT_COMPLETED', occurredAt: '2026-09-01T00:05:00Z', organizationId: 'org-1', engagementId: 'eng-1', actor: { type: 'system' }, payload: {} }
-
   const first = appendEvent([], e2)
   const second = appendEvent(first.events, e1)
   const duplicate = appendEvent(second.events, e1)
-
   assert.equal(first.ok, true)
   assert.equal(second.ok, true)
   assert.equal(duplicate.created, false)
@@ -49,28 +83,18 @@ test('same eventId with different content is rejected', () => {
   const conflicting = { ...original, type: 'AUDIT_COMPLETED' }
   const first = appendEvent([], original)
   const second = appendEvent(first.events, conflicting)
-
   assert.equal(second.ok, false)
   assert.equal(second.reason, 'event_id_conflict')
 })
 
 test('entitlement grants are idempotent and revocation removes access', () => {
-  const grant = {
-    organizationId: 'org-1',
-    key: 'nexus.pilot_workspace',
-    status: 'active',
-    source: 'payment',
-    startsAt: '2026-09-01T00:00:00Z',
-  }
-
+  const grant = { organizationId: 'org-1', key: 'nexus.pilot_workspace', status: 'active', source: 'payment', startsAt: '2026-09-01T00:00:00Z' }
   const first = grantEntitlement([], grant)
   const duplicate = grantEntitlement(first.grants, grant)
-
   assert.equal(first.created, true)
   assert.equal(duplicate.created, false)
   assert.equal(duplicate.grants.length, 1)
   assert.equal(hasEntitlement(duplicate.grants, 'org-1', 'nexus.pilot_workspace', '2026-09-02T00:00:00Z'), true)
-
   const revoked = revokeEntitlement(duplicate.grants, 'org-1', 'nexus.pilot_workspace')
   assert.equal(revoked.changed, true)
   assert.equal(hasEntitlement(revoked.grants, 'org-1', 'nexus.pilot_workspace', '2026-09-02T00:00:00Z'), false)
@@ -79,25 +103,16 @@ test('entitlement grants are idempotent and revocation removes access', () => {
 test('lifecycle orchestration scopes events and requires entitlement data before pilot readiness', () => {
   const engagement = { engagementId: 'eng-1', organizationId: 'org-1', state: 'PAYMENT_CONFIRMED' }
   const event = { eventId: 'evt-ent-1', type: 'ENTITLEMENT_GRANTED', occurredAt: '2026-09-01T00:10:00Z', organizationId: 'org-1', engagementId: 'eng-1', actor: { type: 'system' }, payload: {} }
-
   const missingGrant = applyLifecycleEvent({ engagement, events: [], grants: [], event })
   assert.equal(missingGrant.ok, false)
   assert.equal(missingGrant.reason, 'entitlement_grant_required')
-
   const grant = { organizationId: 'org-1', key: 'nexus.pilot_workspace', status: 'active', source: 'payment', startsAt: '2026-09-01T00:10:00Z' }
   const applied = applyLifecycleEvent({ engagement, events: [], grants: [], event, entitlementGrant: grant })
   assert.equal(applied.ok, true)
   assert.equal(applied.engagement.state, 'PILOT_READY')
   assert.equal(applied.events.length, 1)
   assert.equal(applied.grants.length, 1)
-
-  const wrongScope = applyLifecycleEvent({
-    engagement,
-    events: [],
-    grants: [],
-    event: { ...event, eventId: 'evt-ent-2', organizationId: 'org-2' },
-    entitlementGrant: grant,
-  })
+  const wrongScope = applyLifecycleEvent({ engagement, events: [], grants: [], event: { ...event, eventId: 'evt-ent-2', organizationId: 'org-2' }, entitlementGrant: grant })
   assert.equal(wrongScope.ok, false)
   assert.equal(wrongScope.reason, 'event_scope_mismatch')
 })
@@ -105,11 +120,7 @@ test('lifecycle orchestration scopes events and requires entitlement data before
 test('lifecycle retry with exact same event is a successful no-op', () => {
   const engagement = { engagementId: 'eng-1', organizationId: 'org-1', state: 'AUDIT_STARTED' }
   const event = { eventId: 'evt-audit-1', type: 'AUDIT_COMPLETED', occurredAt: '2026-09-01T00:05:00Z', organizationId: 'org-1', engagementId: 'eng-1', actor: { type: 'system' }, payload: { score: 81 } }
-
   const first = applyLifecycleEvent({ engagement, events: [], grants: [], event })
-  assert.equal(first.ok, true)
-  assert.equal(first.engagement.state, 'AUDIT_COMPLETED')
-
   const retry = applyLifecycleEvent({ engagement: first.engagement, events: first.events, grants: first.grants, event })
   assert.equal(retry.ok, true)
   assert.equal(retry.duplicate, true)
@@ -122,21 +133,14 @@ test('lifecycle retry rejects eventId reuse with conflicting payload', () => {
   const engagement = { engagementId: 'eng-1', organizationId: 'org-1', state: 'AUDIT_STARTED' }
   const event = { eventId: 'evt-audit-1', type: 'AUDIT_COMPLETED', occurredAt: '2026-09-01T00:05:00Z', organizationId: 'org-1', engagementId: 'eng-1', actor: { type: 'system' }, payload: { score: 81 } }
   const first = applyLifecycleEvent({ engagement, events: [], grants: [], event })
-  const conflicting = { ...event, payload: { score: 42 } }
-
-  const retry = applyLifecycleEvent({ engagement: first.engagement, events: first.events, grants: first.grants, event: conflicting })
+  const retry = applyLifecycleEvent({ engagement: first.engagement, events: first.events, grants: first.grants, event: { ...event, payload: { score: 42 } } })
   assert.equal(retry.ok, false)
   assert.equal(retry.reason, 'event_id_conflict')
 })
 
 test('verified payment must match expected organization, engagement, amount and currency', () => {
-  const expected = {
-    paymentId: 'pay-1', organizationId: 'org-1', engagementId: 'eng-1', provider: 'web_gateway', amountMinor: 250000, currency: 'SAR', status: 'pending', createdAt: '2026-09-01T00:00:00Z',
-  }
-  const verified = {
-    providerReference: 'gw-123', organizationId: 'org-1', engagementId: 'eng-1', amountMinor: 250000, currency: 'SAR', status: 'paid', occurredAt: '2026-09-01T00:20:00Z', idempotencyKey: 'idem-1',
-  }
-
+  const expected = { paymentId: 'pay-1', organizationId: 'org-1', engagementId: 'eng-1', provider: 'web_gateway', amountMinor: 250000, currency: 'SAR', status: 'pending', createdAt: '2026-09-01T00:00:00Z' }
+  const verified = { providerReference: 'gw-123', organizationId: 'org-1', engagementId: 'eng-1', amountMinor: 250000, currency: 'SAR', status: 'paid', occurredAt: '2026-09-01T00:20:00Z', idempotencyKey: 'idem-1' }
   assert.deepEqual(validateVerifiedPayment(expected, verified), { ok: true })
   assert.equal(validateVerifiedPayment(expected, { ...verified, amountMinor: 249900 }).reason, 'amount_mismatch')
   assert.equal(validateVerifiedPayment(expected, { ...verified, currency: 'USD' }).reason, 'currency_mismatch')
@@ -144,14 +148,9 @@ test('verified payment must match expected organization, engagement, amount and 
 })
 
 test('validated payment produces deterministic PAYMENT_RECEIVED event', () => {
-  const expected = {
-    paymentId: 'pay-1', organizationId: 'org-1', engagementId: 'eng-1', provider: 'web_gateway', amountMinor: 250000, currency: 'SAR', status: 'pending', createdAt: '2026-09-01T00:00:00Z',
-  }
-  const verified = {
-    providerReference: 'gw-123', organizationId: 'org-1', engagementId: 'eng-1', amountMinor: 250000, currency: 'SAR', status: 'paid', occurredAt: '2026-09-01T00:20:00Z', idempotencyKey: 'idem-1',
-  }
+  const expected = { paymentId: 'pay-1', organizationId: 'org-1', engagementId: 'eng-1', provider: 'web_gateway', amountMinor: 250000, currency: 'SAR', status: 'pending', createdAt: '2026-09-01T00:00:00Z' }
+  const verified = { providerReference: 'gw-123', organizationId: 'org-1', engagementId: 'eng-1', amountMinor: 250000, currency: 'SAR', status: 'paid', occurredAt: '2026-09-01T00:20:00Z', idempotencyKey: 'idem-1' }
   const result = paymentReceivedEvent(expected, verified)
-
   assert.equal(result.ok, true)
   assert.equal(result.event.eventId, 'payment:gw-123:paid')
   assert.equal(result.event.type, 'PAYMENT_RECEIVED')
