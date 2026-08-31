@@ -1,4 +1,5 @@
 import { applyLifecycleEvent } from './lifecycle.mjs'
+import { fulfillVerifiedPayment } from './fulfillment.mjs'
 
 function mapRpcError(error) {
   const message = String(error?.message ?? '')
@@ -72,18 +73,10 @@ export function createSupabaseControlPlanePersistence(supabase) {
       if (data?.reason === 'version_conflict') {
         return { ok: false, reason: 'version_conflict', currentVersion: data.currentVersion }
       }
-      return {
-        ok: false,
-        reason: 'persistence_failed',
-        domainReason: data?.reason,
-      }
+      return { ok: false, reason: 'persistence_failed', domainReason: data?.reason }
     }
 
-    return {
-      ok: true,
-      version: data.version,
-      duplicate: Boolean(data.duplicate),
-    }
+    return { ok: true, version: data.version, duplicate: Boolean(data.duplicate) }
   }
 
   async function createPaymentIntent({ engagement, event, payment, expectedVersion }) {
@@ -113,11 +106,7 @@ export function createSupabaseControlPlanePersistence(supabase) {
       if (data?.reason === 'version_conflict') {
         return { ok: false, reason: 'version_conflict', currentVersion: data.currentVersion }
       }
-      return {
-        ok: false,
-        reason: 'persistence_failed',
-        domainReason: data?.reason,
-      }
+      return { ok: false, reason: 'persistence_failed', domainReason: data?.reason }
     }
 
     return {
@@ -128,5 +117,77 @@ export function createSupabaseControlPlanePersistence(supabase) {
     }
   }
 
-  return { bootstrapEngagement, loadEngagementBundle, commitLifecycle, createPaymentIntent }
+  async function linkCheckoutReference({ engagementId, paymentId, providerReference }) {
+    const { data, error } = await supabase.rpc('control_plane_link_checkout_reference', {
+      p_engagement_id: engagementId,
+      p_payment_id: paymentId,
+      p_provider_reference: providerReference,
+    })
+    if (error) return { ok: false, reason: 'persistence_failed' }
+    if (!data?.ok) {
+      if (data?.reason === 'payment_not_found') return { ok: false, reason: 'payment_not_found' }
+      if (data?.reason === 'provider_reference_conflict') return { ok: false, reason: 'provider_reference_conflict' }
+      return { ok: false, reason: 'persistence_failed' }
+    }
+    return { ok: true, duplicate: Boolean(data.duplicate), payment: data.payment }
+  }
+
+  async function settleVerifiedPayment({ engagement, expectedVersion, expectedPayment, verifiedPayment, entitlement }) {
+    const current = await loadEngagementBundle(engagement.engagementId)
+    if (!current) return { ok: false, reason: 'persistence_failed' }
+
+    const domain = fulfillVerifiedPayment({
+      engagement: current.engagement,
+      events: current.events,
+      grants: current.entitlements,
+      expectedPayment,
+      verifiedPayment,
+      entitlementGrant: entitlement,
+    })
+    if (!domain.ok) {
+      return { ok: false, reason: 'persistence_failed', domainReason: domain.reason }
+    }
+
+    const paymentEvent = domain.events.find(event => event.type === 'PAYMENT_RECEIVED' && event.payload?.paymentId === expectedPayment.paymentId)
+    const entitlementEvent = domain.events.find(event => event.type === 'ENTITLEMENT_GRANTED' && event.payload?.key === entitlement.key)
+    if (!paymentEvent || !entitlementEvent) {
+      return { ok: false, reason: 'persistence_failed', domainReason: 'settlement_events_missing' }
+    }
+
+    const { data, error } = await supabase.rpc('control_plane_settle_verified_payment', {
+      p_engagement_id: engagement.engagementId,
+      p_expected_version: expectedVersion,
+      p_payment_id: expectedPayment.paymentId,
+      p_verified: verifiedPayment,
+      p_payment_event: paymentEvent,
+      p_entitlement_event: entitlementEvent,
+      p_entitlement: entitlement,
+    })
+
+    if (error) return mapRpcError(error)
+    if (!data?.ok) {
+      if (data?.reason === 'version_conflict') {
+        return { ok: false, reason: 'version_conflict', currentVersion: data.currentVersion }
+      }
+      return { ok: false, reason: 'persistence_failed', domainReason: data?.reason }
+    }
+
+    return {
+      ok: true,
+      duplicate: Boolean(data.duplicate),
+      version: data.version,
+      payment: data.payment,
+      entitlement: data.entitlement,
+      engagement: data.engagement,
+    }
+  }
+
+  return {
+    bootstrapEngagement,
+    loadEngagementBundle,
+    commitLifecycle,
+    createPaymentIntent,
+    linkCheckoutReference,
+    settleVerifiedPayment,
+  }
 }
