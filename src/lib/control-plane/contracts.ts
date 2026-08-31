@@ -55,7 +55,7 @@ export type OrganizationRef = {
   displayName: string
 }
 
-export type EngagementKind = 'audit' | 'review' | 'pilot' | 'subscription'
+export type EngagementKind = 'nexus_lifecycle' | 'subscription'
 
 export type EngagementRef = {
   engagementId: string
