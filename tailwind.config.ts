@@ -47,7 +47,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        arabic: ['var(--font-plex-arabic)', 'var(--font-inter)', 'sans-serif'],
+        arabic: ['var(--font-cairo)', 'var(--font-inter)', 'sans-serif'],
       },
       boxShadow: {
         'brand-glow': '0 10px 32px -10px rgba(37, 99, 235, 0.45)',
