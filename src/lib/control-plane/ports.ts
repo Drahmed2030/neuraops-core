@@ -42,12 +42,42 @@ export type LifecycleCommitResult =
 export type PaymentIntentCommit = {
   engagement: EngagementRef
   event: ControlPlaneEvent
-  payment: PaymentRecord
+  payment: PaymentRecord & { idempotencyKey?: string }
   expectedVersion: number
 }
 
 export type PaymentIntentCommitResult =
-  | { ok: true; version: number; duplicate: boolean; payment: PaymentRecord }
+  | { ok: true; version: number; duplicate: boolean; payment: PaymentRecord & { idempotencyKey?: string } }
+  | { ok: false; reason: 'version_conflict'; currentVersion: number }
+  | { ok: false; reason: 'persistence_failed'; domainReason?: string }
+
+export type CheckoutCorrelationInput = {
+  engagementId: string
+  paymentId: string
+  providerReference: string
+}
+
+export type CheckoutCorrelationResult =
+  | { ok: true; duplicate: boolean; payment: PaymentRecord & { idempotencyKey?: string } }
+  | { ok: false; reason: 'payment_not_found' | 'provider_reference_conflict' | 'persistence_failed' }
+
+export type SettleVerifiedPaymentInput = {
+  engagement: EngagementRef
+  expectedVersion: number
+  expectedPayment: PaymentRecord & { idempotencyKey?: string }
+  verifiedPayment: VerifiedPaymentEvent
+  entitlement: EntitlementGrant
+}
+
+export type SettleVerifiedPaymentResult =
+  | {
+      ok: true
+      duplicate: boolean
+      version: number
+      payment: PaymentRecord & { idempotencyKey?: string }
+      entitlement: EntitlementGrant
+      engagement: EngagementRef
+    }
   | { ok: false; reason: 'version_conflict'; currentVersion: number }
   | { ok: false; reason: 'persistence_failed'; domainReason?: string }
 
@@ -56,6 +86,8 @@ export interface ControlPlanePersistencePort {
   loadEngagementBundle(engagementId: string): Promise<EngagementBundle | null>
   commitLifecycle(input: LifecycleCommit): Promise<LifecycleCommitResult>
   createPaymentIntent(input: PaymentIntentCommit): Promise<PaymentIntentCommitResult>
+  linkCheckoutReference(input: CheckoutCorrelationInput): Promise<CheckoutCorrelationResult>
+  settleVerifiedPayment(input: SettleVerifiedPaymentInput): Promise<SettleVerifiedPaymentResult>
 }
 
 export type CommerceProduct = 'nexus' | 'cliniverse'
