@@ -3,6 +3,8 @@ import type {
   EngagementRef,
   EntitlementGrant,
   PaymentRecord,
+  PilotMeasurement,
+  PilotMeasurementStage,
 } from './contracts'
 
 export type EngagementBundle = {
@@ -81,6 +83,19 @@ export type SettleVerifiedPaymentResult =
   | { ok: false; reason: 'version_conflict'; currentVersion: number }
   | { ok: false; reason: 'persistence_failed'; domainReason?: string }
 
+export type RecordPilotMeasurementInput = {
+  engagement: EngagementRef
+  expectedVersion: number
+  stage: PilotMeasurementStage
+  event: ControlPlaneEvent
+  measurement: PilotMeasurement
+}
+
+export type RecordPilotMeasurementResult =
+  | { ok: true; version: number; duplicate: boolean }
+  | { ok: false; reason: 'version_conflict'; currentVersion: number }
+  | { ok: false; reason: 'persistence_failed'; domainReason?: string }
+
 export interface ControlPlanePersistencePort {
   bootstrapEngagement(input: BootstrapEngagementInput): Promise<BootstrapEngagementResult>
   loadEngagementBundle(engagementId: string): Promise<EngagementBundle | null>
@@ -88,6 +103,11 @@ export interface ControlPlanePersistencePort {
   createPaymentIntent(input: PaymentIntentCommit): Promise<PaymentIntentCommitResult>
   linkCheckoutReference(input: CheckoutCorrelationInput): Promise<CheckoutCorrelationResult>
   settleVerifiedPayment(input: SettleVerifiedPaymentInput): Promise<SettleVerifiedPaymentResult>
+}
+
+export interface PilotMeasurementPersistencePort {
+  recordPilotMeasurement(input: RecordPilotMeasurementInput): Promise<RecordPilotMeasurementResult>
+  loadPilotMeasurements(engagementId: string): Promise<PilotMeasurement[]>
 }
 
 export type CommerceProduct = 'nexus' | 'cliniverse'
