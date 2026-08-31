@@ -10,6 +10,7 @@ export const ENGAGEMENT_STATES = [
   'PAYMENT_CONFIRMED',
   'PILOT_READY',
   'PILOT_ACTIVE',
+  'SUBSCRIPTION_ACTIVE',
   'CHECKPOINT_COMPLETED',
   'OUTCOME_RECORDED',
   'RENEWED',
@@ -54,11 +55,13 @@ export type OrganizationRef = {
   displayName: string
 }
 
+export type EngagementKind = 'audit' | 'review' | 'pilot' | 'subscription'
+
 export type EngagementRef = {
   engagementId: string
   organizationId: string
   product: 'nexus' | 'cliniverse'
-  kind: 'audit' | 'review' | 'pilot' | 'subscription'
+  kind: EngagementKind
   state: EngagementState
 }
 
