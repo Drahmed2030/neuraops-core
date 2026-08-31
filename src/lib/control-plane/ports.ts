@@ -20,17 +20,20 @@ export type LifecycleCommit = {
   expectedVersion: number
 }
 
+export type LifecycleCommitResult =
+  | { ok: true; version: number; duplicate: boolean }
+  | { ok: false; reason: 'version_conflict'; currentVersion: number }
+  | { ok: false; reason: 'persistence_failed'; domainReason?: string }
+
 /**
  * Persistence boundary for the Control Plane.
  * Implementations may use Supabase/Postgres later, but domain code must not depend on either.
  * Commits must be atomic and optimistic-concurrency protected by expectedVersion.
+ * Exact duplicate events are successful no-ops even when the caller retries with a stale version.
  */
 export interface ControlPlanePersistencePort {
   loadEngagementBundle(engagementId: string): Promise<EngagementBundle | null>
-  commitLifecycle(input: LifecycleCommit): Promise<
-    | { ok: true; version: number }
-    | { ok: false; reason: 'version_conflict' | 'persistence_failed' }
-  >
+  commitLifecycle(input: LifecycleCommit): Promise<LifecycleCommitResult>
 }
 
 export type CommerceProduct = 'nexus' | 'cliniverse'
