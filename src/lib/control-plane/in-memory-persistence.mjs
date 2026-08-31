@@ -5,20 +5,30 @@ function clone(value) {
   return structuredClone(value)
 }
 
+function normalizedKind(product, kind) {
+  if (product === 'nexus') return 'nexus_lifecycle'
+  if (product === 'cliniverse' && kind === 'subscription') return 'subscription'
+  return null
+}
+
 export function createInMemoryControlPlanePersistence(initialBundles = []) {
   const store = new Map()
   const sourceRefs = new Map()
 
   for (const bundle of initialBundles) {
     if (!bundle?.engagement?.engagementId) throw new Error('invalid_initial_bundle')
-    store.set(bundle.engagement.engagementId, clone({
-      engagement: bundle.engagement,
+    const engagement = {
+      ...bundle.engagement,
+      kind: normalizedKind(bundle.engagement.product, bundle.engagement.kind) ?? bundle.engagement.kind,
+    }
+    store.set(engagement.engagementId, clone({
+      engagement,
       events: bundle.events ?? [],
       entitlements: bundle.entitlements ?? [],
       payments: bundle.payments ?? [],
       version: bundle.version ?? 0,
     }))
-    if (bundle.sourceRef) sourceRefs.set(bundle.sourceRef, bundle.engagement.engagementId)
+    if (bundle.sourceRef) sourceRefs.set(bundle.sourceRef, engagement.engagementId)
   }
 
   return {
@@ -26,10 +36,13 @@ export function createInMemoryControlPlanePersistence(initialBundles = []) {
       if (!input?.sourceRef || !input?.organizationId || !input?.engagementId) {
         return { ok: false, reason: 'invalid_bootstrap' }
       }
+      const kind = normalizedKind(input.product, input.kind)
+      if (!kind) return { ok: false, reason: 'invalid_engagement_kind' }
+
       const existingId = sourceRefs.get(input.sourceRef)
       if (existingId) {
         const existing = store.get(existingId)
-        if (!existing || existing.engagement.engagementId !== input.engagementId || existing.engagement.organizationId !== input.organizationId || existing.engagement.product !== input.product || existing.engagement.kind !== input.kind) {
+        if (!existing || existing.engagement.engagementId !== input.engagementId || existing.engagement.organizationId !== input.organizationId || existing.engagement.product !== input.product || existing.engagement.kind !== kind) {
           return { ok: false, reason: 'source_ref_conflict' }
         }
         return { ok: true, created: false, engagementId: existingId, organizationId: input.organizationId, version: existing.version }
@@ -40,7 +53,7 @@ export function createInMemoryControlPlanePersistence(initialBundles = []) {
           engagementId: input.engagementId,
           organizationId: input.organizationId,
           product: input.product,
-          kind: input.kind,
+          kind,
           state: input.initialState,
         },
         events: [],
