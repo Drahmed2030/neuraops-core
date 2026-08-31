@@ -6,6 +6,9 @@ function mapRpcError(error) {
   if (message.includes('event_id_conflict')) {
     return { ok: false, reason: 'persistence_failed', domainReason: 'event_id_conflict' }
   }
+  if (message.includes('payment_intent_conflict')) {
+    return { ok: false, reason: 'persistence_failed', domainReason: 'payment_intent_conflict' }
+  }
   return { ok: false, reason: 'persistence_failed' }
 }
 
@@ -83,5 +86,47 @@ export function createSupabaseControlPlanePersistence(supabase) {
     }
   }
 
-  return { bootstrapEngagement, loadEngagementBundle, commitLifecycle }
+  async function createPaymentIntent({ engagement, event, payment, expectedVersion }) {
+    const current = await loadEngagementBundle(engagement.engagementId)
+    if (!current) return { ok: false, reason: 'persistence_failed' }
+
+    const applied = applyLifecycleEvent({
+      engagement: current.engagement,
+      events: current.events,
+      grants: current.entitlements,
+      event,
+    })
+    if (!applied.ok) {
+      return { ok: false, reason: 'persistence_failed', domainReason: applied.reason }
+    }
+
+    const { data, error } = await supabase.rpc('control_plane_create_payment_intent', {
+      p_engagement_id: engagement.engagementId,
+      p_expected_version: expectedVersion,
+      p_event: event,
+      p_next_state: applied.duplicate ? current.engagement.state : applied.engagement.state,
+      p_payment: payment,
+    })
+
+    if (error) return mapRpcError(error)
+    if (!data?.ok) {
+      if (data?.reason === 'version_conflict') {
+        return { ok: false, reason: 'version_conflict', currentVersion: data.currentVersion }
+      }
+      return {
+        ok: false,
+        reason: 'persistence_failed',
+        domainReason: data?.reason,
+      }
+    }
+
+    return {
+      ok: true,
+      version: data.version,
+      duplicate: Boolean(data.duplicate),
+      payment: data.payment,
+    }
+  }
+
+  return { bootstrapEngagement, loadEngagementBundle, commitLifecycle, createPaymentIntent }
 }
