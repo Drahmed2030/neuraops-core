@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { appendEvent, eventsForEngagement, latestEvent } from '../src/lib/control-plane/event-ledger.mjs'
 import { grantEntitlement, hasEntitlement, revokeEntitlement } from '../src/lib/control-plane/entitlements.mjs'
 import { applyLifecycleEvent } from '../src/lib/control-plane/lifecycle.mjs'
+import { paymentReceivedEvent, validateVerifiedPayment } from '../src/lib/control-plane/payment-policy.mjs'
 import { allowedEvents, canTransition, transitionEngagement } from '../src/lib/control-plane/state-machine.mjs'
 
 test('pilot lifecycle requires payment confirmation, entitlement, and explicit start', () => {
@@ -126,6 +127,35 @@ test('lifecycle retry rejects eventId reuse with conflicting payload', () => {
   const retry = applyLifecycleEvent({ engagement: first.engagement, events: first.events, grants: first.grants, event: conflicting })
   assert.equal(retry.ok, false)
   assert.equal(retry.reason, 'event_id_conflict')
+})
+
+test('verified payment must match expected organization, engagement, amount and currency', () => {
+  const expected = {
+    paymentId: 'pay-1', organizationId: 'org-1', engagementId: 'eng-1', provider: 'web_gateway', amountMinor: 250000, currency: 'SAR', status: 'pending', createdAt: '2026-09-01T00:00:00Z',
+  }
+  const verified = {
+    providerReference: 'gw-123', organizationId: 'org-1', engagementId: 'eng-1', amountMinor: 250000, currency: 'SAR', status: 'paid', occurredAt: '2026-09-01T00:20:00Z', idempotencyKey: 'idem-1',
+  }
+
+  assert.deepEqual(validateVerifiedPayment(expected, verified), { ok: true })
+  assert.equal(validateVerifiedPayment(expected, { ...verified, amountMinor: 249900 }).reason, 'amount_mismatch')
+  assert.equal(validateVerifiedPayment(expected, { ...verified, currency: 'USD' }).reason, 'currency_mismatch')
+  assert.equal(validateVerifiedPayment(expected, { ...verified, organizationId: 'org-2' }).reason, 'payment_scope_mismatch')
+})
+
+test('validated payment produces deterministic PAYMENT_RECEIVED event', () => {
+  const expected = {
+    paymentId: 'pay-1', organizationId: 'org-1', engagementId: 'eng-1', provider: 'web_gateway', amountMinor: 250000, currency: 'SAR', status: 'pending', createdAt: '2026-09-01T00:00:00Z',
+  }
+  const verified = {
+    providerReference: 'gw-123', organizationId: 'org-1', engagementId: 'eng-1', amountMinor: 250000, currency: 'SAR', status: 'paid', occurredAt: '2026-09-01T00:20:00Z', idempotencyKey: 'idem-1',
+  }
+  const result = paymentReceivedEvent(expected, verified)
+
+  assert.equal(result.ok, true)
+  assert.equal(result.event.eventId, 'payment:gw-123:paid')
+  assert.equal(result.event.type, 'PAYMENT_RECEIVED')
+  assert.equal(result.event.payload.amountMinor, 250000)
 })
 
 test('invalid events and entitlements are rejected', () => {
