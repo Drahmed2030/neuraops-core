@@ -14,6 +14,20 @@ export function createSupabaseControlPlanePersistence(supabase) {
     throw new Error('invalid_supabase_client')
   }
 
+  async function bootstrapEngagement(input) {
+    const { data, error } = await supabase.rpc('control_plane_bootstrap_engagement', {
+      p_source_ref: input.sourceRef,
+      p_organization_id: input.organizationId,
+      p_organization_name: input.organizationName,
+      p_engagement_id: input.engagementId,
+      p_product: input.product,
+      p_kind: input.kind,
+      p_initial_state: input.initialState,
+    })
+    if (error) return { ok: false, reason: 'persistence_failed' }
+    return data
+  }
+
   async function loadEngagementBundle(engagementId) {
     const { data, error } = await supabase.rpc('control_plane_load_engagement_bundle', {
       p_engagement_id: engagementId,
@@ -69,5 +83,5 @@ export function createSupabaseControlPlanePersistence(supabase) {
     }
   }
 
-  return { loadEngagementBundle, commitLifecycle }
+  return { bootstrapEngagement, loadEngagementBundle, commitLifecycle }
 }
