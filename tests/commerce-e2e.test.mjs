@@ -4,7 +4,7 @@ import { createPolicyApprovedCheckout } from '../src/lib/control-plane/commerce-
 import { fulfillVerifiedPayment } from '../src/lib/control-plane/fulfillment.mjs'
 import { createApplePaymentAdapterMock, createB2BWebPaymentAdapterMock } from '../src/lib/control-plane/mock-payment-adapters.mjs'
 
-test('Cliniverse consumer iOS uses Apple rail and grants Cliniverse entitlement after verified payment', async () => {
+test('Cliniverse consumer iOS uses Apple rail and grants subscription entitlement after verified payment', async () => {
   const apple = createApplePaymentAdapterMock()
   const commerceContext = {
     product: 'cliniverse',
@@ -56,6 +56,8 @@ test('Cliniverse consumer iOS uses Apple rail and grants Cliniverse entitlement 
   const engagement = {
     engagementId: 'eng-cliniverse-1',
     organizationId: 'org-cliniverse-1',
+    product: 'cliniverse',
+    kind: 'subscription',
     state: 'PAYMENT_PENDING',
   }
 
@@ -70,7 +72,7 @@ test('Cliniverse consumer iOS uses Apple rail and grants Cliniverse entitlement 
 
   assert.equal(fulfilled.ok, true)
   assert.equal(fulfilled.entitlementApplied, true)
-  assert.equal(fulfilled.engagement.state, 'PILOT_READY')
+  assert.equal(fulfilled.engagement.state, 'SUBSCRIPTION_ACTIVE')
   assert.equal(fulfilled.grants[0].key, 'cliniverse.core')
 })
 
@@ -126,6 +128,8 @@ test('Nexus pilot uses B2B web rail and reaches PILOT_READY after verified payme
   const engagement = {
     engagementId: 'eng-nexus-1',
     organizationId: 'org-nexus-1',
+    product: 'nexus',
+    kind: 'pilot',
     state: 'PAYMENT_PENDING',
   }
 
