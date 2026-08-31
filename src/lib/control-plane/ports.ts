@@ -33,6 +33,27 @@ export interface ControlPlanePersistencePort {
   >
 }
 
+export type CommerceProduct = 'nexus' | 'cliniverse'
+export type CommerceChannel = 'web' | 'ios'
+export type BuyerType = 'individual' | 'family' | 'organization'
+export type OfferingType =
+  | 'pilot'
+  | 'professional_service'
+  | 'manual_invoice'
+  | 'digital_subscription'
+  | 'digital_feature'
+
+export type CommerceContext = {
+  product: CommerceProduct
+  channel: CommerceChannel
+  buyerType: BuyerType
+  offeringType: OfferingType
+  enterpriseOnly?: boolean
+  allowsInAppPurchase?: boolean
+}
+
+export type CommerceRail = 'apple_iap' | 'b2b_web' | 'manual_invoice'
+
 export type CheckoutRequest = {
   organizationId: string
   engagementId: string
@@ -40,6 +61,8 @@ export type CheckoutRequest = {
   currency: string
   description: string
   idempotencyKey: string
+  commerceContext: CommerceContext
+  approvedRail: CommerceRail
 }
 
 export type CheckoutResult = {
@@ -61,10 +84,12 @@ export type VerifiedPaymentEvent = {
 
 /**
  * Payment providers live behind this interface.
+ * Callers must run Commerce Policy before createCheckout and pass the approved rail.
  * Provider webhooks must be verified before producing a VerifiedPaymentEvent.
  * The Control Plane never stores raw card data.
  */
 export interface PaymentPort {
+  rail: CommerceRail
   createCheckout(input: CheckoutRequest): Promise<CheckoutResult>
   verifyWebhook(input: { rawBody: string; signature: string }): Promise<VerifiedPaymentEvent>
 }
