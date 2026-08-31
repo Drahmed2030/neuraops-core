@@ -12,7 +12,7 @@ function providerForRail(rail) {
 }
 
 export function createPilotPaymentService({ persistence, paymentPort, clock }) {
-  if (!persistence?.loadEngagementBundle || !persistence?.createPaymentIntent) {
+  if (!persistence?.loadEngagementBundle || !persistence?.createPaymentIntent || !persistence?.linkCheckoutReference) {
     throw new Error('invalid_persistence_port')
   }
   if (!paymentPort?.rail || typeof paymentPort.createCheckout !== 'function') {
@@ -33,7 +33,7 @@ export function createPilotPaymentService({ persistence, paymentPort, clock }) {
     if (bundle.engagement.product !== 'nexus' || bundle.engagement.kind !== 'nexus_lifecycle') {
       return { ok: false, reason: 'not_nexus_lifecycle' }
     }
-    if (bundle.engagement.state !== 'PILOT_PROPOSED') {
+    if (bundle.engagement.state !== 'PILOT_PROPOSED' && bundle.engagement.state !== 'PAYMENT_PENDING') {
       return { ok: false, reason: 'payment_not_requestable_from_current_state', state: bundle.engagement.state }
     }
 
@@ -50,13 +50,7 @@ export function createPilotPaymentService({ persistence, paymentPort, clock }) {
       actor: actorId === 'system'
         ? { type: 'system' }
         : { type: 'operator', actorId },
-      payload: {
-        paymentId,
-        amountMinor,
-        currency,
-        provider,
-        idempotencyKey,
-      },
+      payload: { paymentId, amountMinor, currency, provider, idempotencyKey },
     }
 
     const payment = {
@@ -71,13 +65,28 @@ export function createPilotPaymentService({ persistence, paymentPort, clock }) {
       createdAt: occurredAt,
     }
 
-    const intent = await persistence.createPaymentIntent({
-      engagement: bundle.engagement,
-      event,
-      payment,
-      expectedVersion: bundle.version,
-    })
-    if (!intent.ok) return intent
+    let intent
+    if (bundle.engagement.state === 'PILOT_PROPOSED') {
+      intent = await persistence.createPaymentIntent({
+        engagement: bundle.engagement,
+        event,
+        payment,
+        expectedVersion: bundle.version,
+      })
+      if (!intent.ok) return intent
+    } else {
+      const existing = bundle.payments.find(item => item.paymentId === paymentId)
+      if (!existing) return { ok: false, reason: 'payment_intent_not_found' }
+      if (
+        existing.amountMinor !== amountMinor ||
+        existing.currency !== currency ||
+        existing.provider !== provider ||
+        existing.idempotencyKey !== idempotencyKey
+      ) {
+        return { ok: false, reason: 'payment_intent_conflict' }
+      }
+      intent = { ok: true, version: bundle.version, duplicate: true, payment: existing }
+    }
 
     const commerceContext = {
       product: 'nexus',
@@ -101,7 +110,32 @@ export function createPilotPaymentService({ persistence, paymentPort, clock }) {
         return {
           ok: false,
           reason: checkout.reason,
-          paymentIntentCreated: true,
+          paymentIntentCreated: !intent.duplicate,
+          version: intent.version,
+        }
+      }
+
+      const providerReference = checkout.checkout?.providerReference
+      if (!providerReference) {
+        return {
+          ok: false,
+          reason: 'checkout_missing_provider_reference',
+          paymentIntentCreated: !intent.duplicate,
+          version: intent.version,
+        }
+      }
+
+      const correlation = await persistence.linkCheckoutReference({
+        engagementId,
+        paymentId,
+        providerReference,
+      })
+      if (!correlation.ok) {
+        return {
+          ok: false,
+          reason: 'checkout_correlation_failed',
+          correlationReason: correlation.reason,
+          paymentIntentCreated: !intent.duplicate,
           version: intent.version,
         }
       }
@@ -110,8 +144,9 @@ export function createPilotPaymentService({ persistence, paymentPort, clock }) {
         ok: true,
         paymentIntentCreated: !intent.duplicate,
         duplicateIntent: intent.duplicate,
+        duplicateCorrelation: correlation.duplicate,
         version: intent.version,
-        payment: intent.payment,
+        payment: correlation.payment,
         checkout: checkout.checkout,
         rail: checkout.rail,
         policy: checkout.policy,
@@ -120,7 +155,7 @@ export function createPilotPaymentService({ persistence, paymentPort, clock }) {
       return {
         ok: false,
         reason: 'checkout_failed',
-        paymentIntentCreated: true,
+        paymentIntentCreated: !intent.duplicate,
         version: intent.version,
         error: error instanceof Error ? error.message : String(error),
       }
