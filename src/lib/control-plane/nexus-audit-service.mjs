@@ -19,7 +19,7 @@ export async function startNexusAudit(persistence, input) {
     organizationName: input.organizationName,
     engagementId: input.engagementId,
     product: 'nexus',
-    kind: 'audit',
+    kind: 'nexus_lifecycle',
     initialState: 'LEAD',
   })
   if (!bootstrap.ok) return bootstrap
