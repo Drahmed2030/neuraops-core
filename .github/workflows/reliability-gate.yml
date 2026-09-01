@@ -1,0 +1,28 @@
+name: Reliability gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [p6/reliability-sensor-gate]
+
+permissions:
+  contents: read
+
+jobs:
+  reliability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Reliability tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Production dependency audit
+        run: npm audit --omit=dev --audit-level=high
