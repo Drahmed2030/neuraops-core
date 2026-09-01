@@ -180,6 +180,68 @@ export interface RecoveryObjectiveProjection extends Omit<RecoveryObjective, 'ev
   }
 }
 
+export type RecoveryDrillState = 'planned' | 'running' | 'completed' | 'cancelled'
+export type RecoveryDrillOutcome = 'not-assessed' | 'passed' | 'partial' | 'failed'
+export type RecoveryDrillExerciseType =
+  | 'restore'
+  | 'failover'
+  | 'redeploy'
+  | 'access-recovery'
+  | 'dependency-outage'
+export type RecoveryObjectiveDrillStatus =
+  | 'not-run'
+  | 'scheduled'
+  | 'verified'
+  | 'overdue'
+  | 'verification-pending'
+  | 'needs-remediation'
+
+export interface RecoveryDrillRecord {
+  schemaVersion: 1
+  drillRef: string
+  service: string
+  objectiveVersion: string
+  exerciseType: RecoveryDrillExerciseType
+  state: RecoveryDrillState
+  outcome: RecoveryDrillOutcome
+  startedAt: string
+  completedAt: string | null
+  achievedRtoMinutes: number | null
+  achievedRpoMinutes: number | null
+  evidenceRefs: string[]
+  approvalRef: string | null
+  source: string
+  product: TrustProduct
+  environment: TrustEnvironment
+  classification: DataClassification
+}
+
+export interface RecoveryDrillProjection extends Omit<RecoveryDrillRecord, 'schemaVersion' | 'evidenceRefs' | 'approvalRef'> {
+  approvalPresent: boolean
+  objectiveResult: 'not-assessed' | 'met' | 'missed'
+  verificationStatus: 'not-applicable' | 'verified' | 'verification-pending' | 'unverified'
+  evidence: {
+    referenced: number
+    resolved: number
+    unresolved: number
+    invalid: number
+    scopeMismatch: number
+  }
+}
+
+export interface RecoveryObjectiveDrillProjection {
+  service: string
+  product: TrustProduct
+  cadenceDays: number
+  status: RecoveryObjectiveDrillStatus
+  totalDrills: number
+  completedDrills: number
+  verifiedDrills: number
+  lastCompletedAt: string | null
+  lastVerifiedAt: string | null
+  nextDueAt: string | null
+}
+
 export interface OperationsReadModel {
   schemaVersion: 1
   generatedAt: string
@@ -230,6 +292,47 @@ export interface OperationsReadModel {
       reason: 'unresolved-evidence' | 'product-scope-mismatch'
     }>
     replays: IncidentReplayProjection[]
+  }
+  recoveryDrills: {
+    drillMode: 'evidence-records-only'
+    executionAllowed: false
+    persistenceEnabled: false
+    summary: {
+      totalDrills: number
+      completedDrills: number
+      declaredPassedDrills: number
+      verifiedDrills: number
+      verificationPendingDrills: number
+      objectiveMissedDrills: number
+      failedOrPartialDrills: number
+      latestCompletedAt: string | null
+      unresolvedEvidenceRefs: number
+      invalidEvidenceRefs: number
+      crossProductEvidenceRefs: number
+      crossEnvironmentEvidenceRefs: number
+      objectivesVerified: number
+      objectivesOverdue: number
+      objectivesVerificationPending: number
+      objectivesNeedingRemediation: number
+      objectivesScheduled: number
+      objectivesNotRun: number
+    }
+    byProduct: Record<TrustProduct, number>
+    byExerciseType: Record<RecoveryDrillExerciseType, number>
+    byState: Record<RecoveryDrillState, number>
+    byOutcome: Record<RecoveryDrillOutcome, number>
+    verificationIssues: Array<{
+      drillRef: string
+      service: string
+      reason:
+        | 'unresolved-evidence'
+        | 'invalid-evidence-contract'
+        | 'product-scope-mismatch'
+        | 'environment-scope-mismatch'
+        | 'objective-missed'
+    }>
+    objectives: RecoveryObjectiveDrillProjection[]
+    drills: RecoveryDrillProjection[]
   }
   recovery: {
     summary: {
