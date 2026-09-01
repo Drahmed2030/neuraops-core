@@ -157,12 +157,25 @@ export type VerifiedPaymentEvent = {
   status: 'paid' | 'failed' | 'refunded'
   occurredAt: string
   idempotencyKey: string
+  providerEventId?: string
+  providerEventType?: string
+  webhookVerifiedAt?: string
+  rawBodyHash?: string
+}
+
+export type TrustedWebhookEnvelope = {
+  signatureVerified: true
+  providerEventId: string
+  providerEventType: string
+  verifiedAt: string
+  rawBodyHash: string
+  payment: VerifiedPaymentEvent
 }
 
 export interface PaymentPort {
   rail: CommerceRail
   createCheckout(input: CheckoutRequest): Promise<CheckoutResult>
-  verifyWebhook(input: { rawBody: string; signature: string }): Promise<VerifiedPaymentEvent>
+  verifyWebhook(input: { rawBody: string; signature: string }): Promise<TrustedWebhookEnvelope>
 }
 
 export type ReviewBookingRequest = {
