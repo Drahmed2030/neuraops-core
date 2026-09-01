@@ -34,6 +34,6 @@ export type NexusAuditEvaluation =
       priorityGaps: NexusAuditGap[]
     }
 
-export function evaluateNexusAudit(metrics: unknown, policy: NexusAuditPolicy): NexusAuditEvaluation {
+export function evaluateNexusAudit(metrics: unknown, policy: unknown): NexusAuditEvaluation {
   return evaluateNexusAuditRuntime(metrics, policy) as NexusAuditEvaluation
 }
