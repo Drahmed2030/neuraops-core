@@ -158,8 +158,19 @@ export function validateRecoveryObjective(item) {
   if (!READINESS.has(item.readiness)) throw new TypeError(`Invalid recovery readiness: ${String(item.readiness)}`)
   if (!OBJECTIVE_STATUS.has(item.objectiveStatus)) throw new TypeError(`Invalid objective status: ${String(item.objectiveStatus)}`)
   if (!Array.isArray(item.evidenceRefs)) throw new TypeError('Recovery evidenceRefs must be an array')
-  if (item.objectiveStatus === 'verified' && item.evidenceRefs.length === 0) {
-    throw new TypeError('Verified recovery objectives require evidence')
+  if (item.evidenceRefs.some((ref) => typeof ref !== 'string' || ref.length === 0 || ref.length > 160)) {
+    throw new TypeError('Invalid recovery evidence reference')
+  }
+  if (new Set(item.evidenceRefs).size !== item.evidenceRefs.length) {
+    throw new TypeError('Duplicate recovery evidence reference')
+  }
+  if (item.objectiveStatus === 'verified' || item.readiness === 'verified') {
+    if (item.objectiveStatus !== 'verified' || item.readiness !== 'verified') {
+      throw new TypeError('Verified recovery status and readiness must agree')
+    }
+    if (item.evidenceRefs.length === 0) {
+      throw new TypeError('Verified recovery objectives require evidence')
+    }
   }
   if (!Number.isInteger(item.restoreDrillCadenceDays) || item.restoreDrillCadenceDays <= 0) {
     throw new TypeError('Invalid restore drill cadence')
