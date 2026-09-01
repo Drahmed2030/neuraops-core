@@ -10,8 +10,8 @@
     "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.12.4",
-    "@supabase/supabase-js": "2.109.0",
+    "@supabase/ssr": "0.12.4",
+    "@supabase/supabase-js": "2.112.4",
     "next": "14.2.35",
     "openai": "^4.63.0",
     "react": "^18",
