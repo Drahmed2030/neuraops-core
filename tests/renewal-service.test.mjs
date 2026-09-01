@@ -25,9 +25,9 @@ function persistence(overrides = {}) {
     },
     async loadPilotMeasurements() {
       return [
-        { stage: 'baseline', metrics: { medianReferralResponseHours: 18, unresolvedReferralBacklog: 42, followUpCompletionPercent: 61, leakagePercent: 14 } },
-        { stage: 'checkpoint', metrics: { medianReferralResponseHours: 11, unresolvedReferralBacklog: 28, followUpCompletionPercent: 73, leakagePercent: 10 } },
-        { stage: 'outcome', metrics: { medianReferralResponseHours: 7, unresolvedReferralBacklog: 17, followUpCompletionPercent: 84, leakagePercent: 7 } },
+        { stage: 'baseline', sourceEventId: 'pilot:eng-1:baseline', recordedAt: '2026-09-01T00:00:00Z', metrics: { medianReferralResponseHours: 18, unresolvedReferralBacklog: 42, followUpCompletionPercent: 61, leakagePercent: 14 } },
+        { stage: 'checkpoint', sourceEventId: 'pilot:eng-1:checkpoint', recordedAt: '2026-09-01T00:30:00Z', metrics: { medianReferralResponseHours: 11, unresolvedReferralBacklog: 28, followUpCompletionPercent: 73, leakagePercent: 10 } },
+        { stage: 'outcome', sourceEventId: 'pilot:eng-1:outcome', recordedAt: '2026-09-01T01:00:00Z', metrics: { medianReferralResponseHours: 7, unresolvedReferralBacklog: 17, followUpCompletionPercent: 84, leakagePercent: 7 } },
       ]
     },
     async recordRenewalDecision(input) {
@@ -38,7 +38,7 @@ function persistence(overrides = {}) {
   return Object.assign(base, overrides)
 }
 
-test('renewal service derives recommendation only from persisted proof', async () => {
+test('renewal service derives recommendation only from persisted proof and binds provenance', async () => {
   const store = persistence()
   const service = createRenewalService({ persistence: store, policy, clock: () => new Date('2026-09-01T01:00:00Z') })
   const result = await service.evaluateAndRecord({ engagementId: 'eng-1' })
@@ -49,10 +49,17 @@ test('renewal service derives recommendation only from persisted proof', async (
   assert.equal(store.calls.length, 1)
   assert.equal(store.calls[0].proofSummary.improvementRatePercent, 100)
   assert.equal(store.calls[0].event.type, 'RENEWAL_DECISION_RECORDED')
+  assert.deepEqual(store.calls[0].sourceEventIds, [
+    'pilot:eng-1:baseline',
+    'pilot:eng-1:checkpoint',
+    'pilot:eng-1:outcome',
+  ])
+  assert.match(store.calls[0].proofEvidenceHash, /^sha256:[a-f0-9]{64}$/)
+  assert.match(store.calls[0].decisionHash, /^sha256:[a-f0-9]{64}$/)
 })
 
 test('renewal service refuses to guess without persisted baseline and outcome', async () => {
-  const store = persistence({ async loadPilotMeasurements() { return [{ stage: 'outcome', metrics: { leakagePercent: 7 } }] } })
+  const store = persistence({ async loadPilotMeasurements() { return [{ stage: 'outcome', sourceEventId: 'evt-outcome', metrics: { leakagePercent: 7 } }] } })
   const service = createRenewalService({ persistence: store, policy })
   const result = await service.evaluateAndRecord({ engagementId: 'eng-1' })
   assert.deepEqual(result, { ok: false, reason: 'persisted_proof_incomplete' })
