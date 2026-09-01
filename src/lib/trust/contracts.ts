@@ -53,13 +53,17 @@ export interface PolicyDecision {
 }
 
 export interface EvidenceRecord {
+  schemaVersion: 1
   evidenceId: string
   kind: string
   source: string
+  product: TrustProduct
+  environment: TrustEnvironment
   integritySha256: string
   classification: DataClassification
   retentionClass: 'ephemeral' | 'operational' | 'audit' | 'regulated'
   generatedAt: string
+  /** SHA-256 opaque reference only; never a raw URL, path, identifier, or payload. */
   locationRef?: string | null
 }
 
@@ -92,11 +96,72 @@ export interface EntitlementSnapshot {
 
 export interface RecoveryObjective {
   service: string
+  product: TrustProduct
   tier: 0 | 1 | 2 | 3
   rtoMinutes: number
   rpoMinutes: number
   degradedMode: string
   dependencies: string[]
+  readiness: 'verified' | 'partial' | 'gap'
+  objectiveStatus: 'target' | 'verified'
+  evidenceRefs: string[]
+  recoveryOwner: string
+  restoreDrillCadenceDays: number
+}
+
+export interface RecoveryObjectiveProjection extends Omit<RecoveryObjective, 'evidenceRefs'> {
+  declaredReadiness: RecoveryObjective['readiness']
+  declaredObjectiveStatus: RecoveryObjective['objectiveStatus']
+  evidence: {
+    referenced: number
+    resolved: number
+    unresolved: number
+    scopeMismatch: number
+  }
+}
+
+export interface OperationsReadModel {
+  schemaVersion: 1
+  generatedAt: string
+  mode: 'read-only'
+  privacy: {
+    rawPayloadsIncluded: false
+    eventAttributesIncluded: false
+    directIdentifiersIncluded: false
+    clinicalDataIncluded: false
+  }
+  trust: {
+    totalEvents: number
+    latestOccurredAt: string | null
+    byDomain: Record<TrustDomain, number>
+    byProduct: Record<TrustProduct, number>
+    byEnvironment: Record<TrustEnvironment, number>
+    byClassification: Record<DataClassification, number>
+  }
+  evidence: {
+    total: number
+    latestGeneratedAt: string | null
+    byProduct: Record<TrustProduct, number>
+    byClassification: Record<DataClassification, number>
+    byRetentionClass: Record<string, number>
+    byKind: Record<string, number>
+  }
+  recovery: {
+    summary: {
+      total: number
+      verified: number
+      partial: number
+      gaps: number
+      tier0Gaps: string[]
+      unresolvedEvidenceRefs: number
+      crossProductEvidenceRefs: number
+    }
+    verificationIssues: Array<{
+      service: string
+      reason: 'unresolved-evidence' | 'product-scope-mismatch'
+    }>
+    objectives: RecoveryObjectiveProjection[]
+  }
 }
 
 export interface TrustProviderAdapter<TStatus = unknown> {

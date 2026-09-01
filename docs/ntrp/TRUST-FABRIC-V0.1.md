@@ -58,3 +58,5 @@ Raw subject identifiers are converted to SHA-256 references before entering the 
 3. Read-only Operations API.
 4. Unified Trust & Operations Console using NXS presentation standards.
 5. Only after proven authorization and audit controls: carefully scoped remediation actions.
+
+The Evidence/read-model contract is defined in `docs/ntrp/EVIDENCE-READ-MODEL-V0.1.md`.

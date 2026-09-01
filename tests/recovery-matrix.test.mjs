@@ -22,6 +22,17 @@ test('verified recovery claims cannot exist without evidence', () => {
   }), /require evidence/)
 })
 
+test('verified readiness and objective status cannot contradict each other', () => {
+  const objective = {
+    service: 'example', product: 'shared', tier: 1,
+    rtoMinutes: 60, rpoMinutes: 0,
+    degradedMode: 'safe fallback', dependencies: [],
+    readiness: 'verified', objectiveStatus: 'target', evidenceRefs: ['evidence:1'],
+    recoveryOwner: 'platform-operations', restoreDrillCadenceDays: 90,
+  }
+  assert.throws(() => validateRecoveryObjective(objective), /must agree/)
+})
+
 test('current matrix distinguishes targets from proven recovery', () => {
   for (const item of RECOVERY_MATRIX) {
     assert.equal(item.objectiveStatus, 'target')
