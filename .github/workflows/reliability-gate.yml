@@ -29,5 +29,5 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-not-a-secret
           OPENAI_API_KEY: ci-placeholder-not-a-secret
         run: npm run build
-      - name: Production dependency audit
-        run: npm audit --omit=dev --audit-level=high
+      - name: Production dependency regression guard
+        run: node scripts/check-audit-baseline.mjs
