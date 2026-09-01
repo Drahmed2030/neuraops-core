@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import type { ControlPlaneEvent } from '@/lib/control-plane/contracts'
 import { requestNexusReview } from '@/lib/control-plane/nexus-audit-service.mjs'
 import { getControlPlaneServerPersistence } from '@/lib/control-plane/server-persistence'
 import { consumeRateLimit, requestIp } from '@/lib/security/rate-limit'
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
   const bundle = await persistence.loadEngagementBundle(engagementId)
   if (!bundle) return NextResponse.json({ error: 'audit_not_found' }, { status: 404 })
 
-  const auditStarted = bundle.events.find(event =>
+  const auditStarted = bundle.events.find((event: ControlPlaneEvent) =>
     event.type === 'AUDIT_STARTED' && event.payload?.sourceRef === auditRef
   )
   if (!auditStarted) {
