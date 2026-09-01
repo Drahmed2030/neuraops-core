@@ -1,4 +1,5 @@
 import { buildProofSnapshot, validateOperationalMetrics } from './proof-engine.mjs'
+import { buildProofProvenance } from './provenance-engine.mjs'
 
 function nowIso(clock) {
   return (clock ? clock() : new Date()).toISOString()
@@ -73,6 +74,13 @@ export function createPilotDeliveryService({ persistence, clock }) {
     const outcome = measurements.find(item => item.stage === 'outcome')
     if (!baseline || !outcome) return { ok: false, reason: 'proof_measurements_incomplete' }
 
+    const provenance = buildProofProvenance({
+      engagementId,
+      organizationId: bundle.engagement.organizationId,
+      measurements,
+    })
+    if (!provenance.ok) return provenance
+
     const proof = buildProofSnapshot({
       engagementId,
       organizationId: bundle.engagement.organizationId,
@@ -83,7 +91,13 @@ export function createPilotDeliveryService({ persistence, clock }) {
     })
     if (!proof.ok) return proof
 
-    return { ...result, proof: proof.proof }
+    return {
+      ...result,
+      proof: {
+        ...proof.proof,
+        provenance: provenance.provenance,
+      },
+    }
   }
 
   return {
