@@ -18,12 +18,30 @@ function errorResponse(status, code) {
   }
 }
 
-export function buildOperationsApiResponse({
-  access,
-  generatedAt = new Date().toISOString(),
-  readModelFactory = buildOperationsReadModel,
-  onError = (_error) => {},
-} = {}) {
+/**
+ * @typedef {Object} OperationsAccess
+ * @property {boolean} ok
+ * @property {number} [status]
+ * @property {string} [code]
+ */
+
+/**
+ * @typedef {Object} OperationsApiOptions
+ * @property {OperationsAccess} [access]
+ * @property {string} [generatedAt]
+ * @property {(input: { generatedAt: string }) => unknown} [readModelFactory]
+ * @property {(error: unknown) => void} [onError]
+ */
+
+/** @param {OperationsApiOptions} [options] */
+export function buildOperationsApiResponse(options = {}) {
+  const {
+    access,
+    generatedAt = new Date().toISOString(),
+    readModelFactory = buildOperationsReadModel,
+    onError = (_error) => {},
+  } = options
+
   if (!access?.ok) {
     const status = [401, 403, 503].includes(access?.status) ? access.status : 503
     const code = {
