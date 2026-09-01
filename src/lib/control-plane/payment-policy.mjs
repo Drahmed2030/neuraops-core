@@ -19,10 +19,14 @@ export function paymentReceivedEvent(expected, verified) {
   const validation = validateVerifiedPayment(expected, verified)
   if (!validation.ok) return validation
 
+  const providerEventId = typeof verified.providerEventId === 'string' && verified.providerEventId
+    ? verified.providerEventId
+    : verified.providerReference
+
   return {
     ok: true,
     event: {
-      eventId: `payment:${verified.providerReference}:paid`,
+      eventId: `payment:${providerEventId}:paid`,
       type: 'PAYMENT_RECEIVED',
       occurredAt: verified.occurredAt,
       organizationId: expected.organizationId,
@@ -31,6 +35,10 @@ export function paymentReceivedEvent(expected, verified) {
       payload: {
         paymentId: expected.paymentId,
         providerReference: verified.providerReference,
+        providerEventId: verified.providerEventId ?? null,
+        providerEventType: verified.providerEventType ?? null,
+        webhookVerifiedAt: verified.webhookVerifiedAt ?? null,
+        rawBodyHash: verified.rawBodyHash ?? null,
         amountMinor: verified.amountMinor,
         currency: verified.currency,
       },
