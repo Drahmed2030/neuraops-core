@@ -31,9 +31,11 @@ Every response uses private `no-store` semantics, disables surrogate caching, va
 
 ## Current data posture
 
-The first API response exposes the approved static Recovery Matrix together with honest zero-count Trust Event and Evidence projections. No runtime event/evidence persistence adapter is claimed or fabricated in this phase.
+The API exposes the approved static Recovery Matrix together with honest Trust Event, Evidence, and metadata-only Incident Lineage projections. The current default remains zero runtime events, evidence records, and incident timelines because no persistence adapter is claimed or fabricated.
 
 Future provider adapters may contribute only validated Trust Events and Evidence Records. The API contract must continue to omit raw event attributes, direct identifiers, evidence payloads, credentials, customer data, patient data, and clinical narratives.
+
+Incident replay declares `metadata-only` mode and `executionAllowed: false`. It reconstructs sanitized lineage but never re-executes an event or invokes a remediation path.
 
 ## Cliniverse boundary
 

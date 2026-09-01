@@ -1,6 +1,7 @@
 import { indexEvidenceRecords } from './evidence.mjs'
+import { buildIncidentLineageProjection } from './incident-lineage.mjs'
 import { RECOVERY_MATRIX, validateRecoveryMatrix } from './recovery-matrix.mjs'
-import { TRUST_EVENT_ENUMS, validateTrustEvent } from './trust-event.mjs'
+import { hashRef, TRUST_EVENT_ENUMS, validateTrustEvent } from './trust-event.mjs'
 
 function emptyCounts(values) {
   return Object.fromEntries(values.map((value) => [value, 0]))
@@ -41,11 +42,13 @@ function trustProjection(events) {
   const byEnvironment = emptyCounts(TRUST_EVENT_ENUMS.environments)
   const byClassification = emptyCounts(TRUST_EVENT_ENUMS.classifications)
   const eventIds = new Set()
+  const eventIndex = new Map()
 
   for (const event of events) {
     validateTrustEvent(event)
     if (eventIds.has(event.eventId)) throw new TypeError(`Duplicate trust event: ${event.eventId}`)
     eventIds.add(event.eventId)
+    eventIndex.set(hashRef(event.eventId), event)
     increment(byDomain, event.domain)
     increment(byProduct, event.context.product)
     increment(byEnvironment, event.context.environment)
@@ -53,12 +56,15 @@ function trustProjection(events) {
   }
 
   return {
-    totalEvents: events.length,
-    latestOccurredAt: latestTimestamp(events.map((event) => event.context.occurredAt)),
-    byDomain,
-    byProduct,
-    byEnvironment,
-    byClassification,
+    index: eventIndex,
+    projection: {
+      totalEvents: events.length,
+      latestOccurredAt: latestTimestamp(events.map((event) => event.context.occurredAt)),
+      byDomain,
+      byProduct,
+      byEnvironment,
+      byClassification,
+    },
   }
 }
 
@@ -158,12 +164,14 @@ function recoveryProjection(recoveryMatrix, evidenceIndex) {
 export function buildOperationsReadModel({
   events = [],
   evidenceRecords = [],
+  lineageRecords = [],
   recoveryMatrix = RECOVERY_MATRIX,
   generatedAt = new Date().toISOString(),
 } = {}) {
   assertGeneratedAt(generatedAt)
   const trust = trustProjection(events)
   const evidence = evidenceProjection(evidenceRecords)
+  const incidentLineage = buildIncidentLineageProjection(lineageRecords, evidence.index, trust.index)
   const recovery = recoveryProjection(recoveryMatrix, evidence.index)
 
   return deepFreeze({
@@ -176,8 +184,9 @@ export function buildOperationsReadModel({
       directIdentifiersIncluded: false,
       clinicalDataIncluded: false,
     },
-    trust,
+    trust: trust.projection,
     evidence: evidence.projection,
+    incidentLineage,
     recovery,
   })
 }

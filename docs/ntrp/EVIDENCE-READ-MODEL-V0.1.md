@@ -51,8 +51,8 @@ Cliniverse may contribute privacy-safe control-plane metadata, such as the exist
 
 The `clinical-restricted` classification is counted only as a label. The associated event attributes are deliberately omitted from the read model.
 
-## Next gate
+## Evolution gates
 
-The next phase may expose this projection through a read-only Operations API only after adding explicit operator authorization, `no-store` response semantics, safe error handling, and tests proving that unauthenticated callers and clinical payloads cannot cross the boundary.
+P11 exposed this projection through the explicitly authorized, private `no-store` Operations API. P12 added the fail-closed Unified Trust & Operations Console. P13 extends the same read model with the metadata-only contract in `docs/ntrp/INCIDENT-REPLAY-DATA-LINEAGE-V0.1.md`.
 
-That API contract is defined in `docs/ntrp/READ-ONLY-OPERATIONS-API-V1.md`.
+These additive phases do not change the Evidence Record payload boundary or authorize persistence, mutation, remediation, or clinical-data access.

@@ -84,6 +84,66 @@ export interface IncidentSnapshot {
   evidenceRefs: string[]
 }
 
+export type IncidentLineagePhase = 'detected' | 'triaged' | 'contained' | 'recovered' | 'verified'
+export type IncidentLineageOutcome = 'observed' | 'degraded' | 'restored' | 'verified' | 'unresolved'
+export type IncidentLineageProjectedPhase = IncidentLineagePhase | 'verification-pending'
+
+export interface IncidentLineageRecord {
+  schemaVersion: 1
+  lineageRef: string
+  incidentRef: string
+  predecessorRef: string | null
+  eventRef: string | null
+  evidenceRefs: string[]
+  phase: IncidentLineagePhase
+  outcome: IncidentLineageOutcome
+  sequence: number
+  occurredAt: string
+  source: string
+  product: TrustProduct
+  environment: TrustEnvironment
+  classification: DataClassification
+}
+
+export interface IncidentReplayStepProjection {
+  lineageRef: string
+  sequence: number
+  phase: IncidentLineageProjectedPhase
+  outcome: IncidentLineageOutcome
+  declaredPhase: IncidentLineagePhase
+  declaredOutcome: IncidentLineageOutcome
+  occurredAt: string
+  source: string
+  product: TrustProduct
+  environment: TrustEnvironment
+  classification: DataClassification
+  predecessor: 'root' | 'linked' | 'unresolved' | 'scope-mismatch'
+  event: 'not-referenced' | 'resolved' | 'unresolved' | 'scope-mismatch'
+  evidence: {
+    referenced: number
+    resolved: number
+    unresolved: number
+    scopeMismatch: number
+  }
+}
+
+export interface IncidentReplayProjection {
+  incidentRef: string
+  product: TrustProduct
+  environment: TrustEnvironment
+  startedAt: string
+  latestOccurredAt: string
+  status: 'complete' | 'partial'
+  verificationStatus: 'verified' | 'unverified'
+  evidence: {
+    referenced: number
+    resolved: number
+    unresolved: number
+    scopeMismatch: number
+  }
+  steps: IncidentReplayStepProjection[]
+}
+
 export interface EntitlementSnapshot {
   principalRef: string
   product: TrustProduct
@@ -145,6 +205,31 @@ export interface OperationsReadModel {
     byClassification: Record<DataClassification, number>
     byRetentionClass: Record<string, number>
     byKind: Record<string, number>
+  }
+  incidentLineage: {
+    replayMode: 'metadata-only'
+    executionAllowed: false
+    summary: {
+      totalIncidents: number
+      totalSteps: number
+      completeReplays: number
+      verifiedReplays: number
+      partialReplays: number
+      latestOccurredAt: string | null
+      unresolvedPredecessorRefs: number
+      crossScopePredecessorRefs: number
+      unresolvedEventRefs: number
+      crossProductEventRefs: number
+      unresolvedEvidenceRefs: number
+      crossProductEvidenceRefs: number
+    }
+    byProduct: Record<TrustProduct, number>
+    byPhase: Record<IncidentLineageProjectedPhase, number>
+    verificationIssues: Array<{
+      lineageRef: string
+      reason: 'unresolved-evidence' | 'product-scope-mismatch'
+    }>
+    replays: IncidentReplayProjection[]
   }
   recovery: {
     summary: {

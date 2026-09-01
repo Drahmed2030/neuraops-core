@@ -13,6 +13,8 @@ function privacyBoundarySatisfied(snapshot) {
     && snapshot?.privacy?.eventAttributesIncluded === false
     && snapshot?.privacy?.directIdentifiersIncluded === false
     && snapshot?.privacy?.clinicalDataIncluded === false
+    && snapshot?.incidentLineage?.replayMode === 'metadata-only'
+    && snapshot?.incidentLineage?.executionAllowed === false
 }
 
 /**
