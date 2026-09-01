@@ -39,6 +39,16 @@ function seed() {
   }
 }
 
+function withProviderLookup(base) {
+  return {
+    ...base,
+    async findPaymentByProviderReference({ provider, providerReference }) {
+      const bundle = await base.loadEngagementBundle('eng-1')
+      return bundle?.payments.find(item => item.provider === provider && item.providerReference === providerReference) ?? null
+    },
+  }
+}
+
 function paymentPort(paymentOverrides = {}, envelopeOverrides = {}) {
   return {
     rail: 'b2b_web',
@@ -92,6 +102,44 @@ test('trusted Nexus payment settles atomically to PILOT_READY', async () => {
   assert.equal(received.payload.providerEventId, 'evt-provider-1')
   assert.equal(received.payload.rawBodyHash, rawBodySha256('{}'))
   assert.equal('rawBody' in received.payload, false)
+})
+
+test('provider-first webhook settles without caller-supplied internal IDs', async () => {
+  const base = createInMemoryControlPlanePersistence([seed()])
+  const persistence = withProviderLookup(base)
+  const service = createPaymentSettlementService({ persistence, paymentPort: paymentPort() })
+
+  const result = await service.settleProviderWebhook({ rawBody: '{}', signature: 'sig' })
+  assert.equal(result.ok, true)
+  assert.equal(result.version, 8)
+  assert.equal(result.engagement.state, 'PILOT_READY')
+})
+
+test('provider-first webhook rejects verified metadata scope mismatch', async () => {
+  const base = createInMemoryControlPlanePersistence([seed()])
+  const persistence = withProviderLookup(base)
+  const service = createPaymentSettlementService({
+    persistence,
+    paymentPort: paymentPort({ organizationId: 'org-forged' }),
+  })
+
+  const result = await service.settleProviderWebhook({ rawBody: '{}', signature: 'sig' })
+  assert.deepEqual(result, { ok: false, reason: 'verified_payment_scope_mismatch' })
+  const bundle = await base.loadEngagementBundle('eng-1')
+  assert.equal(bundle.engagement.state, 'PAYMENT_PENDING')
+  assert.equal(bundle.entitlements.length, 0)
+})
+
+test('provider-first webhook rejects uncorrelated provider reference', async () => {
+  const base = createInMemoryControlPlanePersistence([seed()])
+  const persistence = withProviderLookup(base)
+  const service = createPaymentSettlementService({
+    persistence,
+    paymentPort: paymentPort({ providerReference: 'unknown-checkout' }),
+  })
+
+  const result = await service.settleProviderWebhook({ rawBody: '{}', signature: 'sig' })
+  assert.deepEqual(result, { ok: false, reason: 'payment_not_found' })
 })
 
 test('exact trusted webhook retry is a successful no-op', async () => {
