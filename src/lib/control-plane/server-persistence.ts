@@ -2,6 +2,7 @@ import 'server-only'
 import { createClient } from '@supabase/supabase-js'
 import { createSupabaseControlPlanePersistence } from './supabase-persistence.mjs'
 import { withSupabaseRenewalPersistence } from './supabase-renewal-persistence.mjs'
+import { withSupabasePaymentProviderLookup } from './supabase-payment-provider-lookup-persistence.mjs'
 
 const controlPlaneUrl = process.env.CONTROL_PLANE_SUPABASE_URL
 const controlPlaneServiceRoleKey = process.env.CONTROL_PLANE_SUPABASE_SERVICE_ROLE_KEY
@@ -20,5 +21,6 @@ export function getControlPlaneServerPersistence() {
   })
 
   const base = createSupabaseControlPlanePersistence(supabase)
-  return withSupabaseRenewalPersistence(base, supabase)
+  const withPaymentLookup = withSupabasePaymentProviderLookup(base, supabase)
+  return withSupabaseRenewalPersistence(withPaymentLookup, supabase)
 }
