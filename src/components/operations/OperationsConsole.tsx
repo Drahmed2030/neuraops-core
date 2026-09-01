@@ -1,6 +1,12 @@
 'use client'
 
-import type { OperationsReadModel, RecoveryObjectiveProjection, TrustProduct } from '@/lib/trust/contracts'
+import type {
+  IncidentLineageProjectedPhase,
+  IncidentReplayStepProjection,
+  OperationsReadModel,
+  RecoveryObjectiveProjection,
+  TrustProduct,
+} from '@/lib/trust/contracts'
 import { useUI } from '@/lib/ui-context'
 
 type OperationsConsoleProps =
@@ -30,6 +36,16 @@ function productClasses(product: TrustProduct) {
   if (product === 'cliniverse') return 'border-brand-violet/25 bg-brand-violet/10 text-brand-violet dark:text-violet-300'
   if (product === 'neuraops') return 'border-brand-primary/25 bg-brand-primary/10 text-brand-primary dark:text-brand-azure'
   return 'border-black/10 bg-black/[0.04] text-ink-950/65 dark:border-white/10 dark:bg-white/[0.06] dark:text-paper-50/65'
+}
+
+function replayStatusClasses(status: 'complete' | 'partial') {
+  return status === 'complete'
+    ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+    : 'border-attention/30 bg-attention/10 text-attention-dark dark:text-attention'
+}
+
+function shortRef(value: string) {
+  return `${value.slice(0, 12)}…`
 }
 
 function ConsoleGate({ view, isArabic }: { view: 'access-denied' | 'unavailable'; isArabic: boolean }) {
@@ -65,6 +81,152 @@ function ConsoleGate({ view, isArabic }: { view: 'access-denied' | 'unavailable'
         </div>
       </div>
     </div>
+  )
+}
+
+function IncidentLineageSection({
+  lineage,
+  isArabic,
+  locale,
+  productLabels,
+}: {
+  lineage: OperationsReadModel['incidentLineage']
+  isArabic: boolean
+  locale: Locale
+  productLabels: Record<TrustProduct, string>
+}) {
+  const summary = lineage.summary
+  const phaseLabels: Record<IncidentLineageProjectedPhase, string> = {
+    detected: isArabic ? 'اكتشاف' : 'Detected',
+    triaged: isArabic ? 'فرز' : 'Triaged',
+    contained: isArabic ? 'احتواء' : 'Contained',
+    recovered: isArabic ? 'استعادة' : 'Recovered',
+    verified: isArabic ? 'مثبت' : 'Verified',
+    'verification-pending': isArabic ? 'بانتظار الإثبات' : 'Verification pending',
+  }
+  const predecessorLabels: Record<IncidentReplayStepProjection['predecessor'], string> = {
+    root: isArabic ? 'بداية السجل' : 'Replay root',
+    linked: isArabic ? 'مرتبط' : 'Linked',
+    unresolved: isArabic ? 'غير محلول' : 'Unresolved',
+    'scope-mismatch': isArabic ? 'تعارض نطاق' : 'Scope mismatch',
+  }
+  const eventLabels: Record<IncidentReplayStepProjection['event'], string> = {
+    'not-referenced': isArabic ? 'غير مشار إليه' : 'Not referenced',
+    resolved: isArabic ? 'محلول' : 'Resolved',
+    unresolved: isArabic ? 'غير محلول' : 'Unresolved',
+    'scope-mismatch': isArabic ? 'تعارض نطاق' : 'Scope mismatch',
+  }
+  const cards = [
+    { label: isArabic ? 'الحوادث' : 'Incidents', value: summary.totalIncidents },
+    { label: isArabic ? 'خطوات السجل' : 'Lineage steps', value: summary.totalSteps },
+    { label: isArabic ? 'Replay مكتمل' : 'Complete replays', value: summary.completeReplays },
+    { label: isArabic ? 'مثبت بالدليل' : 'Evidence-verified', value: summary.verifiedReplays },
+  ]
+  const unresolvedRefs = summary.unresolvedPredecessorRefs
+    + summary.unresolvedEventRefs
+    + summary.unresolvedEvidenceRefs
+  const crossScopeRefs = summary.crossScopePredecessorRefs
+    + summary.crossProductEventRefs
+    + summary.crossProductEvidenceRefs
+
+  return (
+    <section aria-labelledby="incident-lineage" className="mb-7 overflow-hidden rounded-2xl border border-black/[0.08] bg-white dark:border-white/[0.08] dark:bg-ink-800">
+      <div className="border-b border-black/[0.07] p-5 dark:border-white/[0.07] sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h2 id="incident-lineage" className="text-lg font-extrabold">{isArabic ? 'إعادة عرض الحوادث ومسار البيانات' : 'Incident replay & data lineage'}</h2>
+            <p className="mt-1 max-w-3xl text-xs leading-6 text-ink-950/50 dark:text-paper-50/50">
+              {isArabic
+                ? 'إعادة بناء زمنية لبيانات وصفية منزوعة الحساسية فقط. لا تعيد تشغيل الأحداث ولا تستدعي أي إجراء أو side effect.'
+                : 'A chronological reconstruction of sanitized metadata only. Replay never re-executes events, invokes an action, or produces side effects.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-[0.12em]">
+            <span className="rounded-full border border-brand-primary/25 bg-brand-primary/10 px-3 py-1.5 text-brand-primary dark:text-brand-azure">{isArabic ? 'بيانات وصفية فقط' : 'Metadata only'}</span>
+            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-emerald-700 dark:text-emerald-300">{isArabic ? 'التنفيذ معطل' : 'Execution disabled'}</span>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {cards.map((card) => (
+            <div key={card.label} className="rounded-xl border border-black/[0.06] bg-black/[0.02] p-4 dark:border-white/[0.06] dark:bg-white/[0.03]">
+              <div className="text-[11px] text-ink-950/50 dark:text-paper-50/50">{card.label}</div>
+              <div className="mt-1 text-2xl font-extrabold">{card.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {lineage.replays.length === 0 ? (
+        <div className="p-5 sm:p-6">
+          <div className="rounded-2xl border border-dashed border-black/15 bg-black/[0.015] p-6 text-center dark:border-white/15 dark:bg-white/[0.02]">
+            <div className="text-sm font-extrabold">{isArabic ? 'لا توجد سجلات lineage تشغيلية حتى الآن' : 'No runtime lineage records yet'}</div>
+            <p className="mx-auto mt-2 max-w-2xl text-xs leading-6 text-ink-950/50 dark:text-paper-50/50">
+              {isArabic
+                ? 'العقد والإسقاط جاهزان، لكن لا يوجد persistence adapter مفعّل. لن تعرض الوحدة حوادث أو أدلة مصطنعة.'
+                : 'The contract and projection are ready, but no persistence adapter is enabled. The console will not fabricate incidents or evidence.'}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="divide-y divide-black/[0.07] dark:divide-white/[0.07]">
+          {lineage.replays.map((replay) => (
+            <article key={replay.incidentRef} className="p-5 sm:p-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-mono text-xs font-bold" title={replay.incidentRef}>{isArabic ? 'حادث' : 'Incident'} {shortRef(replay.incidentRef)}</span>
+                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold ${productClasses(replay.product)}`}>{productLabels[replay.product]}</span>
+                    <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold ${replayStatusClasses(replay.status)}`}>
+                      {replay.status === 'complete' ? (isArabic ? 'مكتمل' : 'Complete') : (isArabic ? 'جزئي' : 'Partial')}
+                    </span>
+                  </div>
+                  <div className="mt-2 text-[11px] text-ink-950/45 dark:text-paper-50/45">
+                    {formatTimestamp(replay.startedAt, locale)} → {formatTimestamp(replay.latestOccurredAt, locale)}
+                  </div>
+                </div>
+                <div className="text-[11px] text-ink-950/50 dark:text-paper-50/50">
+                  {isArabic ? 'الدليل المحلول' : 'Resolved evidence'}: {replay.evidence.resolved}/{replay.evidence.referenced}
+                </div>
+              </div>
+
+              <ol className="mt-5 grid gap-3 lg:grid-cols-2">
+                {replay.steps.map((step) => (
+                  <li key={step.lineageRef} className="rounded-xl border border-black/[0.06] bg-black/[0.02] p-4 dark:border-white/[0.06] dark:bg-white/[0.03]">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-primary text-[10px] font-extrabold text-white">{step.sequence}</span>
+                        <strong className="text-xs">{phaseLabels[step.phase]}</strong>
+                      </div>
+                      <time dateTime={step.occurredAt} className="text-[10px] text-ink-950/45 dark:text-paper-50/45">{formatTimestamp(step.occurredAt, locale)}</time>
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 gap-2 text-[10px]">
+                      <div>
+                        <div className="text-ink-950/40 dark:text-paper-50/40">{isArabic ? 'السابق' : 'Previous'}</div>
+                        <div className="mt-1 font-semibold">{predecessorLabels[step.predecessor]}</div>
+                      </div>
+                      <div>
+                        <div className="text-ink-950/40 dark:text-paper-50/40">{isArabic ? 'الحدث' : 'Event'}</div>
+                        <div className="mt-1 font-semibold">{eventLabels[step.event]}</div>
+                      </div>
+                      <div>
+                        <div className="text-ink-950/40 dark:text-paper-50/40">{isArabic ? 'الدليل' : 'Evidence'}</div>
+                        <div className="mt-1 font-semibold">{step.evidence.resolved}/{step.evidence.referenced}</div>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </article>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-1 border-t border-black/[0.07] bg-black/[0.015] px-5 py-3 text-[10px] text-ink-950/45 dark:border-white/[0.07] dark:bg-white/[0.02] dark:text-paper-50/45 sm:flex-row sm:justify-between">
+        <span>{isArabic ? `روابط غير محلولة: ${unresolvedRefs}` : `Unresolved refs: ${unresolvedRefs}`}</span>
+        <span>{isArabic ? `تعارضات النطاق: ${crossScopeRefs}` : `Scope mismatches: ${crossScopeRefs}`}</span>
+      </div>
+    </section>
   )
 }
 
@@ -206,6 +368,13 @@ export function OperationsConsole(props: OperationsConsoleProps) {
           </div>
         </section>
 
+        <IncidentLineageSection
+          lineage={snapshot.incidentLineage}
+          isArabic={isArabic}
+          locale={locale}
+          productLabels={productLabels}
+        />
+
         <section aria-labelledby="recovery-matrix" className="overflow-hidden rounded-2xl border border-black/[0.08] bg-white dark:border-white/[0.08] dark:bg-ink-800">
           <div className="border-b border-black/[0.07] p-5 dark:border-white/[0.07] sm:p-6">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -265,7 +434,7 @@ export function OperationsConsole(props: OperationsConsoleProps) {
         </section>
 
         <footer className="mt-5 flex flex-col gap-1 px-1 text-[11px] leading-5 text-ink-950/45 dark:text-paper-50/45 sm:flex-row sm:justify-between">
-          <span>{isArabic ? 'لا توجد إجراءات remediation أو نشر أو entitlement في هذه الواجهة.' : 'This surface exposes no remediation, deployment, or entitlement actions.'}</span>
+          <span>{isArabic ? 'لا توجد إجراءات replay أو remediation أو نشر أو entitlement في هذه الواجهة.' : 'This surface exposes no replay, remediation, deployment, or entitlement actions.'}</span>
           <span>{isArabic ? 'المصدر: NTRP Operations Read Model v1' : 'Source: NTRP Operations Read Model v1'}</span>
         </footer>
       </div>
