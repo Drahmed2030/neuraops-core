@@ -40,9 +40,8 @@ export async function requireStoreAccess(
   req: NextRequest,
   storeSlug: string
 ): Promise<StoreAccessContext | NextResponse> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
-  // 1. Verify session via cookie
   const { data: { user }, error: authError } = await supabase.auth.getUser()
 
   if (authError || !user) {
@@ -52,9 +51,6 @@ export async function requireStoreAccess(
     )
   }
 
-  // 2. Resolve store by the existing frontend slug and verify ownership.
-  //    The slug is not authorization; owner_id = auth.uid() is.
-  //    Uses anon client — stores has service_role + new owner RLS policies (006).
   const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('id, slug, name, owner_id')
@@ -65,7 +61,6 @@ export async function requireStoreAccess(
     return NextResponse.json({ error: 'Access denied.' }, { status: 403 })
   }
 
-  // 3. Ownership check
   if (store.owner_id !== user.id) {
     return NextResponse.json({ error: 'Access denied.' }, { status: 403 })
   }
