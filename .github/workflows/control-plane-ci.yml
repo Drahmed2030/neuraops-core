@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: control-plane-ci-${{ github.ref }}
@@ -37,9 +37,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Regenerate lockfile from pinned dependencies
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-
       - name: Install dependencies strictly
         run: npm ci --no-audit --no-fund
 
@@ -51,16 +48,3 @@ jobs:
 
       - name: Next.js build
         run: npm run build
-
-      - name: Persist verified lockfile on branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/platform/control-plane-v0.1'
-        run: |
-          if git diff --quiet -- package-lock.json; then
-            echo "package-lock.json already synchronized"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git commit -m "chore(deps): sync verified package lock"
-          git push origin HEAD:platform/control-plane-v0.1
