@@ -1,0 +1,33 @@
+name: Reliability gate
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [p6/reliability-sensor-gate]
+
+permissions:
+  contents: read
+
+jobs:
+  reliability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Reliability tests
+        run: npm test
+      - name: Production build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://ci.invalid
+          SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-not-a-secret
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-not-a-secret
+          OPENAI_API_KEY: ci-placeholder-not-a-secret
+        run: npm run build
+      - name: Production dependency regression guard
+        run: node scripts/check-audit-baseline.mjs
