@@ -54,3 +54,5 @@ The `clinical-restricted` classification is counted only as a label. The associa
 ## Next gate
 
 The next phase may expose this projection through a read-only Operations API only after adding explicit operator authorization, `no-store` response semantics, safe error handling, and tests proving that unauthenticated callers and clinical payloads cannot cross the boundary.
+
+That API contract is defined in `docs/ntrp/READ-ONLY-OPERATIONS-API-V1.md`.
