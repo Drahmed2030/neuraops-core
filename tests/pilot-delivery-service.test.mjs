@@ -20,11 +20,11 @@ function fakePersistence() {
 
   return {
     async loadEngagementBundle() { return structuredClone(bundle) },
-    async recordPilotMeasurement({ stage, measurement }) {
+    async recordPilotMeasurement({ stage, measurement, event }) {
       if (measurements.some(item => item.stage === stage)) {
         return { ok: false, reason: 'persistence_failed', domainReason: 'measurement_stage_conflict' }
       }
-      measurements.push(structuredClone(measurement))
+      measurements.push({ ...structuredClone(measurement), sourceEventId: event.eventId })
       bundle.version += 1
       if (stage === 'checkpoint') bundle.engagement.state = 'CHECKPOINT_COMPLETED'
       if (stage === 'outcome') bundle.engagement.state = 'OUTCOME_RECORDED'
@@ -34,7 +34,7 @@ function fakePersistence() {
   }
 }
 
-test('pilot delivery produces proof from persisted baseline and outcome', async () => {
+test('pilot delivery produces proof from persisted baseline and outcome with provenance', async () => {
   const persistence = fakePersistence()
   const service = createPilotDeliveryService({ persistence, clock: () => new Date('2026-09-01T00:00:00Z') })
 
@@ -57,6 +57,12 @@ test('pilot delivery produces proof from persisted baseline and outcome', async 
   assert.equal(outcome.ok, true)
   assert.equal(outcome.proof.summary.improvedMetrics, 2)
   assert.equal(outcome.proof.summary.improvementRatePercent, 100)
+  assert.deepEqual(outcome.proof.provenance.sourceEventIds, [
+    'pilot:eng-1:baseline',
+    'pilot:eng-1:checkpoint',
+    'pilot:eng-1:outcome',
+  ])
+  assert.match(outcome.proof.provenance.evidenceHash, /^sha256:[a-f0-9]{64}$/)
 })
 
 test('pilot delivery rejects unsupported metric before persistence', async () => {
