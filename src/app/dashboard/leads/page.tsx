@@ -5,7 +5,7 @@ import { DashboardMobileNav } from '@/components/dashboard/DashboardMobileNav'
 import { LeadsOperatorView } from '@/components/leadops/LeadsOperatorView'
 
 export default async function LeadsPage() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return null
