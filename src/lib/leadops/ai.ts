@@ -2,7 +2,18 @@ import OpenAI from 'openai'
 import { callWithTimeoutAndRetry } from '@/lib/reliability/ai.mjs'
 import { parseLeadAiResponse } from './qualification.mjs'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+let openaiClient: OpenAI | null = null
+
+function getOpenAIClient() {
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is not configured')
+  }
+  if (!openaiClient) {
+    openaiClient = new OpenAI({ apiKey })
+  }
+  return openaiClient
+}
 
 export async function generateLeadResponse(input: {
   need: string | null
@@ -12,6 +23,7 @@ export async function generateLeadResponse(input: {
   score: number
 }) {
   try {
+    const openai = getOpenAIClient()
     const response = await callWithTimeoutAndRetry(
       (signal: AbortSignal) => openai.chat.completions.create({
         model: 'gpt-4o-mini',
