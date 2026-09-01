@@ -6,7 +6,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 })
 
 export async function retrieveContext(query: string, storeId: string, category?: string) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     const embeddingResponse = await callWithTimeoutAndRetry(
       (signal: AbortSignal) => openai.embeddings.create({
         model: 'text-embedding-3-small',

@@ -12,7 +12,7 @@ export async function login(formData: FormData) {
     redirect('/login?error=missing_credentials')
   }
 
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
@@ -23,7 +23,7 @@ export async function login(formData: FormData) {
 }
 
 export async function logout() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   await supabase.auth.signOut()
   redirect('/login')
 }

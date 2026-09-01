@@ -4,7 +4,7 @@ import { createServerClient } from '@/lib/supabase/server'
 import { logout } from '@/app/login/actions'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/login')
