@@ -6,9 +6,10 @@ import { useUI } from '@/lib/ui-context'
 import { BrandMark } from '@/components/brand/BrandMark'
 
 type DashboardTab = 'dashboard' | 'chat' | 'report' | 'quality' | 'escalations' | 'settings'
+type DashboardSection = DashboardTab | 'leads' | 'operations'
 
 interface DashboardSidebarProps {
-  activeTab?: DashboardTab | 'leads'
+  activeTab?: DashboardSection
   onTabChange?: (tab: DashboardTab) => void
 }
 
@@ -18,13 +19,14 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
   const router = useRouter()
 
   const items: Array<{
-    id: DashboardTab | 'leads'
+    id: DashboardSection
     icon: string
     label: string
     description?: string
   }> = [
     { id: 'dashboard', icon: '⌂', label: t.navDashboard },
     { id: 'leads', icon: '◎', label: lang === 'ar' ? 'العملاء المحتملون' : 'Leads' },
+    { id: 'operations', icon: '◇', label: lang === 'ar' ? 'الثقة والعمليات' : 'Trust & Ops' },
     { id: 'chat', icon: '✦', label: t.navChat },
     { id: 'report', icon: '▥', label: lang === 'ar' ? 'التقارير' : 'Reports' },
     { id: 'quality', icon: '✓', label: lang === 'ar' ? 'مركز الجودة' : 'Quality Center' },
@@ -32,9 +34,9 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
     { id: 'settings', icon: '⚙', label: t.navSettings },
   ]
 
-  function selectItem(id: DashboardTab | 'leads') {
-    if (id === 'leads') {
-      router.push('/dashboard/leads')
+  function selectItem(id: DashboardSection) {
+    if (id === 'leads' || id === 'operations') {
+      router.push(`/dashboard/${id}`)
       return
     }
 
@@ -56,14 +58,15 @@ export function DashboardSidebar({ activeTab, onTabChange }: DashboardSidebarPro
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3" aria-label={lang === 'ar' ? 'التنقل داخل لوحة التحكم' : 'Dashboard navigation'}>
+      <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3" aria-label={lang === 'ar' ? 'التنقل داخل لوحة التحكم' : 'Dashboard navigation'}>
         {items.map((item) => {
-          const selected = activeTab === item.id || (item.id === 'leads' && pathname === '/dashboard/leads')
+          const selected = activeTab === item.id || pathname === `/dashboard/${item.id}`
           return (
             <button
               key={item.id}
               type="button"
               onClick={() => selectItem(item.id)}
+              aria-current={selected ? 'page' : undefined}
               className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start text-[13px] font-semibold transition-all ${
                 selected
                   ? 'bg-brand-primary/10 text-brand-primary dark:bg-brand-azure/10 dark:text-brand-azure ring-1 ring-inset ring-brand-primary/15'
