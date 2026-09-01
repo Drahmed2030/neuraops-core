@@ -12,7 +12,7 @@ export type TransitionResult =
 export function transitionEngagement(
   from: EngagementState,
   event: ControlPlaneEventType,
-  kind: EngagementKind = 'pilot',
+  kind: EngagementKind = 'nexus_lifecycle',
 ): TransitionResult {
   return transitionEngagementRuntime(from, event, kind) as TransitionResult
 }
@@ -20,7 +20,7 @@ export function transitionEngagement(
 export function canTransition(
   from: EngagementState,
   event: ControlPlaneEventType,
-  kind: EngagementKind = 'pilot',
+  kind: EngagementKind = 'nexus_lifecycle',
 ): boolean {
   return canTransitionRuntime(from, event, kind)
 }
