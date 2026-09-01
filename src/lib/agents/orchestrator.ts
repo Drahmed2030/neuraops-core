@@ -5,6 +5,7 @@ import { productExpertAgent } from './product-expert'
 import { menuOffersAgent } from './menu-offers'
 import { storeInfoAgent } from './store-info'
 import type { AgentName, AgentResponse, ChatHistoryMessage } from './types'
+import { emitRuntimeIncident } from '@/lib/reliability/runtime-sensor.mjs'
 
 /**
  * Entry point for every incoming customer message.
@@ -26,7 +27,21 @@ export async function handleCustomerMessage(
   storeId: string,
   history: ChatHistoryMessage[]
 ): Promise<AgentResponse & { routingReasoning: string }> {
-  const routing = await routeMessage(message, history)
+  let routing
+  try {
+    routing = await routeMessage(message, history)
+  } catch (error) {
+    emitRuntimeIncident({
+      service: 'agents/orchestrator',
+      operation: 'route-message',
+      status: 503,
+      error,
+      provider: 'openai',
+      phase: 'routing',
+      context: { storeIdHashable: storeId ? 'present' : 'missing', historyCount: history.length },
+    })
+    throw error
+  }
 
   const agentRunners: Record<Exclude<AgentName, 'router'>, () => Promise<AgentResponse>> = {
     order_tracker: () => orderTrackerAgent(message, storeId, history),
@@ -37,7 +52,21 @@ export async function handleCustomerMessage(
   }
 
   const runner = agentRunners[routing.agent as Exclude<AgentName, 'router'>]
-  const result = await runner()
+  let result: AgentResponse
+  try {
+    result = await runner()
+  } catch (error) {
+    emitRuntimeIncident({
+      service: 'agents/orchestrator',
+      operation: 'specialist-agent',
+      status: 503,
+      error,
+      provider: 'openai',
+      phase: 'specialist',
+      context: { agent: routing.agent, historyCount: history.length },
+    })
+    throw error
+  }
 
   // Low routing confidence is itself a signal worth escalating on,
   // even if the specialist agent felt confident in its own answer —
