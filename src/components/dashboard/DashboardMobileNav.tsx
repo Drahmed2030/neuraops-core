@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useUI } from '@/lib/ui-context'
 
-type MobileSection = 'dashboard' | 'leads' | 'chat' | 'report' | 'quality' | 'escalations' | 'settings'
+type MobileSection = 'dashboard' | 'leads' | 'operations' | 'chat' | 'report' | 'quality' | 'escalations' | 'settings'
 
 export function DashboardMobileNav({ activeSection }: { activeSection: MobileSection }) {
   const { t, lang } = useUI()
@@ -12,6 +12,7 @@ export function DashboardMobileNav({ activeSection }: { activeSection: MobileSec
   const items: Array<{ id: MobileSection; icon: string; label: string }> = [
     { id: 'dashboard', icon: '⌂', label: t.navDashboard },
     { id: 'leads', icon: '◎', label: lang === 'ar' ? 'العملاء المحتملون' : 'Leads' },
+    { id: 'operations', icon: '◇', label: lang === 'ar' ? 'الثقة والعمليات' : 'Trust & Ops' },
     { id: 'chat', icon: '✦', label: t.navChat },
     { id: 'report', icon: '▥', label: lang === 'ar' ? 'التقارير' : 'Reports' },
     { id: 'quality', icon: '✓', label: lang === 'ar' ? 'الجودة' : 'Quality' },
@@ -20,8 +21,8 @@ export function DashboardMobileNav({ activeSection }: { activeSection: MobileSec
   ]
 
   function go(id: MobileSection) {
-    if (id === 'leads') {
-      router.push('/dashboard/leads')
+    if (id === 'leads' || id === 'operations') {
+      router.push(`/dashboard/${id}`)
       return
     }
     router.push(id === 'dashboard' ? '/dashboard' : `/dashboard#${id}`)
@@ -39,6 +40,7 @@ export function DashboardMobileNav({ activeSection }: { activeSection: MobileSec
             key={item.id}
             type="button"
             onClick={() => go(item.id)}
+            aria-current={selected ? 'page' : undefined}
             className={`flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-[12px] font-semibold transition-all ${
               selected
                 ? 'bg-brand-primary text-white'

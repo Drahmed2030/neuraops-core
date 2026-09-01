@@ -41,4 +41,4 @@ Cliniverse remains a separate clinical system. This endpoint may eventually repo
 
 ## Next gate
 
-The Unified Trust & Operations Console may consume this snapshot only inside the existing authenticated dashboard boundary. The console remains read-only and must preserve the same authorization, privacy, and no-unsupported-claims rules.
+The Unified Trust & Operations Console consumes this projection inside the existing authenticated dashboard boundary without an internal HTTP round trip. Its contract is defined in `docs/ntrp/UNIFIED-TRUST-OPERATIONS-CONSOLE-V1.md`; it remains read-only and preserves the same authorization, privacy, and no-unsupported-claims rules.
