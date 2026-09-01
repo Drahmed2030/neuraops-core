@@ -1,4 +1,5 @@
 import { buildProofSnapshot } from './proof-engine.mjs'
+import { buildDecisionProvenance, buildProofProvenance } from './provenance-engine.mjs'
 import { evaluateRenewalDecision } from './renewal-engine.mjs'
 
 function nowIso(clock) {
@@ -26,6 +27,13 @@ export function createRenewalService({ persistence, policy, clock }) {
     const outcome = measurements.find(item => item.stage === 'outcome')
     if (!baseline || !outcome) return { ok: false, reason: 'persisted_proof_incomplete' }
 
+    const proofProvenance = buildProofProvenance({
+      engagementId,
+      organizationId: bundle.engagement.organizationId,
+      measurements,
+    })
+    if (!proofProvenance.ok) return proofProvenance
+
     const recordedAt = nowIso(clock)
     const proofResult = buildProofSnapshot({
       engagementId,
@@ -37,8 +45,21 @@ export function createRenewalService({ persistence, policy, clock }) {
     })
     if (!proofResult.ok) return proofResult
 
-    const evaluated = evaluateRenewalDecision(proofResult.proof, policy)
+    const proof = {
+      ...proofResult.proof,
+      provenance: proofProvenance.provenance,
+    }
+
+    const evaluated = evaluateRenewalDecision(proof, policy)
     if (!evaluated.ok) return evaluated
+
+    const decisionProvenance = buildDecisionProvenance({
+      proofEvidenceHash: proof.provenance.evidenceHash,
+      policyVersion: evaluated.policyVersion,
+      decision: evaluated.decision,
+      reason: evaluated.reason,
+    })
+    if (!decisionProvenance.ok) return decisionProvenance
 
     const event = {
       eventId: `renewal:${engagementId}:${evaluated.policyVersion}`,
@@ -51,6 +72,8 @@ export function createRenewalService({ persistence, policy, clock }) {
         policyVersion: evaluated.policyVersion,
         decision: evaluated.decision,
         reason: evaluated.reason,
+        proofEvidenceHash: proof.provenance.evidenceHash,
+        decisionHash: decisionProvenance.provenance.decisionHash,
       },
     }
 
@@ -61,7 +84,10 @@ export function createRenewalService({ persistence, policy, clock }) {
       policyVersion: evaluated.policyVersion,
       decision: evaluated.decision,
       reason: evaluated.reason,
-      proofSummary: proofResult.proof.summary,
+      proofSummary: proof.summary,
+      proofEvidenceHash: proof.provenance.evidenceHash,
+      decisionHash: decisionProvenance.provenance.decisionHash,
+      sourceEventIds: proof.provenance.sourceEventIds,
     })
     if (!persisted.ok) return persisted
 
@@ -70,7 +96,8 @@ export function createRenewalService({ persistence, policy, clock }) {
       decision: evaluated.decision,
       reason: evaluated.reason,
       policyVersion: evaluated.policyVersion,
-      proof: proofResult.proof,
+      proof,
+      provenance: decisionProvenance.provenance,
       version: persisted.version,
       duplicate: persisted.duplicate,
       decisionId: persisted.decisionId,
