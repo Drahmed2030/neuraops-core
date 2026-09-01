@@ -37,8 +37,11 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Regenerate lockfile from pinned dependencies
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+
+      - name: Install dependencies strictly
+        run: npm ci --no-audit --no-fund
 
       - name: Unit and domain tests
         run: npm test
@@ -48,3 +51,11 @@ jobs:
 
       - name: Next.js build
         run: npm run build
+
+      - name: Upload regenerated lockfile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: control-plane-package-lock
+          path: package-lock.json
+          if-no-files-found: error
