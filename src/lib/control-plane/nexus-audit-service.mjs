@@ -24,17 +24,27 @@ export async function startNexusAudit(persistence, input) {
   })
   if (!bootstrap.ok) return bootstrap
 
+  // Bootstrap is the source of truth for IDs. On an idempotent retry the caller may
+  // generate fresh UUIDs, but the existing engagement/organization must be reused.
+  const organizationId = bootstrap.organizationId
+  const engagementId = bootstrap.engagementId
+
   const event = makeEvent({
     eventId: `${input.sourceRef}:audit-started`,
     type: 'AUDIT_STARTED',
     occurredAt: input.occurredAt,
-    organizationId: input.organizationId,
-    engagementId: input.engagementId,
+    organizationId,
+    engagementId,
     actor: input.actor ?? { type: 'system' },
     payload: { sourceRef: input.sourceRef },
   })
-  const committed = await commitNamedEvent(persistence, input.engagementId, event)
-  return { ...committed, bootstrapCreated: bootstrap.created }
+  const committed = await commitNamedEvent(persistence, engagementId, event)
+  return {
+    ...committed,
+    bootstrapCreated: bootstrap.created,
+    organizationId,
+    engagementId,
+  }
 }
 
 export async function completeNexusAudit(persistence, input) {
