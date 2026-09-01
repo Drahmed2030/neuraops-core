@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [p6/reliability-sensor-gate]
+    branches: [p7/security-modernization-node24-next16]
 
 permissions:
   contents: read
@@ -17,11 +17,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
       - name: Reliability tests
         run: npm test
+      - name: Type check
+        run: npm run typecheck
       - name: Production build
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://ci.invalid
@@ -29,5 +31,5 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-not-a-secret
           OPENAI_API_KEY: ci-placeholder-not-a-secret
         run: npm run build
-      - name: Production dependency regression guard
-        run: node scripts/check-audit-baseline.mjs
+      - name: Production dependency audit
+        run: npm audit --omit=dev --audit-level=high
