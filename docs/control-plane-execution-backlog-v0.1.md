@@ -6,11 +6,14 @@ This file prevents feature work from hiding unfinished delivery gates.
 - Renewal & Expansion Engine derives recommendations from persisted Proof Snapshot.
 - Renewal recommendation is persisted immutably with policy version and proof summary.
 - Recommendation remains separate from customer acceptance, payment, renewal, and entitlement changes.
-- Nexus Audit UI integration now supports development-only Audit submit, persisted result, and Review Request.
+- Nexus Audit UI integration supports development-only Audit submit, persisted result, and Review Request.
 - Browser never receives service-role credentials; Control Plane access stays server-only.
 - Nexus public submission path is rate-limited, idempotent, and fails closed outside CONTROL_PLANE_ENV=development.
 - Google Calendar booking adapter boundary is implemented with availability check, idempotent external reference, and compensation cancellation.
 - Booking adapter unit tests cover create, retry, conflict, and cancellation behavior.
+- Full repository verification is green from repository state: strict npm ci, 91/91 tests, TypeScript check, and Next.js production build.
+- Supabase dependency pair is pinned and package-lock.json is synchronized: @supabase/ssr 0.12.4 + @supabase/supabase-js 2.112.4 on Node 22.
+- OpenAI clients in LeadOps, Router, RAG, and Specialist paths are initialized lazily at request-time so builds require no production API secret.
 
 ## NEXT — required delivery gate
 1. Booking adapter — live non-production verification
@@ -29,17 +32,12 @@ This file prevents feature work from hiding unfinished delivery gates.
    - Consumer iOS digital access remains Apple IAP.
    - Verified Apple transaction -> Control Plane settlement -> Cliniverse entitlement -> SUBSCRIPTION_ACTIVE.
 
-4. Full repository verification
-   - Run npm test on the branch in CI/checkout.
-   - Run lint/typecheck/build.
-   - Fix all regressions before PR/release consideration.
-
-5. Supabase hardening / migration hygiene
-   - Re-run security/performance advisors after final schema changes.
-   - Generate/retain clean migration history.
+4. Supabase hardening / migration hygiene
+   - Re-run security/performance advisors after the latest Proof/Renewal schema changes.
+   - Retain clean migration history.
    - No merge of development branch into production without explicit approval.
 
-6. Nexus production UI hardening
+5. Nexus production UI hardening
    - Replace development audit policy environment with an approved, versioned commercial policy.
    - Review copy, abuse controls, telemetry, error UX, accessibility, and retention/privacy behavior.
    - Booking and payment CTAs remain disabled until their real non-production integrations pass.
@@ -53,4 +51,4 @@ This file prevents feature work from hiding unfinished delivery gates.
 - No recommendation automatically renews, charges, or extends entitlement.
 
 ## Execution order from here
-Live booking verification -> B2B payment sandbox -> Cliniverse Apple subscription wiring -> full CI/build gate -> production review.
+Live booking verification -> B2B payment sandbox -> Cliniverse Apple subscription wiring -> Supabase hardening review -> Nexus production UI hardening -> production review.
