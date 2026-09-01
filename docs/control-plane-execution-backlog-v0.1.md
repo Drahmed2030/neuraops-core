@@ -9,12 +9,14 @@ This file prevents feature work from hiding unfinished delivery gates.
 - Nexus Audit UI integration now supports development-only Audit submit, persisted result, and Review Request.
 - Browser never receives service-role credentials; Control Plane access stays server-only.
 - Nexus public submission path is rate-limited, idempotent, and fails closed outside CONTROL_PLANE_ENV=development.
+- Google Calendar booking adapter boundary is implemented with availability check, idempotent external reference, and compensation cancellation.
+- Booking adapter unit tests cover create, retry, conflict, and cancellation behavior.
 
 ## NEXT — required delivery gate
-1. Booking adapter — real non-production integration
-   - Replace mock with a real calendar/booking sandbox or approved provider.
-   - Preserve compensation behavior when Control Plane commit fails.
-   - Only after booking confirmation should REVIEW_BOOKED be persisted.
+1. Booking adapter — live non-production verification
+   - Run one explicit test booking against an approved calendar only when a concrete test date/time is authorized.
+   - Verify Google Meet/event metadata and cancellation compensation against the real provider.
+   - Only after that live test should this gate be marked DONE.
 
 ## DEFERRED BUT REQUIRED BEFORE PRODUCTION READINESS
 2. B2B payment adapter — real sandbox
@@ -51,4 +53,4 @@ This file prevents feature work from hiding unfinished delivery gates.
 - No recommendation automatically renews, charges, or extends entitlement.
 
 ## Execution order from here
-Real booking sandbox -> B2B payment sandbox -> Cliniverse Apple subscription wiring -> full CI/build gate -> production review.
+Live booking verification -> B2B payment sandbox -> Cliniverse Apple subscription wiring -> full CI/build gate -> production review.
