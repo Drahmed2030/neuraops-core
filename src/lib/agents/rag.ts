@@ -2,11 +2,20 @@ import OpenAI from 'openai'
 import { createServerClient } from '@/lib/supabase/server'
 import { callWithTimeoutAndRetry } from '@/lib/reliability/ai.mjs'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 })
+let openaiClient: OpenAI | null = null
+
+function getOpenAI() {
+  if (openaiClient) return openaiClient
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) throw new Error('OPENAI_API_KEY is not configured')
+  openaiClient = new OpenAI({ apiKey, maxRetries: 0 })
+  return openaiClient
+}
 
 export async function retrieveContext(query: string, storeId: string, category?: string) {
   try {
     const supabase = createServerClient()
+    const openai = getOpenAI()
     const embeddingResponse = await callWithTimeoutAndRetry(
       (signal: AbortSignal) => openai.embeddings.create({
         model: 'text-embedding-3-small',
