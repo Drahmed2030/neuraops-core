@@ -20,19 +20,22 @@ This file prevents feature work from hiding unfinished delivery gates.
 - Legacy DB hardening v0.1 removed mutable match_documents search_path, missing FK indexes, and auth.uid() per-row RLS performance warnings.
 - Evidence & Provenance Guard v0.1 is implemented and verified: persisted measurement sourceEventIds are returned by RPC, Proof receives a deterministic SHA-256 evidenceHash, Renewal decisions bind proof hash + policy version into a decisionHash, forged source event IDs are rejected by Postgres, and exact replay remains idempotent.
 - Provenance changes passed repository CI after implementation.
+- Provider-neutral Webhook Trust Boundary v0.1 is implemented and CI-verified: settlement requires signatureVerified=true, a stable provider event ID/type, verification timestamp, normalized payment, and a SHA-256 hash matching the exact raw request body.
+- PAYMENT_RECEIVED now binds to provider webhook identity when available and stores verification metadata/raw-body hash only; raw webhook bodies are never persisted.
+- Trust-boundary tests prove unverified signatures, missing provider event IDs, and raw-body tampering fail closed before settlement or entitlement grants; exact trusted replay remains idempotent.
 
 ## NEXT — required delivery gate
 1. B2B payment adapter — real sandbox
    - Replace B2B mock with an approved provider sandbox only after legal/KYC path is ready.
    - Checkout correlation must succeed before returning checkout URL.
-   - Webhook signature verification and provider event identity are required before settlement.
-   - Until a provider is selected, only provider-neutral trust-boundary work may proceed.
+   - Implement the chosen provider's documented cryptographic signature verification inside its adapter; generic trust requirements are already enforced by Control Plane.
+   - Provider event identity and raw-body hash must flow through the verified trust envelope before settlement.
 
 ## DEFERRED BUT REQUIRED BEFORE PRODUCTION READINESS
 2. Cliniverse subscription wiring
    - Apple StoreKit/App Store transaction verification adapter.
    - Consumer iOS digital access remains Apple IAP.
-   - Verified Apple transaction -> Control Plane settlement -> Cliniverse entitlement -> SUBSCRIPTION_ACTIVE.
+   - Verified Apple transaction -> trusted verification envelope -> Control Plane settlement -> Cliniverse entitlement -> SUBSCRIPTION_ACTIVE.
 
 3. Supabase production migration hygiene
    - Production legacy baseline 001–006 is not fully represented in the historical migration ledger; do not create another branch assuming the ledger alone is a full schema baseline.
@@ -54,6 +57,7 @@ This file prevents feature work from hiding unfinished delivery gates.
 - No service-role secret in browser/client code.
 - No recommendation automatically renews, charges, or extends entitlement.
 - No commercial claim may be emitted as verified unless its Evidence & Provenance Guard passes.
+- No payment webhook may settle value unless the provider adapter produces a valid trusted webhook envelope.
 
 ## Execution order from here
 B2B payment sandbox -> Cliniverse Apple subscription wiring -> Supabase production-baseline plan -> Nexus production UI hardening -> production review.
