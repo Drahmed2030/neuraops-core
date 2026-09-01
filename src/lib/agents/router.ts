@@ -6,7 +6,15 @@ import {
   providerFallbackReason,
 } from '@/lib/reliability/ai.mjs'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 })
+let openaiClient: OpenAI | null = null
+
+function getOpenAI() {
+  if (openaiClient) return openaiClient
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) throw new Error('OPENAI_API_KEY is not configured')
+  openaiClient = new OpenAI({ apiKey, maxRetries: 0 })
+  return openaiClient
+}
 
 const AGENT_DESCRIPTIONS: Record<Exclude<AgentName, 'router'>, string> = {
   order_tracker: 'أسئلة عن حالة الطلب، رقم التتبع، وقت التوصيل، هل الطلب شُحن أو وصل',
@@ -16,12 +24,6 @@ const AGENT_DESCRIPTIONS: Record<Exclude<AgentName, 'router'>, string> = {
   store_info: 'أسئلة عن أوقات الدوام، العنوان، طرق الدفع، معلومات التواصل',
 }
 
-/**
- * Analyzes the customer's message BEFORE any response is generated,
- * and decides which single specialist agent should handle it.
- * Provider failures degrade to a deterministic low-confidence route so
- * the orchestrator can escalate instead of throwing an unhandled 500.
- */
 export async function routeMessage(
   message: string,
   history: ChatHistoryMessage[]
@@ -30,20 +32,10 @@ export async function routeMessage(
     .map(([id, desc]) => `- ${id}: ${desc}`)
     .join('\n')
 
-  const systemPrompt = `أنت موجّه ذكي (Router) في نظام دعم آلي متعدد الوكلاء. مهمتك الوحيدة: تحليل رسالة العميل وتحديد أي وكيل متخصص يجب أن يتولى الرد.
-
-الوكلاء المتاحون:
-${agentList}
-
-قواعد:
-- اختر وكيلاً واحداً فقط، الأنسب لنية الرسالة
-- إذا الرسالة لا تنتمي بوضوح لأي وكيل متخصص (تحية عامة، سؤال غامض، شكوى عامة)، اخترRouter نفسه غير متاح كخيار — استخدم "store_info" كافتراضي آمن
-- قيّم ثقتك في القرار من 0 إلى 1
-
-أجب حصراً بصيغة JSON:
-{"agent": "order_tracker", "reasoning": "سبب مختصر", "confidence": 0.9}`
+  const systemPrompt = `أنت موجّه ذكي (Router) في نظام دعم آلي متعدد الوكلاء. مهمتك الوحيدة: تحليل رسالة العميل وتحديد أي وكيل متخصص يجب أن يتولى الرد.\n\nالوكلاء المتاحون:\n${agentList}\n\nقواعد:\n- اختر وكيلاً واحداً فقط، الأنسب لنية الرسالة\n- إذا الرسالة لا تنتمي بوضوح لأي وكيل متخصص (تحية عامة، سؤال غامض، شكوى عامة)، استخدم "store_info" كافتراضي آمن\n- قيّم ثقتك في القرار من 0 إلى 1\n\nأجب حصراً بصيغة JSON:\n{"agent": "order_tracker", "reasoning": "سبب مختصر", "confidence": 0.9}`
 
   try {
+    const openai = getOpenAI()
     const response = await callWithTimeoutAndRetry(
       (signal: AbortSignal) => openai.chat.completions.create({
         model: 'gpt-4o-mini',
