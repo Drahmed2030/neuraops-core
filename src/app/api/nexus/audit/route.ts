@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
-import { evaluateNexusAudit } from '@/lib/control-plane/nexus-audit-evaluator.mjs'
+import { evaluateNexusAudit } from '@/lib/control-plane/nexus-audit-evaluator'
 import { completeNexusAudit, startNexusAudit } from '@/lib/control-plane/nexus-audit-service.mjs'
 import { getControlPlaneServerPersistence } from '@/lib/control-plane/server-persistence'
 import { consumeRateLimit, requestIp } from '@/lib/security/rate-limit'
@@ -13,7 +13,7 @@ function sourceRefFromIdempotencyKey(key: string) {
   return `nexus-audit:${digest}`
 }
 
-function loadAuditPolicy() {
+function loadAuditPolicy(): unknown {
   const raw = process.env.NEXUS_AUDIT_POLICY_JSON
   if (!raw) return null
   try {
