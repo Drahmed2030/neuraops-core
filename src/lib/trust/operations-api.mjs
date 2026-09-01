@@ -22,7 +22,7 @@ export function buildOperationsApiResponse({
   access,
   generatedAt = new Date().toISOString(),
   readModelFactory = buildOperationsReadModel,
-  onError = () => {},
+  onError = (_error) => {},
 } = {}) {
   if (!access?.ok) {
     const status = [401, 403, 503].includes(access?.status) ? access.status : 503
