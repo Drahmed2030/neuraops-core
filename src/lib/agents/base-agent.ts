@@ -7,7 +7,15 @@ import {
   providerFallbackReason,
 } from '@/lib/reliability/ai.mjs'
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, maxRetries: 0 })
+let openaiClient: OpenAI | null = null
+
+function getOpenAI() {
+  if (openaiClient) return openaiClient
+  const apiKey = process.env.OPENAI_API_KEY
+  if (!apiKey) throw new Error('OPENAI_API_KEY is not configured')
+  openaiClient = new OpenAI({ apiKey, maxRetries: 0 })
+  return openaiClient
+}
 
 interface AgentConfig {
   name: AgentName
@@ -44,18 +52,10 @@ export async function runSpecialistAgent(
     return fallbackResponse(config.name, retrievedChunks, 'تعذر الوصول إلى سياق المعرفة بشكل موثوق')
   }
 
-  const systemPrompt = `${config.persona}
-
-السياق المتاح من قاعدة المعرفة:
-${retrievedChunks.join('\n---\n')}
-
-متى تصعّد للموظف البشري:
-${config.escalationTriggers}
-
-أجب حصراً بصيغة JSON:
-{"answer": "الرد هنا بالعربية", "confidence": 0.9, "should_escalate": false, "escalation_reason": null}`
+  const systemPrompt = `${config.persona}\n\nالسياق المتاح من قاعدة المعرفة:\n${retrievedChunks.join('\n---\n')}\n\nمتى تصعّد للموظف البشري:\n${config.escalationTriggers}\n\nأجب حصراً بصيغة JSON:\n{"answer": "الرد هنا بالعربية", "confidence": 0.9, "should_escalate": false, "escalation_reason": null}`
 
   try {
+    const openai = getOpenAI()
     const response = await callWithTimeoutAndRetry(
       (signal: AbortSignal) => openai.chat.completions.create({
         model: 'gpt-4o-mini',
