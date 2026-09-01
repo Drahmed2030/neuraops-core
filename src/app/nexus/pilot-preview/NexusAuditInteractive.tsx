@@ -43,11 +43,14 @@ export function NexusAuditInteractive() {
   const [result, setResult] = useState<AuditResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+  const [reviewRequested, setReviewRequested] = useState(false)
   const idempotencyKey = useRef<string | null>(null)
 
   async function submit(event: FormEvent) {
     event.preventDefault()
     setError(null)
+    setReviewRequested(false)
 
     const parsed: Record<string, number> = {}
     for (const field of fields) {
@@ -95,6 +98,34 @@ export function NexusAuditInteractive() {
     }
   }
 
+  async function requestReview() {
+    if (!result || reviewRequested) return
+    setError(null)
+    setReviewSubmitting(true)
+    try {
+      const response = await fetch('/api/nexus/audit/review', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          engagementId: result.engagementId,
+          auditRef: result.auditRef,
+          contactRoute: 'email',
+        }),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        setError(data?.error || 'Review request failed.')
+        return
+      }
+      setReviewRequested(true)
+      setResult(current => current ? { ...current, version: data.version ?? current.version } : current)
+    } catch {
+      setError('Review request service is unavailable. Please retry safely.')
+    } finally {
+      setReviewSubmitting(false)
+    }
+  }
+
   return (
     <div className="space-y-8">
       <Card
@@ -138,7 +169,7 @@ export function NexusAuditInteractive() {
             ))}
           </div>
 
-          {error ? <Alert tone="critical" title="Audit could not be completed">{error}</Alert> : null}
+          {error ? <Alert tone="critical" title="Request could not be completed">{error}</Alert> : null}
 
           <div className="flex flex-col gap-3 border-t border-black/[0.06] pt-5 dark:border-white/[0.06] sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs opacity-50">Development environment · no PHI · idempotent submission</p>
@@ -157,8 +188,8 @@ export function NexusAuditInteractive() {
               <h2 className="mt-2 text-3xl font-extrabold tracking-tight">Priority operational signals</h2>
               <p className="mt-2 text-sm opacity-60">Policy: {result.result.policyVersion} · Control Plane v{result.version}</p>
             </div>
-            <StatusBadge tone={result.priorityGaps.length ? 'attention' : 'success'}>
-              {result.priorityGaps.length ? 'Review recommended' : 'No configured risk threshold crossed'}
+            <StatusBadge tone={reviewRequested ? 'success' : result.priorityGaps.length ? 'attention' : 'success'}>
+              {reviewRequested ? 'Review requested' : result.priorityGaps.length ? 'Review recommended' : 'No configured risk threshold crossed'}
             </StatusBadge>
           </div>
 
@@ -187,6 +218,26 @@ export function NexusAuditInteractive() {
                 None of the configured development-policy thresholds were crossed. This is not a clinical assessment.
               </Alert>
             )}
+          </div>
+
+          <div className="rounded-[24px] bg-brand-primary p-6 text-white">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-lg font-extrabold">Operational review</h3>
+                <p className="mt-1 text-sm text-white/80">
+                  Request a review of this persisted audit. Booking itself remains the next integration gate.
+                </p>
+              </div>
+              <Button
+                variant="secondary"
+                size="l"
+                type="button"
+                disabled={reviewSubmitting || reviewRequested}
+                onClick={requestReview}
+              >
+                {reviewRequested ? 'Review requested' : reviewSubmitting ? 'Requesting…' : 'Request operational review'}
+              </Button>
+            </div>
           </div>
         </section>
       ) : null}
