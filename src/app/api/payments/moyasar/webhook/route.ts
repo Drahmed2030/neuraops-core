@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getControlPlaneServerPersistence } from '@/lib/control-plane/server-persistence'
-import { createMoyasarSandboxAdapter } from '@/lib/control-plane/moyasar-sandbox-adapter.mjs'
+import { createMoyasarSandboxPaymentPort } from '@/lib/control-plane/moyasar-sandbox-adapter-typed'
 import { createPaymentSettlementService } from '@/lib/control-plane/payment-settlement-service.mjs'
 
 export const runtime = 'nodejs'
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     }
 
     const appUrl = requiredEnv('NEXT_PUBLIC_APP_URL').replace(/\/$/, '')
-    const adapter = createMoyasarSandboxAdapter({
+    const adapter = createMoyasarSandboxPaymentPort({
       secretKey: requiredEnv('MOYASAR_TEST_SECRET_KEY'),
       webhookSecret: requiredEnv('MOYASAR_WEBHOOK_SECRET'),
       callbackUrl: `${appUrl}/api/payments/moyasar/webhook`,
