@@ -15,6 +15,9 @@ function privacyBoundarySatisfied(snapshot) {
     && snapshot?.privacy?.clinicalDataIncluded === false
     && snapshot?.incidentLineage?.replayMode === 'metadata-only'
     && snapshot?.incidentLineage?.executionAllowed === false
+    && snapshot?.recoveryDrills?.drillMode === 'evidence-records-only'
+    && snapshot?.recoveryDrills?.executionAllowed === false
+    && snapshot?.recoveryDrills?.persistenceEnabled === false
 }
 
 /**

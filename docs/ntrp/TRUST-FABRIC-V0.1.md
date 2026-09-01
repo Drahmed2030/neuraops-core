@@ -15,7 +15,7 @@ Trust Fabric v0.1 is an internal platform capability. It is not a separately mar
 - Incident — incident severity, lifecycle, and remediation disposition.
 - Incident Lineage — opaque, metadata-only links for non-executable replay and evidence resolution.
 - Entitlement — trusted access state and its authority/evidence.
-- Recovery — service recovery objectives and degraded-mode expectations.
+- Recovery — service recovery objectives, non-executable drill evidence, and cadence posture.
 
 ## Privacy boundary
 

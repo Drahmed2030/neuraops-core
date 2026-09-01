@@ -60,8 +60,8 @@ The `clinical-restricted` value remains a classification label only. It does not
 
 The production projection truthfully reports zero incident timelines because no lineage persistence adapter is enabled. P13 establishes the contract, validation, API projection, privacy gate, and console view without fabricating operational history.
 
-## Next gate
+## Recovery-drill extension
 
-P14 may add explicitly reviewed recovery-drill evidence adapters and drill records. A persistence adapter for incident lineage remains a separate gate and must prove tenant/product isolation, retention, deletion, integrity, and no-raw-payload behavior before activation.
+P14 adds the separate, non-executable record and readiness projection defined in `docs/ntrp/RECOVERY-DRILLS-V0.1.md`. It does not activate a recovery-drill or incident-lineage persistence adapter. Incident-lineage persistence remains a separate gate and must prove tenant/product isolation, retention, deletion, integrity, and no-raw-payload behavior before activation.
 
 Apple and entitlement adapters remain on the roadmap as read-only control-plane integrations. They cannot change the clinical-data boundary or grant entitlement without authoritative Apple evidence.

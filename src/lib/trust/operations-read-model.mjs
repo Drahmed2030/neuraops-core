@@ -1,6 +1,7 @@
 import { indexEvidenceRecords } from './evidence.mjs'
 import { buildIncidentLineageProjection } from './incident-lineage.mjs'
 import { RECOVERY_MATRIX, validateRecoveryMatrix } from './recovery-matrix.mjs'
+import { buildRecoveryDrillProjection } from './recovery-drills.mjs'
 import { hashRef, TRUST_EVENT_ENUMS, validateTrustEvent } from './trust-event.mjs'
 
 function emptyCounts(values) {
@@ -165,6 +166,7 @@ export function buildOperationsReadModel({
   events = [],
   evidenceRecords = [],
   lineageRecords = [],
+  recoveryDrillRecords = [],
   recoveryMatrix = RECOVERY_MATRIX,
   generatedAt = new Date().toISOString(),
 } = {}) {
@@ -172,6 +174,12 @@ export function buildOperationsReadModel({
   const trust = trustProjection(events)
   const evidence = evidenceProjection(evidenceRecords)
   const incidentLineage = buildIncidentLineageProjection(lineageRecords, evidence.index, trust.index)
+  const recoveryDrills = buildRecoveryDrillProjection(
+    recoveryDrillRecords,
+    recoveryMatrix,
+    evidence.index,
+    generatedAt,
+  )
   const recovery = recoveryProjection(recoveryMatrix, evidence.index)
 
   return deepFreeze({
@@ -187,6 +195,7 @@ export function buildOperationsReadModel({
     trust: trust.projection,
     evidence: evidence.projection,
     incidentLineage,
+    recoveryDrills,
     recovery,
   })
 }

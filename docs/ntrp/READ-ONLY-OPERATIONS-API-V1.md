@@ -31,11 +31,13 @@ Every response uses private `no-store` semantics, disables surrogate caching, va
 
 ## Current data posture
 
-The API exposes the approved static Recovery Matrix together with honest Trust Event, Evidence, and metadata-only Incident Lineage projections. The current default remains zero runtime events, evidence records, and incident timelines because no persistence adapter is claimed or fabricated.
+The API exposes the approved static Recovery Matrix together with honest Trust Event, Evidence, metadata-only Incident Lineage, and Recovery Drill projections. The current default remains zero runtime events, evidence records, incident timelines, and drill records because no persistence adapter is claimed or fabricated.
 
 Future provider adapters may contribute only validated Trust Events and Evidence Records. The API contract must continue to omit raw event attributes, direct identifiers, evidence payloads, credentials, customer data, patient data, and clinical narratives.
 
 Incident replay declares `metadata-only` mode and `executionAllowed: false`. It reconstructs sanitized lineage but never re-executes an event or invokes a remediation path.
+
+Recovery drills declare `evidence-records-only`, `executionAllowed: false`, and `persistenceEnabled: false`. They report evidence resolution, achieved RTO/RPO, and cadence posture but never invoke a recovery operation.
 
 ## Cliniverse boundary
 
@@ -43,4 +45,4 @@ Cliniverse remains a separate clinical system. This endpoint may eventually repo
 
 ## Next gate
 
-The Unified Trust & Operations Console consumes this projection inside the existing authenticated dashboard boundary without an internal HTTP round trip. Its contract is defined in `docs/ntrp/UNIFIED-TRUST-OPERATIONS-CONSOLE-V1.md`; it remains read-only and preserves the same authorization, privacy, and no-unsupported-claims rules.
+P15 may add one explicitly reviewed, read-only recovery-evidence adapter. It cannot add an API mutation method, execute a drill, enable persistence without a separate gate, or weaken the authorization, privacy, evidence, product, and environment boundaries.

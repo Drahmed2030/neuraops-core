@@ -26,6 +26,8 @@ A recovery objective MUST NOT be marked verified without an evidence reference.
 
 The initial matrix intentionally contains no `verified` recovery claims. Existing controls such as CI, incident sensing, provider fallbacks, source control, and trusted entitlement rules improve resilience, but they do not by themselves prove restore capability.
 
+P14 adds the Recovery Drill Record and read-only cadence projection defined in `docs/ntrp/RECOVERY-DRILLS-V0.1.md`. Production still reports zero drill records because no provider or persistence adapter is enabled; this contract does not convert any target into a proven capability.
+
 Initial gaps include provider-independent B2B payment recovery, DNS/domain recovery evidence, and media asset recovery/export procedures. These remain visible rather than being represented as completed controls.
 
 ## Degraded-mode principles
@@ -58,4 +60,4 @@ Evidence should identify:
 3. Document account/credential recovery ownership without storing credentials in source control.
 4. Define domain/DNS registrar recovery and export procedures.
 5. Select and validate the B2B payment provider before changing that entry from `gap`.
-6. Add a read-only recovery status projection to the NTRP Operations API and Console.
+6. Use the P14 projection to expose only evidence-backed results from future, explicitly approved exercises.

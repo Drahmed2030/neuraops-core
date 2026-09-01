@@ -4,6 +4,7 @@ import type {
   IncidentLineageProjectedPhase,
   IncidentReplayStepProjection,
   OperationsReadModel,
+  RecoveryObjectiveDrillStatus,
   RecoveryObjectiveProjection,
   TrustProduct,
 } from '@/lib/trust/contracts'
@@ -42,6 +43,15 @@ function replayStatusClasses(status: 'complete' | 'partial') {
   return status === 'complete'
     ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
     : 'border-attention/30 bg-attention/10 text-attention-dark dark:text-attention'
+}
+
+function drillStatusClasses(status: RecoveryObjectiveDrillStatus) {
+  if (status === 'verified') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+  if (status === 'overdue' || status === 'verification-pending' || status === 'scheduled') {
+    return 'border-attention/30 bg-attention/10 text-attention-dark dark:text-attention'
+  }
+  if (status === 'needs-remediation') return 'border-red-500/25 bg-red-500/10 text-red-700 dark:text-red-300'
+  return 'border-black/10 bg-black/[0.04] text-ink-950/60 dark:border-white/10 dark:bg-white/[0.05] dark:text-paper-50/60'
 }
 
 function shortRef(value: string) {
@@ -230,6 +240,168 @@ function IncidentLineageSection({
   )
 }
 
+function RecoveryDrillsSection({
+  drills,
+  isArabic,
+  locale,
+  productLabels,
+}: {
+  drills: OperationsReadModel['recoveryDrills']
+  isArabic: boolean
+  locale: Locale
+  productLabels: Record<TrustProduct, string>
+}) {
+  const summary = drills.summary
+  const statusLabels: Record<RecoveryObjectiveDrillStatus, string> = {
+    'not-run': isArabic ? 'لم يُنفّذ' : 'Not run',
+    scheduled: isArabic ? 'مجدول' : 'Scheduled',
+    verified: isArabic ? 'مثبت' : 'Verified',
+    overdue: isArabic ? 'متأخر' : 'Overdue',
+    'verification-pending': isArabic ? 'بانتظار الإثبات' : 'Verification pending',
+    'needs-remediation': isArabic ? 'يتطلب معالجة' : 'Needs remediation',
+  }
+  const exerciseLabels = {
+    restore: isArabic ? 'استعادة' : 'Restore',
+    failover: isArabic ? 'تحويل احتياطي' : 'Failover',
+    redeploy: isArabic ? 'إعادة نشر' : 'Redeploy',
+    'access-recovery': isArabic ? 'استعادة وصول' : 'Access recovery',
+    'dependency-outage': isArabic ? 'انقطاع تبعية' : 'Dependency outage',
+  }
+  const outcomeLabels = {
+    'not-assessed': isArabic ? 'غير مقيّم' : 'Not assessed',
+    passed: isArabic ? 'ناجح معلن' : 'Declared pass',
+    partial: isArabic ? 'جزئي' : 'Partial',
+    failed: isArabic ? 'فشل' : 'Failed',
+  }
+  const cards = [
+    { label: isArabic ? 'سجلات التمرين' : 'Drill records', value: summary.totalDrills },
+    { label: isArabic ? 'تمارين مثبتة' : 'Verified drills', value: summary.verifiedDrills },
+    { label: isArabic ? 'أهداف متأخرة' : 'Overdue objectives', value: summary.objectivesOverdue },
+    { label: isArabic ? 'تتطلب معالجة' : 'Needs remediation', value: summary.objectivesNeedingRemediation },
+  ]
+
+  return (
+    <section aria-labelledby="recovery-drills" className="mb-7 overflow-hidden rounded-2xl border border-black/[0.08] bg-white dark:border-white/[0.08] dark:bg-ink-800">
+      <div className="border-b border-black/[0.07] p-5 dark:border-white/[0.07] sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h2 id="recovery-drills" className="text-lg font-extrabold">{isArabic ? 'تمارين الاستعادة وأدلة الجاهزية' : 'Recovery drills & readiness evidence'}</h2>
+            <p className="mt-1 max-w-3xl text-xs leading-6 text-ink-950/50 dark:text-paper-50/50">
+              {isArabic
+                ? 'سجلات وصفية لتمارين أُجريت خارج الوحدة. هذه الواجهة لا تستعيد نسخة، ولا تنفذ failover أو إعادة نشر، ولا تغيّر أي صلاحية.'
+                : 'Metadata records for exercises performed outside this surface. The console never restores data, triggers failover or redeploy, or changes authority.'}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-[0.12em]">
+            <span className="rounded-full border border-brand-primary/25 bg-brand-primary/10 px-3 py-1.5 text-brand-primary dark:text-brand-azure">{isArabic ? 'سجلات دليل فقط' : 'Evidence records only'}</span>
+            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-emerald-700 dark:text-emerald-300">{isArabic ? 'التنفيذ معطل' : 'Execution disabled'}</span>
+            <span className="rounded-full border border-black/10 bg-black/[0.03] px-3 py-1.5 text-ink-950/55 dark:border-white/10 dark:bg-white/[0.05] dark:text-paper-50/55">{isArabic ? 'التخزين غير مفعّل' : 'Persistence off'}</span>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {cards.map((card) => (
+            <div key={card.label} className="rounded-xl border border-black/[0.06] bg-black/[0.02] p-4 dark:border-white/[0.06] dark:bg-white/[0.03]">
+              <div className="text-[11px] text-ink-950/50 dark:text-paper-50/50">{card.label}</div>
+              <div className="mt-1 text-2xl font-extrabold">{card.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {drills.drills.length === 0 && (
+        <div className="p-5 pb-0 sm:p-6 sm:pb-0">
+          <div className="rounded-2xl border border-dashed border-black/15 bg-black/[0.015] p-6 text-center dark:border-white/15 dark:bg-white/[0.02]">
+            <div className="text-sm font-extrabold">{isArabic ? 'لا توجد سجلات تمارين تشغيلية حتى الآن' : 'No runtime drill records yet'}</div>
+            <p className="mx-auto mt-2 max-w-2xl text-xs leading-6 text-ink-950/50 dark:text-paper-50/50">
+              {isArabic
+                ? `${summary.objectivesNotRun} أهداف ما زالت بلا تمرين مثبت. العقد والإسقاط جاهزان، لكن لا يوجد adapter تخزين مفعّل ولن تُصطنع نتائج.`
+                : `${summary.objectivesNotRun} objectives remain without a verified exercise. The contract and projection are ready, but no persistence adapter is enabled and no results are fabricated.`}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="overflow-x-auto p-5 sm:p-6">
+        <table className="w-full min-w-[760px] border-collapse text-start text-xs">
+          <caption className="sr-only">{isArabic ? 'حالة تمارين الاستعادة لكل هدف' : 'Recovery drill posture by objective'}</caption>
+          <thead className="text-ink-950/45 dark:text-paper-50/45">
+            <tr className="border-b border-black/[0.07] dark:border-white/[0.07]">
+              <th scope="col" className="px-3 py-3 text-start font-bold">{isArabic ? 'الخدمة والنطاق' : 'Service & scope'}</th>
+              <th scope="col" className="px-3 py-3 text-start font-bold">{isArabic ? 'حالة التمرين' : 'Drill posture'}</th>
+              <th scope="col" className="px-3 py-3 text-start font-bold">{isArabic ? 'آخر إكمال' : 'Last completed'}</th>
+              <th scope="col" className="px-3 py-3 text-start font-bold">{isArabic ? 'آخر إثبات' : 'Last verified'}</th>
+              <th scope="col" className="px-3 py-3 text-start font-bold">{isArabic ? 'الاستحقاق' : 'Next due'}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-black/[0.06] dark:divide-white/[0.06]">
+            {drills.objectives.map((objective) => (
+              <tr key={objective.service}>
+                <td className="px-3 py-3.5">
+                  <div className="font-mono text-[11px] font-bold">{objective.service}</div>
+                  <span className={`mt-1.5 inline-flex rounded-full border px-2 py-0.5 text-[9px] font-bold ${productClasses(objective.product)}`}>{productLabels[objective.product]}</span>
+                </td>
+                <td className="px-3 py-3.5"><span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold ${drillStatusClasses(objective.status)}`}>{statusLabels[objective.status]}</span></td>
+                <td className="px-3 py-3.5 text-ink-950/55 dark:text-paper-50/55">{formatTimestamp(objective.lastCompletedAt, locale)}</td>
+                <td className="px-3 py-3.5 text-ink-950/55 dark:text-paper-50/55">{formatTimestamp(objective.lastVerifiedAt, locale)}</td>
+                <td className="px-3 py-3.5 text-ink-950/55 dark:text-paper-50/55">
+                  <div>{formatTimestamp(objective.nextDueAt, locale)}</div>
+                  <div className="mt-1 text-[9px] text-ink-950/40 dark:text-paper-50/40">{isArabic ? `كل ${objective.cadenceDays} يومًا` : `Every ${objective.cadenceDays}d`}</div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {drills.drills.length > 0 && (
+        <div className="border-t border-black/[0.07] p-5 dark:border-white/[0.07] sm:p-6">
+          <h3 className="text-sm font-extrabold">{isArabic ? 'أحدث سجلات التمرين' : 'Latest drill records'}</h3>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {drills.drills.slice(0, 6).map((drill) => (
+              <article key={drill.drillRef} className="rounded-xl border border-black/[0.06] bg-black/[0.02] p-4 dark:border-white/[0.06] dark:bg-white/[0.03]">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <div className="font-mono text-[11px] font-bold">{drill.service} · {shortRef(drill.drillRef)}</div>
+                    <div className="mt-1 text-[10px] text-ink-950/45 dark:text-paper-50/45">{exerciseLabels[drill.exerciseType]} · {outcomeLabels[drill.outcome]}</div>
+                  </div>
+                  <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold ${drill.verificationStatus === 'verified'
+                    ? drillStatusClasses('verified')
+                    : drill.verificationStatus === 'verification-pending'
+                      ? drillStatusClasses('verification-pending')
+                      : drill.verificationStatus === 'unverified'
+                        ? drillStatusClasses('needs-remediation')
+                        : drillStatusClasses('not-run')}`}>
+                    {drill.verificationStatus === 'verified'
+                      ? (isArabic ? 'مثبت' : 'Verified')
+                      : drill.verificationStatus === 'verification-pending'
+                        ? (isArabic ? 'بانتظار الإثبات' : 'Verification pending')
+                        : drill.verificationStatus === 'unverified'
+                          ? (isArabic ? 'غير مثبت' : 'Unverified')
+                          : (isArabic ? 'غير منطبق' : 'Not applicable')}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-3 gap-2 text-[10px]">
+                  <div><div className="text-ink-950/40 dark:text-paper-50/40">RTO</div><strong>{drill.achievedRtoMinutes === null ? '—' : `${drill.achievedRtoMinutes}m`}</strong></div>
+                  <div><div className="text-ink-950/40 dark:text-paper-50/40">RPO</div><strong>{drill.achievedRpoMinutes === null ? '—' : `${drill.achievedRpoMinutes}m`}</strong></div>
+                  <div><div className="text-ink-950/40 dark:text-paper-50/40">{isArabic ? 'الدليل' : 'Evidence'}</div><strong>{drill.evidence.resolved}/{drill.evidence.referenced}</strong></div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-1 border-t border-black/[0.07] bg-black/[0.015] px-5 py-3 text-[10px] text-ink-950/45 dark:border-white/[0.07] dark:bg-white/[0.02] dark:text-paper-50/45 lg:flex-row lg:justify-between">
+        <span>{isArabic ? `بانتظار الإثبات: ${summary.verificationPendingDrills}` : `Verification pending: ${summary.verificationPendingDrills}`}</span>
+        <span>{isArabic ? `مراجع دليل غير محلولة: ${summary.unresolvedEvidenceRefs}` : `Unresolved evidence refs: ${summary.unresolvedEvidenceRefs}`}</span>
+        <span>{isArabic ? `أدلة غير صالحة للعقد: ${summary.invalidEvidenceRefs}` : `Invalid evidence contracts: ${summary.invalidEvidenceRefs}`}</span>
+        <span>{isArabic ? `تعارضات نطاق الدليل: ${summary.crossProductEvidenceRefs + summary.crossEnvironmentEvidenceRefs}` : `Evidence scope mismatches: ${summary.crossProductEvidenceRefs + summary.crossEnvironmentEvidenceRefs}`}</span>
+      </div>
+    </section>
+  )
+}
+
 export function OperationsConsole(props: OperationsConsoleProps) {
   const { lang } = useUI()
   const isArabic = lang === 'ar'
@@ -375,6 +547,13 @@ export function OperationsConsole(props: OperationsConsoleProps) {
           productLabels={productLabels}
         />
 
+        <RecoveryDrillsSection
+          drills={snapshot.recoveryDrills}
+          isArabic={isArabic}
+          locale={locale}
+          productLabels={productLabels}
+        />
+
         <section aria-labelledby="recovery-matrix" className="overflow-hidden rounded-2xl border border-black/[0.08] bg-white dark:border-white/[0.08] dark:bg-ink-800">
           <div className="border-b border-black/[0.07] p-5 dark:border-white/[0.07] sm:p-6">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -434,7 +613,7 @@ export function OperationsConsole(props: OperationsConsoleProps) {
         </section>
 
         <footer className="mt-5 flex flex-col gap-1 px-1 text-[11px] leading-5 text-ink-950/45 dark:text-paper-50/45 sm:flex-row sm:justify-between">
-          <span>{isArabic ? 'لا توجد إجراءات replay أو remediation أو نشر أو entitlement في هذه الواجهة.' : 'This surface exposes no replay, remediation, deployment, or entitlement actions.'}</span>
+          <span>{isArabic ? 'لا توجد إجراءات replay أو drill أو remediation أو نشر أو entitlement في هذه الواجهة.' : 'This surface exposes no replay, drill, remediation, deployment, or entitlement actions.'}</span>
           <span>{isArabic ? 'المصدر: NTRP Operations Read Model v1' : 'Source: NTRP Operations Read Model v1'}</span>
         </footer>
       </div>
