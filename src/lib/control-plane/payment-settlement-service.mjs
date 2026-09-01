@@ -1,3 +1,5 @@
+import { bindWebhookTrustToPayment, validateTrustedWebhookEnvelope } from './webhook-trust.mjs'
+
 function providerForRail(rail) {
   if (rail === 'apple_iap') return 'apple'
   if (rail === 'b2b_web') return 'web_gateway'
@@ -51,9 +53,9 @@ export function createPaymentSettlementService({ persistence, paymentPort }) {
       return { ok: false, reason: 'checkout_not_correlated' }
     }
 
-    let verifiedPayment
+    let envelope
     try {
-      verifiedPayment = await paymentPort.verifyWebhook({ rawBody, signature })
+      envelope = await paymentPort.verifyWebhook({ rawBody, signature })
     } catch (error) {
       return {
         ok: false,
@@ -62,7 +64,10 @@ export function createPaymentSettlementService({ persistence, paymentPort }) {
       }
     }
 
-    if (!verifiedPayment) return { ok: false, reason: 'webhook_verification_failed' }
+    const trust = validateTrustedWebhookEnvelope(envelope, rawBody)
+    if (!trust.ok) return { ok: false, reason: 'webhook_trust_failed', trustReason: trust.reason }
+
+    const verifiedPayment = bindWebhookTrustToPayment(envelope)
     if (verifiedPayment.providerReference !== expectedPayment.providerReference) {
       return { ok: false, reason: 'provider_reference_mismatch' }
     }
