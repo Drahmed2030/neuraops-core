@@ -14,8 +14,11 @@ export function withSupabaseRenewalPersistence(basePersistence, supabase) {
     decision,
     reason,
     proofSummary,
+    proofEvidenceHash,
+    decisionHash,
+    sourceEventIds,
   }) {
-    const { data, error } = await supabase.rpc('control_plane_record_renewal_decision', {
+    const { data, error } = await supabase.rpc('control_plane_record_renewal_decision_v2', {
       p_engagement_id: engagement.engagementId,
       p_expected_version: expectedVersion,
       p_event: event,
@@ -23,6 +26,9 @@ export function withSupabaseRenewalPersistence(basePersistence, supabase) {
       p_decision: decision,
       p_reason: reason,
       p_proof_summary: proofSummary,
+      p_proof_evidence_hash: proofEvidenceHash,
+      p_decision_hash: decisionHash,
+      p_source_event_ids: sourceEventIds,
     })
 
     if (error) return { ok: false, reason: 'persistence_failed' }
