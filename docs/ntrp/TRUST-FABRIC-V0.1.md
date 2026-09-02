@@ -61,3 +61,5 @@ Raw subject identifiers are converted to SHA-256 references before entering the 
 5. Only after proven authorization and audit controls: carefully scoped remediation actions.
 
 The Evidence/read-model contract is defined in `docs/ntrp/EVIDENCE-READ-MODEL-V0.1.md`.
+
+P15 adds the first provider-specific implementation behind this boundary: the default-off, read-only Vercel redeploy evidence reader in `docs/ntrp/VERCEL-REDEPLOY-EVIDENCE-ADAPTER-V0.1.md`. The provider remains outside the core domain contracts, and no production evidence source or mutation authority is enabled.

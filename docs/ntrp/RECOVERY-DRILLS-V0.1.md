@@ -77,10 +77,12 @@ Cliniverse drills may eventually report sanitized control-plane exercises such a
 
 ## Current posture
 
-Production truthfully reports zero drill records because no recovery-drill persistence or provider adapter is enabled. Recovery Matrix objectives therefore remain `not-run` in the drill projection and retain their existing target/partial/gap declarations. P14 establishes the contract, validation, read-only API projection, console view, cadence calculation, and fail-closed security gate without fabricating an exercise.
+Production truthfully reports zero drill records because no recovery-drill persistence or evidence source is enabled. Recovery Matrix objectives therefore remain `not-run` in the drill projection and retain their existing target/partial/gap declarations. P14 establishes the contract, validation, read-only API projection, console view, cadence calculation, and fail-closed security gate without fabricating an exercise.
+
+P15 adds the default-off, read-only Vercel redeploy evidence adapter defined in `docs/ntrp/VERCEL-REDEPLOY-EVIDENCE-ADAPTER-V0.1.md`. The adapter is not an evidence source by itself and is not wired into production. It cannot convert an ordinary deployment into a drill or change the zero-record posture.
 
 ## Next gate
 
-P15 may add one explicitly reviewed read-only evidence adapter for a manually executed recovery exercise, beginning with an authoritative redeploy or restore path. The adapter may ingest only the allowlisted metadata contract and must prove product/environment isolation, integrity, retention, deletion, and no-raw-payload behavior before activation.
+P16 may schedule one explicitly approved NeuraOps production redeploy exercise, execute it outside the adapter, and use the P15 reader once to produce candidate Evidence and Recovery Drill records. Temporary source binding remains a separate reviewed gate and must preserve product/environment isolation, integrity, retention, deletion, and no-raw-payload behavior.
 
 Apple and entitlement integrations remain a separate read-only control-plane track. No adapter may change entitlement or cross the Cliniverse clinical-data boundary.

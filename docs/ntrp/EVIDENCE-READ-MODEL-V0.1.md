@@ -53,6 +53,6 @@ The `clinical-restricted` classification is counted only as a label. The associa
 
 ## Evolution gates
 
-P11 exposed this projection through the explicitly authorized, private `no-store` Operations API. P12 added the fail-closed Unified Trust & Operations Console. P13 extends the same read model with the metadata-only contract in `docs/ntrp/INCIDENT-REPLAY-DATA-LINEAGE-V0.1.md`. P14 adds the non-executable, persistence-disabled drill contract in `docs/ntrp/RECOVERY-DRILLS-V0.1.md`.
+P11 exposed this projection through the explicitly authorized, private `no-store` Operations API. P12 added the fail-closed Unified Trust & Operations Console. P13 extends the same read model with the metadata-only contract in `docs/ntrp/INCIDENT-REPLAY-DATA-LINEAGE-V0.1.md`. P14 adds the non-executable, persistence-disabled drill contract in `docs/ntrp/RECOVERY-DRILLS-V0.1.md`. P15 adds the default-off Vercel reader in `docs/ntrp/VERCEL-REDEPLOY-EVIDENCE-ADAPTER-V0.1.md`; it emits only validated Evidence and Recovery Drill records and is not imported by the read-model factory.
 
 These additive phases do not change the Evidence Record payload boundary or authorize persistence, mutation, remediation, or clinical-data access.

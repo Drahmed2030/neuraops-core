@@ -42,8 +42,8 @@ P13 adds the contract defined in `docs/ntrp/INCIDENT-REPLAY-DATA-LINEAGE-V0.1.md
 
 ## Recovery-drill extension
 
-P14 adds the contract defined in `docs/ntrp/RECOVERY-DRILLS-V0.1.md`. It displays achieved RTO/RPO, Evidence Record resolution, and per-objective cadence status. The production zero state is explicit because no persistence or provider adapter is enabled.
+P14 adds the contract defined in `docs/ntrp/RECOVERY-DRILLS-V0.1.md`. It displays achieved RTO/RPO, Evidence Record resolution, and per-objective cadence status. P15 adds the default-off reader defined in `docs/ntrp/VERCEL-REDEPLOY-EVIDENCE-ADAPTER-V0.1.md`; the reader is not connected to the console or API, so the production zero state remains explicit.
 
 ## Next gate
 
-P15 may add one explicitly reviewed read-only recovery-evidence adapter. It may not execute recovery, enable autonomous remediation, or weaken the operator allowlist, product/environment isolation, evidence integrity, or clinical-data boundary.
+P16 may display candidate records from one explicitly approved NeuraOps production redeploy drill only after the P15 adapter and temporary source binding pass review. It may not execute recovery, expose a provider credential, enable autonomous remediation or implicit persistence, or weaken the operator allowlist, product/environment isolation, evidence integrity, or clinical-data boundary.
