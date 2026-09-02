@@ -31,9 +31,9 @@ Every response uses private `no-store` semantics, disables surrogate caching, va
 
 ## Current data posture
 
-The API exposes the approved static Recovery Matrix together with honest Trust Event, Evidence, metadata-only Incident Lineage, and Recovery Drill projections. The current default remains zero runtime events, evidence records, incident timelines, and drill records because no persistence adapter is claimed or fabricated.
+The API exposes the approved static Recovery Matrix together with honest Trust Event, Evidence, metadata-only Incident Lineage, and Recovery Drill projections. The current default remains zero runtime events, evidence records, incident timelines, and drill records because no evidence source or persistence adapter is claimed or fabricated.
 
-Future provider adapters may contribute only validated Trust Events and Evidence Records. The API contract must continue to omit raw event attributes, direct identifiers, evidence payloads, credentials, customer data, patient data, and clinical narratives.
+P15 adds a default-off Vercel redeploy evidence reader. It is deliberately not imported by this route or its read-model factory. A later, separately reviewed source binding may contribute only its validated Evidence and Recovery Drill records. The API contract must continue to omit raw event attributes, direct identifiers, evidence payloads, credentials, customer data, patient data, and clinical narratives.
 
 Incident replay declares `metadata-only` mode and `executionAllowed: false`. It reconstructs sanitized lineage but never re-executes an event or invokes a remediation path.
 
@@ -45,4 +45,4 @@ Cliniverse remains a separate clinical system. This endpoint may eventually repo
 
 ## Next gate
 
-P15 may add one explicitly reviewed, read-only recovery-evidence adapter. It cannot add an API mutation method, execute a drill, enable persistence without a separate gate, or weaken the authorization, privacy, evidence, product, and environment boundaries.
+P16 may consume candidate records from one explicitly approved, externally executed NeuraOps production redeploy drill after verifying the P15 adapter output. It cannot add an API mutation method, expose the provider credential, execute a drill, enable persistence without a separate gate, or weaken the authorization, privacy, evidence, product, and environment boundaries.
