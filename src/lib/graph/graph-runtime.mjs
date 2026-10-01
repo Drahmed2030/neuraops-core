@@ -12,6 +12,16 @@ function hashRef(value) {
   return crypto.createHash('sha256').update(String(value)).digest('hex')
 }
 
+function commandFingerprint(run, input) {
+  return hashRef(JSON.stringify({
+    nodeId: run.currentNodeId,
+    outcome: input.outcome ?? null,
+    policyDecisionRef: input.policyDecisionRef ?? null,
+    humanApprovalRef: input.humanApprovalRef ?? null,
+    actionExecutionRef: input.actionExecutionRef ?? null,
+  }))
+}
+
 function assertTimestamp(name, value) {
   if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) {
     throw new TypeError(`Invalid graph run ${name}`)
@@ -64,6 +74,10 @@ export function validateGraphRunState(definition, run) {
 
   if (!isPlainObject(run.execution)) throw new TypeError('Invalid graph run execution metadata')
   if (run.execution.lastCommandRef !== null) assertOpaque('lastCommandRef', run.execution.lastCommandRef)
+  if (run.execution.lastCommandFingerprint !== null) assertOpaque('lastCommandFingerprint', run.execution.lastCommandFingerprint)
+  if ((run.execution.lastCommandRef === null) !== (run.execution.lastCommandFingerprint === null)) {
+    throw new TypeError('Graph run command idempotency metadata is incomplete')
+  }
   if (run.execution.lastActionRef !== null) assertOpaque('lastActionRef', run.execution.lastActionRef)
 
   if (run.status === 'completed') {
@@ -107,6 +121,7 @@ export function createGraphRunState(definition, input = {}) {
     },
     execution: {
       lastCommandRef: null,
+      lastCommandFingerprint: null,
       lastActionRef: null,
     },
   })
@@ -158,7 +173,13 @@ export function advanceGraphRunState(definition, run, input = {}) {
   }
 
   const commandRef = hashRef(input.commandRef)
-  if (run.execution.lastCommandRef === commandRef) return run
+  const fingerprint = commandFingerprint(run, input)
+  if (run.execution.lastCommandRef === commandRef) {
+    if (run.execution.lastCommandFingerprint !== fingerprint) {
+      throw new TypeError('Graph command idempotency conflict')
+    }
+    return run
+  }
   if (input.expectedRevision !== run.revision) {
     throw new TypeError('Graph advance revision conflict')
   }
@@ -210,6 +231,7 @@ export function advanceGraphRunState(definition, run, input = {}) {
     },
     execution: {
       lastCommandRef: commandRef,
+      lastCommandFingerprint: fingerprint,
       lastActionRef,
     },
   })
