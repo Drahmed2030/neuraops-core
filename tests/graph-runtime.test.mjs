@@ -97,6 +97,13 @@ test('same command replay is idempotent while stale revisions fail closed', () =
   assert.equal(replay, first)
 
   assert.throws(() => advanceGraphRunState(COMPANY_OPPORTUNITY_GRAPH_V1, first, {
+    outcome: 'failed',
+    occurredAt: '2026-10-02T00:00:02.000Z',
+    expectedRevision: 0,
+    commandRef: 'command:first',
+  }), /idempotency conflict/)
+
+  assert.throws(() => advanceGraphRunState(COMPANY_OPPORTUNITY_GRAPH_V1, first, {
     outcome: 'success',
     occurredAt: '2026-10-02T00:00:02.000Z',
     expectedRevision: 0,
