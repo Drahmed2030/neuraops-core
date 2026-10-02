@@ -9,10 +9,11 @@ export async function GET() {
     const { error } = await supabaseAdmin.from('stores').select('id').limit(1)
 
     if (error) {
-      console.error('[health] database unavailable:', error.message)
+      console.error('[ready] database unavailable:', error.message)
       return NextResponse.json(
         {
           status: 'unavailable',
+          check: 'readiness',
           database: 'unavailable',
           release: releaseFingerprint(),
         },
@@ -29,6 +30,7 @@ export async function GET() {
     return NextResponse.json(
       {
         status: 'ok',
+        check: 'readiness',
         database: 'ok',
         release: releaseFingerprint(),
       },
@@ -41,10 +43,11 @@ export async function GET() {
       }
     )
   } catch (error) {
-    console.error('[health] readiness exception:', error)
+    console.error('[ready] readiness exception:', error)
     return NextResponse.json(
       {
         status: 'unavailable',
+        check: 'readiness',
         database: 'unavailable',
         release: releaseFingerprint(),
       },
