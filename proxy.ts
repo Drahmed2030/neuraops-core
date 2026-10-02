@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { applyRequestContext, resolveRequestContext } from './src/lib/reliability/request-context.mjs'
 import { releaseHeaders } from './src/lib/reliability/release-meta.mjs'
 
-export function proxy(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const context = resolveRequestContext(request.headers)
   const requestHeaders = applyRequestContext(request.headers, context)
 
