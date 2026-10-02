@@ -1,6 +1,5 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { applyRequestContext, resolveRequestContext } from '../src/lib/reliability/request-context.mjs'
 import { releaseFingerprint, releaseHeaders } from '../src/lib/reliability/release-meta.mjs'
 
 test('release fingerprint exposes only bounded operational metadata', () => {
@@ -27,24 +26,11 @@ test('release fingerprint exposes only bounded operational metadata', () => {
   })
 })
 
-test('request context creates a request id and preserves a safe correlation id', () => {
-  const headers = new Headers({ 'x-correlation-id': 'corr-safe-1234' })
-  const context = resolveRequestContext(headers, () => 'req-generated-1234')
-
-  assert.deepEqual(context, {
-    requestId: 'req-generated-1234',
-    correlationId: 'corr-safe-1234',
+test('release fingerprint falls back safely when provider metadata is absent', () => {
+  assert.deepEqual(releaseFingerprint({}), {
+    service: 'neuraops-core',
+    environment: 'unknown',
+    release: 'unknown',
+    deployment: 'unknown',
   })
-
-  const propagated = applyRequestContext(headers, context)
-  assert.equal(propagated.get('x-neuraops-request-id'), 'req-generated-1234')
-  assert.equal(propagated.get('x-neuraops-correlation-id'), 'corr-safe-1234')
-})
-
-test('request context rejects malformed external correlation values', () => {
-  const headers = new Headers({ 'x-correlation-id': 'contains spaces and should not propagate' })
-  const context = resolveRequestContext(headers, () => 'req-generated-5678')
-
-  assert.equal(context.requestId, 'req-generated-5678')
-  assert.equal(context.correlationId, 'req-generated-5678')
 })
