@@ -1,7 +1,10 @@
 const baseUrl = (process.env.NEURAOPS_PROBE_BASE_URL || 'https://getneuraops.com').replace(/\/$/, '')
 const timeoutMs = Number(process.env.NEURAOPS_PROBE_TIMEOUT_MS || 8000)
+const expectedEnvironment =
+  process.env.NEURAOPS_PROBE_EXPECT_ENV ||
+  (baseUrl.endsWith('.vercel.app') ? 'preview' : 'production')
 
-async function probe(path, expectedCheck) {
+async function probe(path, expectedCheck, { requireCorrelation = false } = {}) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
 
@@ -17,7 +20,13 @@ async function probe(path, expectedCheck) {
     })
 
     const body = await response.json().catch(() => null)
-    const release = response.headers.get('x-neuraops-release')
+    const release = response.headers.get('x-neuraops-release') || body?.release?.release || null
+    const environment =
+      response.headers.get('x-neuraops-environment') ||
+      body?.release?.environment ||
+      null
+    const requestId = response.headers.get('x-neuraops-request-id')
+    const correlationId = response.headers.get('x-neuraops-correlation-id')
 
     if (!response.ok) {
       throw new Error(`${path} returned HTTP ${response.status}`)
@@ -28,14 +37,31 @@ async function probe(path, expectedCheck) {
     }
 
     if (expectedCheck && body.check !== expectedCheck) {
-      throw new Error(`${path} returned check=${String(body.check)} expected=${expectedCheck}`)
+      throw new Error(
+        `${path} returned check=${String(body.check)} expected=${expectedCheck}`
+      )
+    }
+
+    if (!release || release === 'unknown') {
+      throw new Error(`${path} did not expose a release fingerprint`)
+    }
+
+    if (environment !== expectedEnvironment) {
+      throw new Error(
+        `${path} returned environment=${String(environment)} expected=${expectedEnvironment}`
+      )
+    }
+
+    if (requireCorrelation && (!requestId || !correlationId)) {
+      throw new Error(`${path} did not expose request/correlation identifiers`)
     }
 
     return {
       path,
       status: response.status,
-      release: release || body.release?.release || 'unknown',
-      environment: response.headers.get('x-neuraops-environment') || body.release?.environment || 'unknown',
+      release,
+      environment,
+      correlation: requireCorrelation ? 'present' : 'not-required',
     }
   } finally {
     clearTimeout(timer)
@@ -44,14 +70,25 @@ async function probe(path, expectedCheck) {
 
 try {
   const results = []
-  results.push(await probe('/api/live', 'liveness'))
+  results.push(await probe('/api/live', 'liveness', { requireCorrelation: true }))
   results.push(await probe('/api/ready', 'readiness'))
-  console.log(JSON.stringify({ status: 'ok', baseUrl, results }))
+
+  console.log(
+    JSON.stringify({
+      status: 'ok',
+      baseUrl,
+      expectedEnvironment,
+      results,
+    })
+  )
 } catch (error) {
-  console.error(JSON.stringify({
-    status: 'failed',
-    baseUrl,
-    error: error instanceof Error ? error.message : String(error),
-  }))
+  console.error(
+    JSON.stringify({
+      status: 'failed',
+      baseUrl,
+      expectedEnvironment,
+      error: error instanceof Error ? error.message : String(error),
+    })
+  )
   process.exitCode = 1
 }
