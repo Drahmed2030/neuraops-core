@@ -1,0 +1,308 @@
+{
+  "observed_utc": "2026-10-08T09:38Z",
+  "target": "dvgekyzxdwhrndsjnpkd",
+  "columns": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": "gen_random_uuid()",
+      "not_null": true
+    },
+    {
+      "name": "agent_id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "task_description",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": true
+    },
+    {
+      "name": "output_data",
+      "type": "jsonb",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "status",
+      "type": "character varying(20)",
+      "table": "agent_tasks",
+      "default": "'PENDING'::character varying",
+      "not_null": false
+    },
+    {
+      "name": "approval_required",
+      "type": "boolean",
+      "table": "agent_tasks",
+      "default": "true",
+      "not_null": false
+    },
+    {
+      "name": "is_approved",
+      "type": "boolean",
+      "table": "agent_tasks",
+      "default": "false",
+      "not_null": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": "now()",
+      "not_null": false
+    },
+    {
+      "name": "project_id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "task_name",
+      "type": "character varying(255)",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "payload",
+      "type": "jsonb",
+      "table": "agent_tasks",
+      "default": "'{}'::jsonb",
+      "not_null": false
+    },
+    {
+      "name": "execution_result",
+      "type": "jsonb",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": "now()",
+      "not_null": false
+    },
+    {
+      "name": "risk_level",
+      "type": "smallint",
+      "table": "agent_tasks",
+      "default": "2",
+      "not_null": true
+    },
+    {
+      "name": "action_class",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'UNCLASSIFIED'::text",
+      "not_null": true
+    },
+    {
+      "name": "data_class",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'INTERNAL'::text",
+      "not_null": true
+    },
+    {
+      "name": "external_action_allowed",
+      "type": "boolean",
+      "table": "agent_tasks",
+      "default": "false",
+      "not_null": true
+    },
+    {
+      "name": "correlation_id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": "gen_random_uuid()",
+      "not_null": true
+    },
+    {
+      "name": "idempotency_key",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "expires_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "model_route",
+      "type": "jsonb",
+      "table": "agent_tasks",
+      "default": "'{}'::jsonb",
+      "not_null": true
+    },
+    {
+      "name": "budget_limit_usd",
+      "type": "numeric(12,4)",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "approved_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "approved_by_reference",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "approval_reason",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "lifecycle_state",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'LEGACY_PENDING'::text",
+      "not_null": true
+    },
+    {
+      "name": "parent_task_id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "requested_by_reference",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "qa_required",
+      "type": "boolean",
+      "table": "agent_tasks",
+      "default": "true",
+      "not_null": true
+    },
+    {
+      "name": "qa_state",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'NOT_REVIEWED'::text",
+      "not_null": true
+    },
+    {
+      "name": "execution_mode",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'NONE'::text",
+      "not_null": true
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "system_agents",
+      "default": "gen_random_uuid()",
+      "not_null": true
+    },
+    {
+      "name": "agent_name",
+      "type": "character varying(100)",
+      "table": "system_agents",
+      "default": null,
+      "not_null": true
+    },
+    {
+      "name": "role",
+      "type": "character varying(100)",
+      "table": "system_agents",
+      "default": null,
+      "not_null": true
+    },
+    {
+      "name": "system_prompt",
+      "type": "text",
+      "table": "system_agents",
+      "default": null,
+      "not_null": true
+    },
+    {
+      "name": "status",
+      "type": "character varying(20)",
+      "table": "system_agents",
+      "default": "'ACTIVE'::character varying",
+      "not_null": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "system_agents",
+      "default": "now()",
+      "not_null": false
+    },
+    {
+      "name": "metadata",
+      "type": "jsonb",
+      "table": "system_agents",
+      "default": "'{}'::jsonb",
+      "not_null": false
+    }
+  ],
+  "version": "PostgreSQL 17.6 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.0, 64-bit",
+  "controls": [
+    {
+      "enabled": false,
+      "control_key": "EXTERNAL_ACTIONS"
+    },
+    {
+      "enabled": false,
+      "control_key": "MODEL_EXECUTION"
+    },
+    {
+      "enabled": false,
+      "control_key": "PRODUCTION_ACTIONS"
+    }
+  ],
+  "functions": [
+    {
+      "proname": "execution_gateway_preflight",
+      "definition": "CREATE OR REPLACE FUNCTION neuraops_company.execution_gateway_preflight(p_task_id uuid)\n RETURNS TABLE(allowed boolean, reason text, task_id uuid, agent_id uuid, correlation_id uuid, risk_level smallint, action_class text, data_class text, budget_limit_usd numeric, requires_founder_approval boolean, requires_qa boolean)\n LANGUAGE plpgsql\n SET search_path TO 'pg_catalog'\nAS $function$\ndeclare\n  t public.agent_tasks%rowtype;\n  ap neuraops_company.agent_authority_profiles%rowtype;\n  model_enabled boolean;\nbegin\n  select at.* into t from public.agent_tasks at where at.id=p_task_id;\n  if not found then\n    return query select false,'TASK_NOT_FOUND',p_task_id,null::uuid,null::uuid,null::smallint,null::text,null::text,null::numeric,false,false; return;\n  end if;\n  select aap.* into ap from neuraops_company.agent_authority_profiles aap where aap.agent_id=t.agent_id;\n  if not found or not ap.active then\n    return query select false,'AGENT_NOT_AUTHORIZED',t.id,t.agent_id,t.correlation_id,t.risk_level,t.action_class,t.data_class,t.budget_limit_usd,false,t.qa_required; return;\n  end if;\n  select oc.enabled into model_enabled from neuraops_company.operating_controls oc where oc.control_key='MODEL_EXECUTION';\n  if coalesce(model_enabled,false)=false and t.execution_mode='MODEL_ROUTED' then\n    return query select false,'MODEL_EXECUTION_KILL_SWITCH',t.id,t.agent_id,t.correlation_id,t.risk_level,t.action_class,t.data_class,t.budget_limit_usd,(t.risk_level>=2),t.qa_required; return;\n  end if;\n  if t.lifecycle_state not in ('READY','APPROVED') then\n    return query select false,'TASK_NOT_READY',t.id,t.agent_id,t.correlation_id,t.risk_level,t.action_class,t.data_class,t.budget_limit_usd,(t.risk_level>=2),t.qa_required; return;\n  end if;\n  if t.expires_at is not null and t.expires_at<=statement_timestamp() then\n    return query select false,'TASK_EXPIRED',t.id,t.agent_id,t.correlation_id,t.risk_level,t.action_class,t.data_class,t.budget_limit_usd,false,t.qa_required; return;\n  end if;\n  if t.risk_level>ap.max_autonomous_risk then\n    return query select false,'RISK_REQUIRES_APPROVAL',t.id,t.agent_id,t.correlation_id,t.risk_level,t.action_class,t.data_class,t.budget_limit_usd,true,t.qa_required; return;\n  end if;\n  if not (t.action_class=any(ap.allowed_action_classes)) then\n    return query select false,'ACTION_NOT_ALLOWED',t.id,t.agent_id,t.correlation_id,t.risk_level,t.action_class,t.data_class,t.budget_limit_usd,false,t.qa_required; return;\n  end if;\n  if t.data_class='RESTRICTED' then\n    return query select false,'RESTRICTED_DATA_NOT_AUTONOMOUS',t.id,t.agent_id,t.correlation_id,t.risk_level,t.action_class,t.data_class,t.budget_limit_usd,true,t.qa_required; return;\n  end if;\n  if t.external_action_allowed then\n    return query select false,'EXTERNAL_ACTION_REQUIRES_GATE',t.id,t.agent_id,t.correlation_id,t.risk_level,t.action_class,t.data_class,t.budget_limit_usd,true,t.qa_required; return;\n  end if;\n  return query select true,'ALLOWED',t.id,t.agent_id,t.correlation_id,t.risk_level,t.action_class,t.data_class,t.budget_limit_usd,false,t.qa_required;\nend $function$\n"
+    },
+    {
+      "proname": "prevent_operating_evidence_mutation",
+      "definition": "CREATE OR REPLACE FUNCTION neuraops_company.prevent_operating_evidence_mutation()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'pg_catalog'\nAS $function$ begin raise exception 'company_operating_evidence_immutable'; end $function$\n"
+    },
+    {
+      "proname": "task_authority_check",
+      "definition": "CREATE OR REPLACE FUNCTION neuraops_company.task_authority_check(p_task_id uuid)\n RETURNS TABLE(allowed boolean, reason text, requires_founder_approval boolean, requires_qa boolean)\n LANGUAGE sql\n SET search_path TO 'pg_catalog'\nAS $function$\n  select\n    (\n      t.agent_id is not null\n      and p.active\n      and t.risk_level <= p.max_autonomous_risk\n      and t.action_class = any(p.allowed_action_classes)\n      and (not t.external_action_allowed or p.external_actions_allowed)\n      and (t.expires_at is null or t.expires_at > statement_timestamp())\n      and t.data_class <> 'RESTRICTED'\n    ) as allowed,\n    case\n      when t.agent_id is null then 'NO_AGENT'\n      when not p.active then 'AGENT_INACTIVE'\n      when t.risk_level > p.max_autonomous_risk then 'RISK_REQUIRES_APPROVAL'\n      when not (t.action_class = any(p.allowed_action_classes)) then 'ACTION_NOT_ALLOWED'\n      when t.external_action_allowed and not p.external_actions_allowed then 'EXTERNAL_ACTION_NOT_ALLOWED'\n      when t.expires_at is not null and t.expires_at <= statement_timestamp() then 'TASK_EXPIRED'\n      when t.data_class = 'RESTRICTED' then 'RESTRICTED_DATA_NOT_AUTONOMOUS'\n      else 'ALLOWED'\n    end,\n    (t.risk_level >= 2 or t.external_action_allowed or t.action_class in ('FINANCIAL','LEGAL','SECURITY','PRODUCTION')) as requires_founder_approval,\n    t.qa_required\n  from public.agent_tasks t\n  join neuraops_company.agent_authority_profiles p on p.agent_id=t.agent_id\n  where t.id=p_task_id\n$function$\n"
+    }
+  ]
+}

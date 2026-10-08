@@ -1,0 +1,142 @@
+TAP version 13
+# Subtest: gateway normalization denies empty
+ok 1 - gateway normalization denies empty
+  ---
+  duration_ms: 1.361639
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies null
+ok 2 - gateway normalization denies null
+  ---
+  duration_ms: 0.961018
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies multiple
+ok 3 - gateway normalization denies multiple
+  ---
+  duration_ms: 0.102512
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies missing-fields
+ok 4 - gateway normalization denies missing-fields
+  ---
+  duration_ms: 0.088421
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies string-boolean
+ok 5 - gateway normalization denies string-boolean
+  ---
+  duration_ms: 0.160427
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies contradictory-reason
+ok 6 - gateway normalization denies contradictory-reason
+  ---
+  duration_ms: 0.094509
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies approval-required
+ok 7 - gateway normalization denies approval-required
+  ---
+  duration_ms: 0.125846
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-uuid
+ok 8 - gateway normalization denies invalid-uuid
+  ---
+  duration_ms: 0.306342
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-risk
+ok 9 - gateway normalization denies invalid-risk
+  ---
+  duration_ms: 0.259533
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-budget
+ok 10 - gateway normalization denies invalid-budget
+  ---
+  duration_ms: 0.210481
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies forged-role
+ok 11 - gateway normalization denies forged-role
+  ---
+  duration_ms: 0.143972
+  type: 'test'
+  ...
+# Subtest: normalization preserves an explicit database denial
+ok 12 - normalization preserves an explicit database denial
+  ---
+  duration_ms: 0.886258
+  type: 'test'
+  ...
+# Subtest: one complete server result can retain its allow
+ok 13 - one complete server result can retain its allow
+  ---
+  duration_ms: 0.154918
+  type: 'test'
+  ...
+# Subtest: a proposed assignment never authorizes execution
+ok 14 - a proposed assignment never authorizes execution
+  ---
+  duration_ms: 1969.874865
+  type: 'test'
+  ...
+# Subtest: inactive engineering is denied
+ok 15 - inactive engineering is denied
+  ---
+  duration_ms: 4.644701
+  type: 'test'
+  ...
+# Subtest: caller role claims and unverified approval records do not activate execution
+ok 16 - caller role claims and unverified approval records do not activate execution
+  ---
+  duration_ms: 7.942818
+  type: 'test'
+  ...
+# Subtest: internal authority checker also returns explicit deny for absent task
+ok 17 - internal authority checker also returns explicit deny for absent task
+  ---
+  duration_ms: 1.161894
+  type: 'test'
+  ...
+# Subtest: model kill switch is preserved
+ok 18 - model kill switch is preserved
+  ---
+  duration_ms: 3.004242
+  type: 'test'
+  ...
+# Subtest: a ready task without a sealed envelope cannot reach assignment evaluation
+ok 19 - a ready task without a sealed envelope cannot reach assignment evaluation
+  ---
+  duration_ms: 2.552876
+  type: 'test'
+  ...
+# Subtest: an envelope cannot select an unrecorded policy version
+ok 20 - an envelope cannot select an unrecorded policy version
+  ---
+  duration_ms: 6.470515
+  type: 'test'
+  ...
+# Subtest: task drift cannot reuse an envelope for another scope or agent
+ok 21 - task drift cannot reuse an envelope for another scope or agent
+  ---
+  duration_ms: 33.420423
+  type: 'test'
+  ...
+# Subtest: matching envelope and policy do not activate proposed assignments
+ok 22 - matching envelope and policy do not activate proposed assignments
+  ---
+  duration_ms: 4.794432
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2149.518336

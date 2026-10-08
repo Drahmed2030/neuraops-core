@@ -1,0 +1,457 @@
+{
+  "agents": [
+    {
+      "id": "2c9aa5a2-ded7-4ffd-b528-3f27f28cb386",
+      "role": "Chief Marketing Officer",
+      "status": "ACTIVE",
+      "agent_name": "Neura-CMO"
+    },
+    {
+      "id": "3684f69f-ec37-4799-810c-4f0863ae021f",
+      "role": "Quality & Security Officer",
+      "status": "ACTIVE",
+      "agent_name": "Neura-QA"
+    },
+    {
+      "id": "797903d3-3192-4c81-9a24-aff7b30e808b",
+      "role": "Medical Trend Scout",
+      "status": "ACTIVE",
+      "agent_name": "MedPulse-Scout"
+    },
+    {
+      "id": "9e7ee046-a6c5-4cfe-babb-1231159a49cc",
+      "role": "Clinical Content Creator",
+      "status": "ACTIVE",
+      "agent_name": "MedPulse-Creator"
+    },
+    {
+      "id": "9f02e200-50c5-4a6f-9aba-6c67e04db549",
+      "role": "Lead Gen & Sales Agent",
+      "status": "ACTIVE",
+      "agent_name": "MedPulse-Sales"
+    },
+    {
+      "id": "dce3a297-b28c-45b5-96d5-da4a8dc195aa",
+      "role": "Product Manager",
+      "status": "ACTIVE",
+      "agent_name": "Neura-PM"
+    }
+  ],
+  "columns": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": "gen_random_uuid()",
+      "not_null": true
+    },
+    {
+      "name": "agent_id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "task_description",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": true
+    },
+    {
+      "name": "output_data",
+      "type": "jsonb",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "status",
+      "type": "character varying(20)",
+      "table": "agent_tasks",
+      "default": "'PENDING'::character varying",
+      "not_null": false
+    },
+    {
+      "name": "approval_required",
+      "type": "boolean",
+      "table": "agent_tasks",
+      "default": "true",
+      "not_null": false
+    },
+    {
+      "name": "is_approved",
+      "type": "boolean",
+      "table": "agent_tasks",
+      "default": "false",
+      "not_null": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": "now()",
+      "not_null": false
+    },
+    {
+      "name": "project_id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "task_name",
+      "type": "character varying(255)",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "payload",
+      "type": "jsonb",
+      "table": "agent_tasks",
+      "default": "'{}'::jsonb",
+      "not_null": false
+    },
+    {
+      "name": "execution_result",
+      "type": "jsonb",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": "now()",
+      "not_null": false
+    },
+    {
+      "name": "risk_level",
+      "type": "smallint",
+      "table": "agent_tasks",
+      "default": "2",
+      "not_null": true
+    },
+    {
+      "name": "action_class",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'UNCLASSIFIED'::text",
+      "not_null": true
+    },
+    {
+      "name": "data_class",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'INTERNAL'::text",
+      "not_null": true
+    },
+    {
+      "name": "external_action_allowed",
+      "type": "boolean",
+      "table": "agent_tasks",
+      "default": "false",
+      "not_null": true
+    },
+    {
+      "name": "correlation_id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": "gen_random_uuid()",
+      "not_null": true
+    },
+    {
+      "name": "idempotency_key",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "expires_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "model_route",
+      "type": "jsonb",
+      "table": "agent_tasks",
+      "default": "'{}'::jsonb",
+      "not_null": true
+    },
+    {
+      "name": "budget_limit_usd",
+      "type": "numeric(12,4)",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "approved_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "approved_by_reference",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "approval_reason",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "lifecycle_state",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'LEGACY_PENDING'::text",
+      "not_null": true
+    },
+    {
+      "name": "parent_task_id",
+      "type": "uuid",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "requested_by_reference",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "qa_required",
+      "type": "boolean",
+      "table": "agent_tasks",
+      "default": "true",
+      "not_null": true
+    },
+    {
+      "name": "qa_state",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'NOT_REVIEWED'::text",
+      "not_null": true
+    },
+    {
+      "name": "execution_mode",
+      "type": "text",
+      "table": "agent_tasks",
+      "default": "'NONE'::text",
+      "not_null": true
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamp with time zone",
+      "table": "agent_tasks",
+      "default": null,
+      "not_null": false
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "system_agents",
+      "default": "gen_random_uuid()",
+      "not_null": true
+    },
+    {
+      "name": "agent_name",
+      "type": "character varying(100)",
+      "table": "system_agents",
+      "default": null,
+      "not_null": true
+    },
+    {
+      "name": "role",
+      "type": "character varying(100)",
+      "table": "system_agents",
+      "default": null,
+      "not_null": true
+    },
+    {
+      "name": "system_prompt",
+      "type": "text",
+      "table": "system_agents",
+      "default": null,
+      "not_null": true
+    },
+    {
+      "name": "status",
+      "type": "character varying(20)",
+      "table": "system_agents",
+      "default": "'ACTIVE'::character varying",
+      "not_null": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "system_agents",
+      "default": "now()",
+      "not_null": false
+    },
+    {
+      "name": "metadata",
+      "type": "jsonb",
+      "table": "system_agents",
+      "default": "'{}'::jsonb",
+      "not_null": false
+    }
+  ],
+  "controls": [
+    {
+      "enabled": false,
+      "control_key": "EXTERNAL_ACTIONS"
+    },
+    {
+      "enabled": false,
+      "control_key": "MODEL_EXECUTION"
+    },
+    {
+      "enabled": false,
+      "control_key": "PRODUCTION_ACTIONS"
+    }
+  ],
+  "constraints": [
+    {
+      "name": "agent_tasks_agent_id_fkey",
+      "table": "agent_tasks",
+      "definition": "FOREIGN KEY (agent_id) REFERENCES system_agents(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "agent_tasks_budget_limit_check",
+      "table": "agent_tasks",
+      "definition": "CHECK (((budget_limit_usd IS NULL) OR (budget_limit_usd >= (0)::numeric)))"
+    },
+    {
+      "name": "agent_tasks_data_class_check",
+      "table": "agent_tasks",
+      "definition": "CHECK ((data_class = ANY (ARRAY['PUBLIC'::text, 'INTERNAL'::text, 'CONFIDENTIAL'::text, 'RESTRICTED'::text])))"
+    },
+    {
+      "name": "agent_tasks_execution_mode_check",
+      "table": "agent_tasks",
+      "definition": "CHECK ((execution_mode = ANY (ARRAY['NONE'::text, 'INTERNAL'::text, 'MODEL_ROUTED'::text, 'HUMAN'::text])))"
+    },
+    {
+      "name": "agent_tasks_lifecycle_state_check",
+      "table": "agent_tasks",
+      "definition": "CHECK ((lifecycle_state = ANY (ARRAY['LEGACY_PENDING'::text, 'DRAFT'::text, 'READY'::text, 'WAITING_APPROVAL'::text, 'APPROVED'::text, 'EXECUTING'::text, 'QA_REVIEW'::text, 'COMPLETED'::text, 'HELD'::text, 'REJECTED'::text, 'CANCELLED'::text, 'EXPIRED'::text])))"
+    },
+    {
+      "name": "agent_tasks_no_self_parent_check",
+      "table": "agent_tasks",
+      "definition": "CHECK (((parent_task_id IS NULL) OR (parent_task_id <> id)))"
+    },
+    {
+      "name": "agent_tasks_parent_task_id_fkey",
+      "table": "agent_tasks",
+      "definition": "FOREIGN KEY (parent_task_id) REFERENCES agent_tasks(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "agent_tasks_pkey",
+      "table": "agent_tasks",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "agent_tasks_project_id_fkey",
+      "table": "agent_tasks",
+      "definition": "FOREIGN KEY (project_id) REFERENCES company_projects(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "agent_tasks_qa_state_check",
+      "table": "agent_tasks",
+      "definition": "CHECK ((qa_state = ANY (ARRAY['NOT_REVIEWED'::text, 'PASS'::text, 'HOLD'::text, 'ESCALATE'::text, 'FAIL'::text])))"
+    },
+    {
+      "name": "agent_tasks_risk_level_check",
+      "table": "agent_tasks",
+      "definition": "CHECK (((risk_level >= 0) AND (risk_level <= 3)))"
+    },
+    {
+      "name": "system_agents_agent_name_key",
+      "table": "system_agents",
+      "definition": "UNIQUE (agent_name)"
+    },
+    {
+      "name": "system_agents_pkey",
+      "table": "system_agents",
+      "definition": "PRIMARY KEY (id)"
+    }
+  ],
+  "gateway_acl": [
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "prevent_event_mutation",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "name": "prevent_approval_mutation",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "name": "prevent_operating_evidence_mutation",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "task_authority_check",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "company_execution_gateway_preflight",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "execution_gateway_preflight",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres"
+      ],
+      "name": "model_route_preflight",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "company_control_snapshot",
+      "security_definer": true
+    }
+  ],
+  "observed_at": "2026-10-07T22:14:35.8867+00:00",
+  "nonowner_grants": [],
+  "database_version": "17.6",
+  "project": "dvgekyzxdwhrndsjnpkd",
+  "scope": "schema metadata and agent registry only; no task payloads, prompts or credentials"
+}

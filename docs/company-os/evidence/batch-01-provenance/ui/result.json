@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "tests": 1,
+  "react": "19.2.8",
+  "jsdom": "30.1.2",
+  "scope": "Real React client component in JSDOM; synthetic lost-response action transport; no browser visual/layout or live auth certification",
+  "calls_match": true
+}

@@ -1,0 +1,240 @@
+TAP version 13
+# (node:19) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/166c9debe503/company-os-batch01/src/app/dashboard/control/approval-actions.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /workspace/scratch/166c9debe503/company-os-batch01/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: unauthenticated request cannot reach privileged approval RPC
+ok 1 - unauthenticated request cannot reach privileged approval RPC
+  ---
+  duration_ms: 1.832596
+  type: 'test'
+  ...
+# Subtest: user metadata founder claim is not operator access
+ok 2 - user metadata founder claim is not operator access
+  ---
+  duration_ms: 0.514029
+  type: 'test'
+  ...
+# Subtest: disabled recording remains unavailable even to verified operator
+ok 3 - disabled recording remains unavailable even to verified operator
+  ---
+  duration_ms: 0.719161
+  type: 'test'
+  ...
+# Subtest: verified operator supplies actor from server authentication, not input
+ok 4 - verified operator supplies actor from server authentication, not input
+  ---
+  duration_ms: 7.108025
+  type: 'test'
+  ...
+# Subtest: caller-supplied actor or budget fields are rejected
+ok 5 - caller-supplied actor or budget fields are rejected
+  ---
+  duration_ms: 3.586276
+  type: 'test'
+  ...
+# Subtest: malformed digest is rejected before database access
+ok 6 - malformed digest is rejected before database access
+  ---
+  duration_ms: 3.769681
+  type: 'test'
+  ...
+# Subtest: approval binding storage exists
+ok 7 - approval binding storage exists
+  ---
+  duration_ms: 2358.867961
+  type: 'test'
+  ...
+# Subtest: record approval and budget reservation atomically, replay once
+ok 8 - record approval and budget reservation atomically, replay once
+  ---
+  duration_ms: 27.619971
+  type: 'test'
+  ...
+# Subtest: changed payload and destination invalidate the reviewed digest
+ok 9 - changed payload and destination invalidate the reviewed digest
+  ---
+  duration_ms: 9.533738
+  type: 'test'
+  ...
+# Subtest: changed policy invalidates review without accepting a new grant
+ok 10 - changed policy invalidates review without accepting a new grant
+  ---
+  duration_ms: 7.8495
+  type: 'test'
+  ...
+# Subtest: unknown task, expired task, restricted or external work is denied
+ok 11 - unknown task, expired task, restricted or external work is denied
+  ---
+  duration_ms: 29.407855
+  type: 'test'
+  ...
+# Subtest: self approval and malformed actor are denied
+ok 12 - self approval and malformed actor are denied
+  ---
+  duration_ms: 6.062431
+  type: 'test'
+  ...
+# Subtest: anonymous and authenticated callers cannot assert an operator identity directly
+ok 13 - anonymous and authenticated callers cannot assert an operator identity directly
+  ---
+  duration_ms: 7.654942
+  type: 'test'
+  ...
+# Subtest: per-task spending cap rejects oversized requests
+ok 14 - per-task spending cap rejects oversized requests
+  ---
+  duration_ms: 6.987187
+  type: 'test'
+  ...
+# Subtest: daily cap has no partial approval or budget write on failure
+ok 15 - daily cap has no partial approval or budget write on failure
+  ---
+  duration_ms: 8.694728
+  type: 'test'
+  ...
+# Subtest: approval records never enable execution or operating controls
+ok 16 - approval records never enable execution or operating controls
+  ---
+  duration_ms: 7.244797
+  type: 'test'
+  ...
+# Subtest: an agent reference cannot approve its own work
+ok 17 - an agent reference cannot approve its own work
+  ---
+  duration_ms: 5.537696
+  type: 'test'
+  ...
+# Subtest: revocation prevents replay of a recorded approval
+ok 18 - revocation prevents replay of a recorded approval
+  ---
+  duration_ms: 18.017483
+  type: 'test'
+  ...
+# Subtest: prior rejection or revocation blocks first approval recording
+ok 19 - prior rejection or revocation blocks first approval recording
+  ---
+  duration_ms: 14.133199
+  type: 'test'
+  ...
+# Subtest: missing or noncanonical requester provenance fails closed
+ok 20 - missing or noncanonical requester provenance fails closed
+  ---
+  duration_ms: 23.982329
+  type: 'test'
+  ...
+# Subtest: expiry window uses post-lock wall clock and refuses UTC day rollover
+ok 21 - expiry window uses post-lock wall clock and refuses UTC day rollover
+  ---
+  duration_ms: 1.939984
+  type: 'test'
+  ...
+# Subtest: a canonical hash alone is not verified requester provenance
+ok 22 - a canonical hash alone is not verified requester provenance
+  ---
+  duration_ms: 7.724496
+  type: 'test'
+  ...
+# Subtest: siblings cannot collectively reserve more than the approved parent budget
+ok 23 - siblings cannot collectively reserve more than the approved parent budget
+  ---
+  duration_ms: 2549.103832
+  type: 'test'
+  ...
+# Subtest: exact replay reserves once and permits the remaining sibling budget
+ok 24 - exact replay reserves once and permits the remaining sibling budget
+  ---
+  duration_ms: 30.917666
+  type: 'test'
+  ...
+# Subtest: unapproved, revoked or changed parent cannot sponsor a child approval
+ok 25 - unapproved, revoked or changed parent cannot sponsor a child approval
+  ---
+  duration_ms: 30.293318
+  type: 'test'
+  ...
+# Subtest: nested delegation remains disabled at approval recording
+ok 26 - nested delegation remains disabled at approval recording
+  ---
+  duration_ms: 14.609101
+  type: 'test'
+  ...
+# Subtest: revoked parent blocks replay of an existing child approval
+ok 27 - revoked parent blocks replay of an existing child approval
+  ---
+  duration_ms: 13.880214
+  type: 'test'
+  ...
+# Subtest: changing child linkage does not release the original reserved budget
+ok 28 - changing child linkage does not release the original reserved budget
+  ---
+  duration_ms: 17.94779
+  type: 'test'
+  ...
+# (node:27) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/166c9debe503/company-os-batch01/src/app/dashboard/control/approval-actions.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /workspace/scratch/166c9debe503/company-os-batch01/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: verified requester creates an attested inert task, reviewed by a distinct operator
+ok 29 - verified requester creates an attested inert task, reviewed by a distinct operator
+  ---
+  duration_ms: 2377.128965
+  type: 'test'
+  ...
+# Subtest: same requester/key is idempotent; changed request is a conflict
+ok 30 - same requester/key is idempotent; changed request is a conflict
+  ---
+  duration_ms: 15.591441
+  type: 'test'
+  ...
+# Subtest: two identities do not share an idempotency namespace
+ok 31 - two identities do not share an idempotency namespace
+  ---
+  duration_ms: 7.665037
+  type: 'test'
+  ...
+# Subtest: unauthenticated, unlisted and disabled callers never reach the privileged transport
+ok 32 - unauthenticated, unlisted and disabled callers never reach the privileged transport
+  ---
+  duration_ms: 0.51422
+  type: 'test'
+  ...
+# Subtest: caller identity, tool, destination, PHI class and spending overrides are rejected
+ok 33 - caller identity, tool, destination, PHI class and spending overrides are rejected
+  ---
+  duration_ms: 0.783817
+  type: 'test'
+  ...
+# Subtest: unknown/inactive agent cannot create partial evidence
+ok 34 - unknown/inactive agent cannot create partial evidence
+  ---
+  duration_ms: 6.383946
+  type: 'test'
+  ...
+# Subtest: public roles cannot forge the trusted creation RPC
+ok 35 - public roles cannot forge the trusted creation RPC
+  ---
+  duration_ms: 3.945606
+  type: 'test'
+  ...
+# Subtest: review rejects a legacy task without newly attested provenance
+ok 36 - review rejects a legacy task without newly attested provenance
+  ---
+  duration_ms: 4.743764
+  type: 'test'
+  ...
+# Subtest: audit failure rolls back the request, attestation and envelope together
+ok 37 - audit failure rolls back the request, attestation and envelope together
+  ---
+  duration_ms: 14.327315
+  type: 'test'
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 37
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2792.023396

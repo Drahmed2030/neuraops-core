@@ -1,0 +1,638 @@
+TAP version 13
+# Subtest: gateway normalization denies empty
+ok 1 - gateway normalization denies empty
+  ---
+  duration_ms: 1.924171
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies null
+ok 2 - gateway normalization denies null
+  ---
+  duration_ms: 0.193937
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies multiple
+ok 3 - gateway normalization denies multiple
+  ---
+  duration_ms: 0.17822
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies missing-fields
+ok 4 - gateway normalization denies missing-fields
+  ---
+  duration_ms: 0.137985
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies string-boolean
+ok 5 - gateway normalization denies string-boolean
+  ---
+  duration_ms: 0.174557
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies contradictory-reason
+ok 6 - gateway normalization denies contradictory-reason
+  ---
+  duration_ms: 0.136377
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies approval-required
+ok 7 - gateway normalization denies approval-required
+  ---
+  duration_ms: 0.167323
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-uuid
+ok 8 - gateway normalization denies invalid-uuid
+  ---
+  duration_ms: 0.331809
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-risk
+ok 9 - gateway normalization denies invalid-risk
+  ---
+  duration_ms: 0.602968
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-budget
+ok 10 - gateway normalization denies invalid-budget
+  ---
+  duration_ms: 0.394566
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies forged-role
+ok 11 - gateway normalization denies forged-role
+  ---
+  duration_ms: 0.18661
+  type: 'test'
+  ...
+# Subtest: normalization preserves an explicit database denial
+ok 12 - normalization preserves an explicit database denial
+  ---
+  duration_ms: 1.220365
+  type: 'test'
+  ...
+# Subtest: one complete server result can retain its allow
+ok 13 - one complete server result can retain its allow
+  ---
+  duration_ms: 0.173607
+  type: 'test'
+  ...
+# Subtest: evidence records retain only allowlisted metadata and opaque location references
+ok 14 - evidence records retain only allowlisted metadata and opaque location references
+  ---
+  duration_ms: 3.651067
+  type: 'test'
+  ...
+# Subtest: evidence index rejects duplicate records
+ok 15 - evidence index rejects duplicate records
+  ---
+  duration_ms: 0.277806
+  type: 'test'
+  ...
+# Subtest: operations read model aggregates metadata without exposing event attributes or clinical content
+ok 16 - operations read model aggregates metadata without exposing event attributes or clinical content
+  ---
+  duration_ms: 4.755967
+  type: 'test'
+  ...
+# Subtest: recovery verification resolves evidence only within the approved product boundary
+ok 17 - recovery verification resolves evidence only within the approved product boundary
+  ---
+  duration_ms: 2.804862
+  type: 'test'
+  ...
+# Subtest: missing recovery evidence fails closed to a target rather than a verified claim
+ok 18 - missing recovery evidence fails closed to a target rather than a verified claim
+  ---
+  duration_ms: 0.541456
+  type: 'test'
+  ...
+# Subtest: read model rejects manually constructed unsanitized trust events
+ok 19 - read model rejects manually constructed unsanitized trust events
+  ---
+  duration_ms: 0.42932
+  type: 'test'
+  ...
+# Subtest: incident lineage records retain only opaque references and allowlisted metadata
+ok 20 - incident lineage records retain only opaque references and allowlisted metadata
+  ---
+  duration_ms: 4.83487
+  type: 'test'
+  ...
+# Subtest: metadata-only replay resolves a coherent event and evidence lineage without raw IDs
+ok 21 - metadata-only replay resolves a coherent event and evidence lineage without raw IDs
+  ---
+  duration_ms: 6.350406
+  type: 'test'
+  ...
+# Subtest: missing references downgrade declared verification and keep replay partial
+ok 22 - missing references downgrade declared verification and keep replay partial
+  ---
+  duration_ms: 3.404524
+  type: 'test'
+  ...
+# Subtest: a missing predecessor keeps the replay partial without inventing a lineage edge
+ok 23 - a missing predecessor keeps the replay partial without inventing a lineage edge
+  ---
+  duration_ms: 0.78052
+  type: 'test'
+  ...
+# Subtest: cross-product evidence cannot verify an incident lineage step
+ok 24 - cross-product evidence cannot verify an incident lineage step
+  ---
+  duration_ms: 1.898839
+  type: 'test'
+  ...
+# Subtest: a shared incident reference cannot combine NeuraOps and Cliniverse timelines
+ok 25 - a shared incident reference cannot combine NeuraOps and Cliniverse timelines
+  ---
+  duration_ms: 13.367941
+  type: 'test'
+  ...
+# Subtest: verified lineage declarations require agreement and at least one evidence reference
+ok 26 - verified lineage declarations require agreement and at least one evidence reference
+  ---
+  duration_ms: 0.405565
+  type: 'test'
+  ...
+# Subtest: incident classifier elevates security and repeated server failures
+ok 27 - incident classifier elevates security and repeated server failures
+  ---
+  duration_ms: 1.771059
+  type: 'test'
+  ...
+# Subtest: incident envelope redacts sensitive context and is fingerprinted
+ok 28 - incident envelope redacts sensitive context and is fingerprinted
+  ---
+  duration_ms: 1.303873
+  type: 'test'
+  ...
+# Subtest: remediation can request a fix PR but never auto-merges or auto-deploys
+ok 29 - remediation can request a fix PR but never auto-merges or auto-deploys
+  ---
+  duration_ms: 1.449823
+  type: 'test'
+  ...
+# Subtest: score boundaries are deterministic and bounded
+ok 30 - score boundaries are deterministic and bounded
+  ---
+  duration_ms: 1.797411
+  type: 'test'
+  ...
+# Subtest: qualification boundary distinguishes qualified, unqualified, and human review
+ok 31 - qualification boundary distinguishes qualified, unqualified, and human review
+  ---
+  duration_ms: 0.380564
+  type: 'test'
+  ...
+# Subtest: missing need always falls back to human review
+ok 32 - missing need always falls back to human review
+  ---
+  duration_ms: 0.278956
+  type: 'test'
+  ...
+# Subtest: low AI confidence cannot qualify a lead by itself
+ok 33 - low AI confidence cannot qualify a lead by itself
+  ---
+  duration_ms: 0.204685
+  type: 'test'
+  ...
+# Subtest: high-value lead with ambiguous authority requires human review
+ok 34 - high-value lead with ambiguous authority requires human review
+  ---
+  duration_ms: 0.264955
+  type: 'test'
+  ...
+# Subtest: duplicate persistence is idempotent for the same store and session
+ok 35 - duplicate persistence is idempotent for the same store and session
+  ---
+  duration_ms: 0.413814
+  type: 'test'
+  ...
+# Subtest: store isolation keeps the same session independent across stores
+ok 36 - store isolation keeps the same session independent across stores
+  ---
+  duration_ms: 0.659119
+  type: 'test'
+  ...
+# Subtest: conversion and follow-up lifecycle rules prevent unsafe reopening
+ok 37 - conversion and follow-up lifecycle rules prevent unsafe reopening
+  ---
+  duration_ms: 0.296451
+  type: 'test'
+  ...
+# Subtest: terminal won and lost leads are immutable from public resubmission
+ok 38 - terminal won and lost leads are immutable from public resubmission
+  ---
+  duration_ms: 0.937162
+  type: 'test'
+  ...
+# Subtest: non-terminal public lead remains idempotently updateable
+ok 39 - non-terminal public lead remains idempotently updateable
+  ---
+  duration_ms: 2.305915
+  type: 'test'
+  ...
+# Subtest: terminal repeated public submission exits before any new escalation
+ok 40 - terminal repeated public submission exits before any new escalation
+  ---
+  duration_ms: 0.33621
+  type: 'test'
+  ...
+# (node:29) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/166c9debe503/company-os-batch01/src/app/login/actions.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /workspace/scratch/166c9debe503/company-os-batch01/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: verified operator lands on existing company control
+ok 41 - verified operator lands on existing company control
+  ---
+  duration_ms: 3.979996
+  type: 'test'
+  ...
+# Subtest: ordinary authenticated user keeps the existing customer dashboard
+ok 42 - ordinary authenticated user keeps the existing customer dashboard
+  ---
+  duration_ms: 0.444892
+  type: 'test'
+  ...
+# Subtest: missing operator configuration reaches protected unavailable control, not demo
+ok 43 - missing operator configuration reaches protected unavailable control, not demo
+  ---
+  duration_ms: 0.394718
+  type: 'test'
+  ...
+# Subtest: malformed operator configuration fails closed
+ok 44 - malformed operator configuration fails closed
+  ---
+  duration_ms: 0.290172
+  type: 'test'
+  ...
+# Subtest: identity rejected after sign-in returns to login
+ok 45 - identity rejected after sign-in returns to login
+  ---
+  duration_ms: 0.361345
+  type: 'test'
+  ...
+# Subtest: invalid credentials never evaluate operator access
+ok 46 - invalid credentials never evaluate operator access
+  ---
+  duration_ms: 0.42753
+  type: 'test'
+  ...
+# Subtest: missing credentials never reach Auth
+ok 47 - missing credentials never reach Auth
+  ---
+  duration_ms: 0.433964
+  type: 'test'
+  ...
+# Subtest: operator allowlist accepts UUIDs only and fails closed on malformed configuration
+ok 48 - operator allowlist accepts UUIDs only and fails closed on malformed configuration
+  ---
+  duration_ms: 2.221081
+  type: 'test'
+  ...
+# Subtest: operations authorization verifies identity before evaluating operator configuration
+ok 49 - operations authorization verifies identity before evaluating operator configuration
+  ---
+  duration_ms: 0.331586
+  type: 'test'
+  ...
+# Subtest: user metadata cannot grant operations access and raw operator IDs are never returned
+ok 50 - user metadata cannot grant operations access and raw operator IDs are never returned
+  ---
+  duration_ms: 0.604857
+  type: 'test'
+  ...
+# Subtest: authorized API response is read-only, non-cacheable, and privacy-safe
+ok 51 - authorized API response is read-only, non-cacheable, and privacy-safe
+  ---
+  duration_ms: 3.471532
+  type: 'test'
+  ...
+# Subtest: API failures return a generic unavailable response without leaking the exception
+ok 52 - API failures return a generic unavailable response without leaking the exception
+  ---
+  duration_ms: 0.701024
+  type: 'test'
+  ...
+# Subtest: route contract exposes GET only and never imports the privileged Supabase client
+ok 53 - route contract exposes GET only and never imports the privileged Supabase client
+  ---
+  duration_ms: 0.543712
+  type: 'test'
+  ...
+# Subtest: authorized console uses the privacy-safe read model without an HTTP round trip
+ok 54 - authorized console uses the privacy-safe read model without an HTTP round trip
+  ---
+  duration_ms: 7.908162
+  type: 'test'
+  ...
+# Subtest: console fails closed before projection when operator authorization is denied
+ok 55 - console fails closed before projection when operator authorization is denied
+  ---
+  duration_ms: 0.924739
+  type: 'test'
+  ...
+# Subtest: console rejects a projection that violates any display privacy boundary
+ok 56 - console rejects a projection that violates any display privacy boundary
+  ---
+  duration_ms: 0.298639
+  type: 'test'
+  ...
+# Subtest: console rejects a snapshot that could execute incident replay
+ok 57 - console rejects a snapshot that could execute incident replay
+  ---
+  duration_ms: 0.69727
+  type: 'test'
+  ...
+# Subtest: console rejects executable or persistence-enabled recovery drills
+ok 58 - console rejects executable or persistence-enabled recovery drills
+  ---
+  duration_ms: 0.488311
+  type: 'test'
+  ...
+# Subtest: console route remains server-authorized, dynamic, and mutation-free
+ok 59 - console route remains server-authorized, dynamic, and mutation-free
+  ---
+  duration_ms: 2.917455
+  type: 'test'
+  ...
+# Subtest: recovery drill records retain only bounded metadata and opaque references
+ok 60 - recovery drill records retain only bounded metadata and opaque references
+  ---
+  duration_ms: 3.109033
+  type: 'test'
+  ...
+# Subtest: default recovery drill posture is honest, non-executable, and persistence-free
+ok 61 - default recovery drill posture is honest, non-executable, and persistence-free
+  ---
+  duration_ms: 2.486131
+  type: 'test'
+  ...
+# Subtest: evidence-backed drill verifies its objective without projecting raw evidence or approval IDs
+ok 62 - evidence-backed drill verifies its objective without projecting raw evidence or approval IDs
+  ---
+  duration_ms: 2.188022
+  type: 'test'
+  ...
+# Subtest: missing evidence keeps a declared pass verification-pending
+ok 63 - missing evidence keeps a declared pass verification-pending
+  ---
+  duration_ms: 1.932575
+  type: 'test'
+  ...
+# Subtest: evidence cannot cross product or environment boundaries
+ok 64 - evidence cannot cross product or environment boundaries
+  ---
+  duration_ms: 1.14617
+  type: 'test'
+  ...
+# Subtest: unrelated, short-lived, stale, or future evidence cannot verify a drill
+ok 65 - unrelated, short-lived, stale, or future evidence cannot verify a drill
+  ---
+  duration_ms: 5.060949
+  type: 'test'
+  ...
+# Subtest: a recovery drill cannot claim a different product than its objective
+ok 66 - a recovery drill cannot claim a different product than its objective
+  ---
+  duration_ms: 0.662236
+  type: 'test'
+  ...
+# Subtest: missed RTO or RPO stays unverified and requires remediation
+ok 67 - missed RTO or RPO stays unverified and requires remediation
+  ---
+  duration_ms: 0.611243
+  type: 'test'
+  ...
+# Subtest: verified drill becomes overdue only after its declared cadence
+ok 68 - verified drill becomes overdue only after its declared cadence
+  ---
+  duration_ms: 0.851938
+  type: 'test'
+  ...
+# Subtest: a later failed drill supersedes an older verified posture
+ok 69 - a later failed drill supersedes an older verified posture
+  ---
+  duration_ms: 1.1521
+  type: 'test'
+  ...
+# Subtest: completed drill lifecycle requires metrics, evidence, and approval for a pass
+ok 70 - completed drill lifecycle requires metrics, evidence, and approval for a pass
+  ---
+  duration_ms: 0.43481
+  type: 'test'
+  ...
+# Subtest: completed drill timestamps cannot claim a future result
+ok 71 - completed drill timestamps cannot claim a future result
+  ---
+  duration_ms: 0.322099
+  type: 'test'
+  ...
+# Subtest: a riskier result wins when two drills share the latest completion time
+ok 72 - a riskier result wins when two drills share the latest completion time
+  ---
+  duration_ms: 11.12496
+  type: 'test'
+  ...
+# Subtest: recovery matrix is structurally valid and has unique services
+ok 73 - recovery matrix is structurally valid and has unique services
+  ---
+  duration_ms: 2.67121
+  type: 'test'
+  ...
+# Subtest: verified recovery claims cannot exist without evidence
+ok 74 - verified recovery claims cannot exist without evidence
+  ---
+  duration_ms: 0.499984
+  type: 'test'
+  ...
+# Subtest: verified readiness and objective status cannot contradict each other
+ok 75 - verified readiness and objective status cannot contradict each other
+  ---
+  duration_ms: 0.176783
+  type: 'test'
+  ...
+# Subtest: current matrix distinguishes targets from proven recovery
+ok 76 - current matrix distinguishes targets from proven recovery
+  ---
+  duration_ms: 1.286404
+  type: 'test'
+  ...
+# Subtest: tier zero services fail closed or preserve safe degraded operation
+ok 77 - tier zero services fail closed or preserve safe degraded operation
+  ---
+  duration_ms: 0.373033
+  type: 'test'
+  ...
+# Subtest: payment recovery does not grant entitlement without verified evidence
+ok 78 - payment recovery does not grant entitlement without verified evidence
+  ---
+  duration_ms: 0.234257
+  type: 'test'
+  ...
+# Subtest: routing response validation accepts only known agents and bounded confidence
+ok 79 - routing response validation accepts only known agents and bounded confidence
+  ---
+  duration_ms: 2.901575
+  type: 'test'
+  ...
+# Subtest: specialist response validation rejects invalid JSON/schema
+ok 80 - specialist response validation rejects invalid JSON/schema
+  ---
+  duration_ms: 0.441282
+  type: 'test'
+  ...
+# Subtest: provider timeout is bounded and does not retry non-retryable validation errors
+ok 81 - provider timeout is bounded and does not retry non-retryable validation errors
+  ---
+  duration_ms: 10.601847
+  type: 'test'
+  ...
+# Subtest: escalation creation is idempotent when an active incident already exists
+ok 82 - escalation creation is idempotent when an active incident already exists
+  ---
+  duration_ms: 1.392065
+  type: 'test'
+  ...
+# Subtest: no false-positive escalation when conversation status persistence fails
+ok 83 - no false-positive escalation when conversation status persistence fails
+  ---
+  duration_ms: 0.318595
+  type: 'test'
+  ...
+# Subtest: resolved escalation reopens conversation only when no active escalation remains
+ok 84 - resolved escalation reopens conversation only when no active escalation remains
+  ---
+  duration_ms: 0.217646
+  type: 'test'
+  ...
+# Subtest: resolution lifecycle update preserves manual pause semantics
+ok 85 - resolution lifecycle update preserves manual pause semantics
+  ---
+  duration_ms: 0.968488
+  type: 'test'
+  ...
+# Subtest: active escalation status forces conversation to escalated without touching manual pause
+ok 86 - active escalation status forces conversation to escalated without touching manual pause
+  ---
+  duration_ms: 0.298831
+  type: 'test'
+  ...
+# Subtest: failed active escalation write repairs conversation and cannot leave active escalation with open conversation
+ok 87 - failed active escalation write repairs conversation and cannot leave active escalation with open conversation
+  ---
+  duration_ms: 0.877705
+  type: 'test'
+  ...
+# Subtest: release fingerprint exposes only bounded operational metadata
+ok 88 - release fingerprint exposes only bounded operational metadata
+  ---
+  duration_ms: 2.51561
+  type: 'test'
+  ...
+# Subtest: release fingerprint falls back safely when provider metadata is absent
+ok 89 - release fingerprint falls back safely when provider metadata is absent
+  ---
+  duration_ms: 0.242933
+  type: 'test'
+  ...
+# Subtest: runtime sensor classifies provider timeout without leaking sensitive context
+ok 90 - runtime sensor classifies provider timeout without leaking sensitive context
+  ---
+  duration_ms: 4.192139
+  type: 'test'
+  ...
+# Subtest: runtime sensor emits one structured incident record
+ok 91 - runtime sensor emits one structured incident record
+  ---
+  duration_ms: 0.7068
+  type: 'test'
+  ...
+# Subtest: robots header blocks previews without overriding route metadata in production
+ok 92 - robots header blocks previews without overriding route metadata in production
+  ---
+  duration_ms: 2.416363
+  type: 'test'
+  ...
+# Subtest: trust event constructs a provider-independent event envelope
+ok 93 - trust event constructs a provider-independent event envelope
+  ---
+  duration_ms: 2.100553
+  type: 'test'
+  ...
+# Subtest: hashRef is deterministic and does not expose raw identifiers
+ok 94 - hashRef is deterministic and does not expose raw identifiers
+  ---
+  duration_ms: 0.228471
+  type: 'test'
+  ...
+# Subtest: trust event rejects unknown domains and execution context values
+ok 95 - trust event rejects unknown domains and execution context values
+  ---
+  duration_ms: 0.630589
+  type: 'test'
+  ...
+# Subtest: trust event redacts credentials, PII and raw clinical text recursively
+ok 96 - trust event redacts credentials, PII and raw clinical text recursively
+  ---
+  duration_ms: 1.196353
+  type: 'test'
+  ...
+# Subtest: adapter uses one bounded authenticated GET and projects only opaque evidence
+ok 97 - adapter uses one bounded authenticated GET and projects only opaque evidence
+  ---
+  duration_ms: 6.833689
+  type: 'test'
+  ...
+# Subtest: normalized records verify only the NeuraOps production redeploy drill projection
+ok 98 - normalized records verify only the NeuraOps production redeploy drill projection
+  ---
+  duration_ms: 2.939456
+  type: 'test'
+  ...
+# Subtest: official project, production target, authoritative repository, main, and exact SHA fail closed
+ok 99 - official project, production target, authoritative repository, main, and exact SHA fail closed
+  ---
+  duration_ms: 4.013314
+  type: 'test'
+  ...
+# Subtest: non-ready and contradictory deployment timestamps cannot become recovery evidence
+ok 100 - non-ready and contradictory deployment timestamps cannot become recovery evidence
+  ---
+  duration_ms: 1.302745
+  type: 'test'
+  ...
+# Subtest: exercise approval window must enclose provider timestamps and cannot be future or unbounded
+ok 101 - exercise approval window must enclose provider timestamps and cannot be future or unbounded
+  ---
+  duration_ms: 1.162329
+  type: 'test'
+  ...
+# Subtest: policy cannot choose another product, environment, project, provider, or raw payload field
+ok 102 - policy cannot choose another product, environment, project, provider, or raw payload field
+  ---
+  duration_ms: 0.466959
+  type: 'test'
+  ...
+# Subtest: provider errors, invalid JSON, and oversized responses expose generic failure only
+ok 103 - provider errors, invalid JSON, and oversized responses expose generic failure only
+  ---
+  duration_ms: 1.230682
+  type: 'test'
+  ...
+# Subtest: adapter contract is default-off, stateless, and contains no mutation or clinical integration path
+ok 104 - adapter contract is default-off, stateless, and contains no mutation or clinical integration path
+  ---
+  duration_ms: 0.677505
+  type: 'test'
+  ...
+1..104
+# tests 104
+# suites 0
+# pass 104
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 459.917783

@@ -1,0 +1,133 @@
+{
+  "started_utc": "2026-10-08T00:29:38.775651+00:00",
+  "status": "NATIVE_PREPARATORY_PASS_GOVERNANCE_OPEN",
+  "checks": [
+    {
+      "test": "six original identities preserved",
+      "status": "PASS"
+    },
+    {
+      "test": "six original policies preserved",
+      "status": "PASS"
+    },
+    {
+      "test": "seed replay changes nothing",
+      "status": "PASS"
+    },
+    {
+      "test": "engineering inactive",
+      "status": "PASS"
+    },
+    {
+      "test": "proposal cannot activate",
+      "status": "PASS"
+    },
+    {
+      "test": "anon cannot write agent_function_assignments",
+      "status": "PASS"
+    },
+    {
+      "test": "anon cannot write agent_authority_profile_versions",
+      "status": "PASS"
+    },
+    {
+      "test": "anon cannot write task_approvals",
+      "status": "PASS"
+    },
+    {
+      "test": "anon cannot write operating_controls",
+      "status": "PASS"
+    },
+    {
+      "test": "authenticated cannot write agent_function_assignments",
+      "status": "PASS"
+    },
+    {
+      "test": "authenticated cannot write agent_authority_profile_versions",
+      "status": "PASS"
+    },
+    {
+      "test": "authenticated cannot write task_approvals",
+      "status": "PASS"
+    },
+    {
+      "test": "authenticated cannot write operating_controls",
+      "status": "PASS"
+    },
+    {
+      "test": "service_role cannot write agent_function_assignments",
+      "status": "PASS"
+    },
+    {
+      "test": "service_role cannot write agent_authority_profile_versions",
+      "status": "PASS"
+    },
+    {
+      "test": "service_role cannot write task_approvals",
+      "status": "PASS"
+    },
+    {
+      "test": "service_role cannot write operating_controls",
+      "status": "PASS"
+    },
+    {
+      "test": "history is immutable",
+      "status": "PASS"
+    },
+    {
+      "test": "policy cannot silently widen",
+      "status": "PASS"
+    },
+    {
+      "test": "service gateway denies unactivated work",
+      "status": "PASS"
+    },
+    {
+      "test": "concurrent commit rejects conflicting version",
+      "status": "PASS"
+    },
+    {
+      "test": "concurrent rollback releases reservation",
+      "status": "PASS"
+    },
+    {
+      "test": "all three operating controls disabled",
+      "status": "PASS"
+    }
+  ],
+  "native": true,
+  "synthetic_only": true,
+  "hosted_access": false,
+  "cleanup": true,
+  "server_version": "18.6 (Ubuntu 18.6-0ubuntu0.26.04.1)",
+  "os": "Linux 6.18.49 x86_64",
+  "sha256": {
+    "tests/fixtures/company-os/baseline.sql": "1038d290572a03f441c6426f97ef0fb77d260f63054082ed808321e7305d0911",
+    "tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql": "dd5b52b0388f8992bba2a281256804a98722062af1f99cbd119262c34339cc1e",
+    "tests/fixtures/company-os/source/20261006133909_ccp_01a_explicit_deny_and_immutable_approvals.sql": "4779a6a69dfb8e61df274f49dcf91154b7bfe18f04308b0aa1b592479472fd79",
+    "tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql": "88666a76722851b08ee282a6d92c2f4dfa141cd0e49e9481a005fc0f95e32f9d",
+    "tests/fixtures/company-os/source/20261006160954_cos_01b_execution_gateway_foundation.sql": "67a797e30dfde77d6238f91f531e15ace6417438c2bef7d36b58134516477650",
+    "tests/fixtures/company-os/source/20261006161020_cos_01b_execution_gateway_preflight_qualify.sql": "db9d667ec1bdcc318103a53f0cb18b0db9357d8762594ad44e7c2c2baf67474f",
+    "tests/fixtures/company-os/source/20261006161356_cos_01c_narrow_gateway_rpc.sql": "1926f57ad5d1e3199c7e09bb90cb10c78ebc9d0e0d3e0ef1d8defe26303cbedc",
+    "tests/fixtures/company-os/source/20261006161604_cos_01c_model_adapter_contract.sql": "4d939bf565cc55cb413d42a493c403ba2770de1e3344645ee9669bbc1972f350",
+    "supabase/candidates/company-agent-authority.sql": "edf5ac11ab34ebe4a43adc7b188b70dff5c38fe6462c379cb260d2966c53b5c4"
+  },
+  "races": [
+    {
+      "function": "RESEARCH",
+      "independent_sessions": true,
+      "blocking_observed": true,
+      "a": "COMMIT",
+      "b": "23505_CONFLICT"
+    },
+    {
+      "function": "GROWTH",
+      "independent_sessions": true,
+      "blocking_observed": true,
+      "a": "ROLLBACK",
+      "b": "COMMITTED"
+    }
+  ],
+  "finished_utc": "2026-10-08T00:29:39.898087+00:00",
+  "log_sha256": "01b834555dff915b4b6c8d24504c1c8114d240258df980d0c2f914a00ba72008"
+}

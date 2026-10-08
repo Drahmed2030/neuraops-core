@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { requireOperationsAccess } from '@/lib/auth/require-operations-access'
 import { supabaseAdmin } from '@/lib/supabase/admin'
@@ -38,6 +39,7 @@ export default async function CompanyControlPage() {
         <div className="rounded-xl border border-white/10 bg-white/[.04] px-4 py-3 text-xs text-slate-400">Generated {new Date(s.generated_at).toLocaleString()}</div>
       </header>
 
+      <Link href="/dashboard/control/requests" className="mb-6 inline-block rounded-lg border border-cyan-300/30 px-4 py-3 text-sm text-cyan-200">Task requests and review</Link>
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           ['Agents',String(s.agents.length),'registered'],

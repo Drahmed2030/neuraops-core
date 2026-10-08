@@ -1,0 +1,66 @@
+✖ a proposed assignment never authorizes execution (2225.056829ms)
+✔ inactive engineering is denied (4.912606ms)
+✖ caller role claims and unverified approval records do not activate execution (4.28712ms)
+✖ internal authority checker also returns explicit deny for absent task (2.336075ms)
+✔ model kill switch is preserved (4.85619ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2409.647735
+
+✖ failing tests:
+
+test at tests/company-os-gateway.pgtest.mjs:11:1
+✖ a proposed assignment never authorizes execution (2225.056829ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-gateway.pgtest.mjs:12:9)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/company-os-gateway.pgtest.mjs:17:1
+✖ caller role claims and unverified approval records do not activate execution (4.28712ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-gateway.pgtest.mjs:20:9)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/company-os-gateway.pgtest.mjs:24:1
+✖ internal authority checker also returns explicit deny for absent task (2.336075ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-gateway.pgtest.mjs:26:9)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

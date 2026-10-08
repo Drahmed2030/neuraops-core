@@ -1,0 +1,42 @@
+{
+  "scope": "source recovery only; not executed or deployed",
+  "base": "196fc80ef821fab0473b769b54c731bd06822d82",
+  "files": [
+    {
+      "path": "source/20261006133837_ccp_01a_control_plane_security_foundation.sql",
+      "sha256": "dd5b52b0388f8992bba2a281256804a98722062af1f99cbd119262c34339cc1e"
+    },
+    {
+      "path": "source/20261006133909_ccp_01a_explicit_deny_and_immutable_approvals.sql",
+      "sha256": "4779a6a69dfb8e61df274f49dcf91154b7bfe18f04308b0aa1b592479472fd79"
+    },
+    {
+      "path": "source/20261006160439_cos_01a_operating_kernel.sql",
+      "sha256": "88666a76722851b08ee282a6d92c2f4dfa141cd0e49e9481a005fc0f95e32f9d"
+    },
+    {
+      "path": "source/20261006160954_cos_01b_execution_gateway_foundation.sql",
+      "sha256": "67a797e30dfde77d6238f91f531e15ace6417438c2bef7d36b58134516477650"
+    },
+    {
+      "path": "source/20261006161020_cos_01b_execution_gateway_preflight_qualify.sql",
+      "sha256": "db9d667ec1bdcc318103a53f0cb18b0db9357d8762594ad44e7c2c2baf67474f"
+    },
+    {
+      "path": "source/20261006161356_cos_01c_narrow_gateway_rpc.sql",
+      "sha256": "1926f57ad5d1e3199c7e09bb90cb10c78ebc9d0e0d3e0ef1d8defe26303cbedc"
+    },
+    {
+      "path": "source/20261006161604_cos_01c_model_adapter_contract.sql",
+      "sha256": "4d939bf565cc55cb413d42a493c403ba2770de1e3344645ee9669bbc1972f350"
+    },
+    {
+      "path": "catalog-baseline.json",
+      "sha256": "c187bc9568b6c061826b654bbeffbe36f8cb54b1953709e30f8124b59d52c9cc"
+    },
+    {
+      "path": "identity-map.json",
+      "sha256": "6a5b1226dcf51e03c7a1141b9b296234fea26b91a4a126649584efc2e9473ba9"
+    }
+  ]
+}

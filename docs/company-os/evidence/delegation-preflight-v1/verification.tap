@@ -1,0 +1,166 @@
+TAP version 13
+# Subtest: gateway normalization denies empty
+ok 1 - gateway normalization denies empty
+  ---
+  duration_ms: 0.919106
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies null
+ok 2 - gateway normalization denies null
+  ---
+  duration_ms: 3.930698
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies multiple
+ok 3 - gateway normalization denies multiple
+  ---
+  duration_ms: 0.1086
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies missing-fields
+ok 4 - gateway normalization denies missing-fields
+  ---
+  duration_ms: 0.083914
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies string-boolean
+ok 5 - gateway normalization denies string-boolean
+  ---
+  duration_ms: 0.342735
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies contradictory-reason
+ok 6 - gateway normalization denies contradictory-reason
+  ---
+  duration_ms: 0.077354
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies approval-required
+ok 7 - gateway normalization denies approval-required
+  ---
+  duration_ms: 0.085386
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-uuid
+ok 8 - gateway normalization denies invalid-uuid
+  ---
+  duration_ms: 0.244721
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-risk
+ok 9 - gateway normalization denies invalid-risk
+  ---
+  duration_ms: 0.193285
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-budget
+ok 10 - gateway normalization denies invalid-budget
+  ---
+  duration_ms: 0.140027
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies forged-role
+ok 11 - gateway normalization denies forged-role
+  ---
+  duration_ms: 0.10138
+  type: 'test'
+  ...
+# Subtest: normalization preserves an explicit database denial
+ok 12 - normalization preserves an explicit database denial
+  ---
+  duration_ms: 0.649207
+  type: 'test'
+  ...
+# Subtest: one complete server result can retain its allow
+ok 13 - one complete server result can retain its allow
+  ---
+  duration_ms: 0.099076
+  type: 'test'
+  ...
+# Subtest: a proposed assignment never authorizes execution
+ok 14 - a proposed assignment never authorizes execution
+  ---
+  duration_ms: 1665.131758
+  type: 'test'
+  ...
+# Subtest: inactive engineering is denied
+ok 15 - inactive engineering is denied
+  ---
+  duration_ms: 3.276153
+  type: 'test'
+  ...
+# Subtest: caller role claims and unverified approval records do not activate execution
+ok 16 - caller role claims and unverified approval records do not activate execution
+  ---
+  duration_ms: 5.818322
+  type: 'test'
+  ...
+# Subtest: internal authority checker also returns explicit deny for absent task
+ok 17 - internal authority checker also returns explicit deny for absent task
+  ---
+  duration_ms: 1.061987
+  type: 'test'
+  ...
+# Subtest: model kill switch is preserved
+ok 18 - model kill switch is preserved
+  ---
+  duration_ms: 2.823004
+  type: 'test'
+  ...
+# Subtest: a ready task without a sealed envelope cannot reach assignment evaluation
+ok 19 - a ready task without a sealed envelope cannot reach assignment evaluation
+  ---
+  duration_ms: 2.284049
+  type: 'test'
+  ...
+# Subtest: an envelope cannot select an unrecorded policy version
+ok 20 - an envelope cannot select an unrecorded policy version
+  ---
+  duration_ms: 5.960242
+  type: 'test'
+  ...
+# Subtest: task drift cannot reuse an envelope for another scope or agent
+ok 21 - task drift cannot reuse an envelope for another scope or agent
+  ---
+  duration_ms: 28.667805
+  type: 'test'
+  ...
+# Subtest: matching version numbers cannot hide missing or divergent policy history
+ok 22 - matching version numbers cannot hide missing or divergent policy history
+  ---
+  duration_ms: 11.018933
+  type: 'test'
+  ...
+# Subtest: matching envelope and policy do not activate proposed assignments
+ok 23 - matching envelope and policy do not activate proposed assignments
+  ---
+  duration_ms: 3.952921
+  type: 'test'
+  ...
+# Subtest: delegation cannot enlarge budget, expiry, data scope, risk or destination
+ok 24 - delegation cannot enlarge budget, expiry, data scope, risk or destination
+  ---
+  duration_ms: 91.82613
+  type: 'test'
+  ...
+# Subtest: delegation requires a stored parent envelope and rejects cycles or nested delegation
+ok 25 - delegation requires a stored parent envelope and rejects cycles or nested delegation
+  ---
+  duration_ms: 15.808637
+  type: 'test'
+  ...
+# Subtest: a matching child cannot execute through an unauthorized parent
+ok 26 - a matching child cannot execute through an unauthorized parent
+  ---
+  duration_ms: 6.50807
+  type: 'test'
+  ...
+1..26
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1946.302884

@@ -1,0 +1,287 @@
+The files belonging to this database system will be owned by user "ubuntu".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "C".
+The default text search configuration will be set to "english".
+
+Data page checksums are disabled.
+
+creating directory /tmp/company-os-native-1jbeevdw/data ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default "max_connections" ... 100
+selecting default "shared_buffers" ... 128MB
+selecting default time zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+syncing data to disk ... ok
+
+Success. You can now start the database server using:
+
+    /usr/lib/postgresql/17/bin/pg_ctl -D /tmp/company-os-native-1jbeevdw/data -l logfile start
+
+waiting for server to start.... done
+server started
+17.11 (Ubuntu 17.11-1.pgdg26.04+2)
+Linux 6.18.49 x86_64
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "risk_level" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "action_class" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "data_class" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "external_action_allowed" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "correlation_id" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "idempotency_key" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "expires_at" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "model_route" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "budget_limit_usd" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "approved_at" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "approved_by_reference" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:21: NOTICE:  column "approval_reason" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql:139: NOTICE:  trigger "agent_task_events_no_update" for relation "neuraops_company.agent_task_events" does not exist, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006133909_ccp_01a_explicit_deny_and_immutable_approvals.sql:13: NOTICE:  trigger "task_approvals_no_update" for relation "neuraops_company.task_approvals" does not exist, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:9: NOTICE:  column "lifecycle_state" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:9: NOTICE:  column "parent_task_id" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:9: NOTICE:  column "requested_by_reference" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:9: NOTICE:  column "qa_required" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:9: NOTICE:  column "qa_state" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:9: NOTICE:  column "execution_mode" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:9: NOTICE:  column "completed_at" of relation "agent_tasks" already exists, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:89: NOTICE:  trigger "execution_envelopes_no_update" for relation "neuraops_company.execution_envelopes" does not exist, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:94: NOTICE:  trigger "qa_reviews_no_update" for relation "neuraops_company.qa_reviews" does not exist, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql:99: NOTICE:  trigger "model_usage_events_no_update" for relation "neuraops_company.model_usage_events" does not exist, skipping
+psql:/home/ubuntu/company-os/tests/fixtures/company-os/source/20261006161604_cos_01c_model_adapter_contract.sql:48: NOTICE:  trigger "model_execution_receipts_no_update" for relation "neuraops_company.model_execution_receipts" does not exist, skipping
+[{"id":"2c9aa5a2-ded7-4ffd-b528-3f27f28cb386","agent_name":"Neura-CMO","role":"Chief Marketing Officer","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.298834+00:00","metadata":{}}, 
+ {"id":"3684f69f-ec37-4799-810c-4f0863ae021f","agent_name":"Neura-QA","role":"Quality & Security Officer","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.299139+00:00","metadata":{}}, 
+ {"id":"797903d3-3192-4c81-9a24-aff7b30e808b","agent_name":"MedPulse-Scout","role":"Medical Trend Scout","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.29926+00:00","metadata":{}}, 
+ {"id":"9e7ee046-a6c5-4cfe-babb-1231159a49cc","agent_name":"MedPulse-Creator","role":"Clinical Content Creator","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.299351+00:00","metadata":{}}, 
+ {"id":"9f02e200-50c5-4a6f-9aba-6c67e04db549","agent_name":"MedPulse-Sales","role":"Lead Gen & Sales Agent","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.299437+00:00","metadata":{}}, 
+ {"id":"dce3a297-b28c-45b5-96d5-da4a8dc195aa","agent_name":"Neura-PM","role":"Product Manager","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.299518+00:00","metadata":{}}]
+[{"agent_id":"2c9aa5a2-ded7-4ffd-b528-3f27f28cb386","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","INTERNAL_CREATE"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"3684f69f-ec37-4799-810c-4f0863ae021f","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","REVIEW","ASSURANCE"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"797903d3-3192-4c81-9a24-aff7b30e808b","policy_version":1,"max_autonomous_risk":0,"allowed_action_classes":["RESEARCH"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"9e7ee046-a6c5-4cfe-babb-1231159a49cc","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","INTERNAL_CREATE"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"9f02e200-50c5-4a6f-9aba-6c67e04db549","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","INTERNAL_CREATE"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"dce3a297-b28c-45b5-96d5-da4a8dc195aa","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","INTERNAL_CREATE","ORCHESTRATE","REVIEW"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}]
+psql:/home/ubuntu/company-os/supabase/candidates/company-agent-authority.sql:54: NOTICE:  trigger "company_assignment_successor" for relation "neuraops_company.agent_function_assignments" does not exist, skipping
+psql:/home/ubuntu/company-os/supabase/candidates/company-agent-authority.sql:57: NOTICE:  trigger "company_assignment_immutable" for relation "neuraops_company.agent_function_assignments" does not exist, skipping
+psql:/home/ubuntu/company-os/supabase/candidates/company-agent-authority.sql:60: NOTICE:  trigger "company_policy_history_immutable" for relation "neuraops_company.agent_authority_profile_versions" does not exist, skipping
+psql:/home/ubuntu/company-os/supabase/candidates/company-agent-authority.sql:73: NOTICE:  trigger "company_policy_approval_gate" for relation "neuraops_company.agent_authority_profiles" does not exist, skipping
+[{"id":"2c9aa5a2-ded7-4ffd-b528-3f27f28cb386","agent_name":"Neura-CMO","role":"Chief Marketing Officer","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.298834+00:00","metadata":{}}, 
+ {"id":"3684f69f-ec37-4799-810c-4f0863ae021f","agent_name":"Neura-QA","role":"Quality & Security Officer","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.299139+00:00","metadata":{}}, 
+ {"id":"797903d3-3192-4c81-9a24-aff7b30e808b","agent_name":"MedPulse-Scout","role":"Medical Trend Scout","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.29926+00:00","metadata":{}}, 
+ {"id":"9e7ee046-a6c5-4cfe-babb-1231159a49cc","agent_name":"MedPulse-Creator","role":"Clinical Content Creator","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.299351+00:00","metadata":{}}, 
+ {"id":"9f02e200-50c5-4a6f-9aba-6c67e04db549","agent_name":"MedPulse-Sales","role":"Lead Gen & Sales Agent","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.299437+00:00","metadata":{}}, 
+ {"id":"dce3a297-b28c-45b5-96d5-da4a8dc195aa","agent_name":"Neura-PM","role":"Product Manager","system_prompt":"SYNTHETIC_TEST_PROMPT","status":"ACTIVE","created_at":"2026-10-08T07:06:47.299518+00:00","metadata":{}}]
+PASS six original identities preserved
+[{"agent_id":"2c9aa5a2-ded7-4ffd-b528-3f27f28cb386","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","INTERNAL_CREATE"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"3684f69f-ec37-4799-810c-4f0863ae021f","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","REVIEW","ASSURANCE"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"797903d3-3192-4c81-9a24-aff7b30e808b","policy_version":1,"max_autonomous_risk":0,"allowed_action_classes":["RESEARCH"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"9e7ee046-a6c5-4cfe-babb-1231159a49cc","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","INTERNAL_CREATE"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"9f02e200-50c5-4a6f-9aba-6c67e04db549","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","INTERNAL_CREATE"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}, 
+ {"agent_id":"dce3a297-b28c-45b5-96d5-da4a8dc195aa","policy_version":1,"max_autonomous_risk":1,"allowed_action_classes":["RESEARCH","INTERNAL_CREATE","ORCHESTRATE","REVIEW"],"external_actions_allowed":false,"financial_actions_allowed":false,"legal_commitments_allowed":false,"production_actions_allowed":false,"security_mutations_allowed":false,"database_mutations_allowed":false,"active":true,"created_at":"2026-10-08T07:06:47.311174+00:00","updated_at":"2026-10-08T07:06:47.311174+00:00"}]
+PASS six original policies preserved
+[{"assignment_id":"2b2af900-762f-48bf-98fa-6f29f981ba7e","agent_id":"2c9aa5a2-ded7-4ffd-b528-3f27f28cb386","function_key":"MEDIA","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"ecb67172-1a82-4c8d-ab70-d147ffd3e25d","agent_id":"3684f69f-ec37-4799-810c-4f0863ae021f","function_key":"ASSURANCE","assignment_kind":"ASSURANCE","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"826b0551-a8d8-415d-ba62-aed28d53d8de","agent_id":"797903d3-3192-4c81-9a24-aff7b30e808b","function_key":"RESEARCH","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"ed272a5e-73f4-4237-909f-b97f22f096ef","agent_id":"9e7ee046-a6c5-4cfe-babb-1231159a49cc","function_key":"MEDIA","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"501b96b4-acf9-47c5-b072-937a2f9487e3","agent_id":"9f02e200-50c5-4a6f-9aba-6c67e04db549","function_key":"GROWTH","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"28cfeefc-9d2f-4e44-8252-cf19441bd769","agent_id":"dce3a297-b28c-45b5-96d5-da4a8dc195aa","function_key":"OPERATIONS","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"3673de69-11ed-45e1-b4bf-e0b50433f7d8","agent_id":"f44919ab-3f1a-430e-90f9-c569d8c1bb01","function_key":"ENGINEERING","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}]
+psql:/home/ubuntu/company-os/supabase/candidates/company-agent-authority.sql:23: NOTICE:  relation "agent_function_assignments" already exists, skipping
+psql:/home/ubuntu/company-os/supabase/candidates/company-agent-authority.sql:33: NOTICE:  relation "agent_authority_profile_versions" already exists, skipping
+[{"assignment_id":"2b2af900-762f-48bf-98fa-6f29f981ba7e","agent_id":"2c9aa5a2-ded7-4ffd-b528-3f27f28cb386","function_key":"MEDIA","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"ecb67172-1a82-4c8d-ab70-d147ffd3e25d","agent_id":"3684f69f-ec37-4799-810c-4f0863ae021f","function_key":"ASSURANCE","assignment_kind":"ASSURANCE","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"826b0551-a8d8-415d-ba62-aed28d53d8de","agent_id":"797903d3-3192-4c81-9a24-aff7b30e808b","function_key":"RESEARCH","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"ed272a5e-73f4-4237-909f-b97f22f096ef","agent_id":"9e7ee046-a6c5-4cfe-babb-1231159a49cc","function_key":"MEDIA","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"501b96b4-acf9-47c5-b072-937a2f9487e3","agent_id":"9f02e200-50c5-4a6f-9aba-6c67e04db549","function_key":"GROWTH","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"28cfeefc-9d2f-4e44-8252-cf19441bd769","agent_id":"dce3a297-b28c-45b5-96d5-da4a8dc195aa","function_key":"OPERATIONS","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}, 
+ {"assignment_id":"3673de69-11ed-45e1-b4bf-e0b50433f7d8","agent_id":"f44919ab-3f1a-430e-90f9-c569d8c1bb01","function_key":"ENGINEERING","assignment_kind":"BUSINESS","assignment_version":1,"state":"PROPOSED","effective_from":"2026-10-08T07:06:47.412617+00:00","effective_until":null,"approval_reference":null,"supersedes_id":null,"created_at":"2026-10-08T07:06:47.412617+00:00"}]
+PASS seed replay changes nothing
+false:0
+PASS engineering inactive
+ERROR:  P0001: company_operating_evidence_immutable
+CONTEXT:  PL/pgSQL function neuraops_company.prevent_operating_evidence_mutation() line 1 at RAISE
+LOCATION:  exec_stmt_raise, pl_exec.c:3897
+PASS proposal cannot activate
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role anon; delete from neuraops_company.agent_function_a...
+                                   ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS anon cannot write agent_function_assignments
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role anon; delete from neuraops_company.agent_authority_...
+                                   ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS anon cannot write agent_authority_profile_versions
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role anon; delete from neuraops_company.task_approvals
+                                   ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS anon cannot write task_approvals
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role anon; delete from neuraops_company.operating_contro...
+                                   ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS anon cannot write operating_controls
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role authenticated; delete from neuraops_company.agent_f...
+                                            ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS authenticated cannot write agent_function_assignments
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role authenticated; delete from neuraops_company.agent_a...
+                                            ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS authenticated cannot write agent_authority_profile_versions
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role authenticated; delete from neuraops_company.task_ap...
+                                            ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS authenticated cannot write task_approvals
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role authenticated; delete from neuraops_company.operati...
+                                            ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS authenticated cannot write operating_controls
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role service_role; delete from neuraops_company.agent_fu...
+                                           ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS service_role cannot write agent_function_assignments
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role service_role; delete from neuraops_company.agent_au...
+                                           ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS service_role cannot write agent_authority_profile_versions
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role service_role; delete from neuraops_company.task_app...
+                                           ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS service_role cannot write task_approvals
+ERROR:  42501: permission denied for schema neuraops_company
+LINE 1: set role service_role; delete from neuraops_company.operatin...
+                                           ^
+LOCATION:  aclcheck_error, aclchk.c:2843
+PASS service_role cannot write operating_controls
+ERROR:  P0001: company_operating_evidence_immutable
+CONTEXT:  PL/pgSQL function neuraops_company.prevent_operating_evidence_mutation() line 1 at RAISE
+LOCATION:  exec_stmt_raise, pl_exec.c:3897
+PASS history is immutable
+ERROR:  P0001: company_policy_approval_activation_disabled
+CONTEXT:  PL/pgSQL function neuraops_company.freeze_unapproved_policy_change() line 5 at RAISE
+LOCATION:  exec_stmt_raise, pl_exec.c:3897
+PASS policy cannot silently widen
+b21cb9a8-a4f5-4cd4-9154-1d904bb1bcd9
+false:ASSIGNMENT_ACTIVATION_DISABLED
+PASS service gateway denies unactivated work
+t
+ERROR:  23505: assignment_version_conflict
+CONTEXT:  PL/pgSQL function neuraops_company.require_assignment_successor() line 10 at RAISE
+LOCATION:  exec_stmt_raise, pl_exec.c:3897
+1
+PASS concurrent commit rejects conflicting version
+t
+1
+PASS concurrent rollback releases reservation
+bdedd7c2-3764-4e0e-9e9e-3245941d0da8
+6fa01410-6621-42f7-96c5-7cb4ca557104
+0c4e1ef327144ed202a3ce8237c55aac98ba7949e81dca4a9c203da1c0922580
+b19896f6e550e6038565ec0236f772c38c31017de6ad2506de07ce88adcdb188
+2026-10-08
+f
+t
+ERROR:  BUDGET_LIMIT
+CONTEXT:  PL/pgSQL function public.company_record_task_approval(uuid,text,text,uuid) line 30 at RAISE
+1.0000
+0
+PASS concurrent budget reservation cannot exceed daily cap
+6dffa540-4de1-4d35-8ac9-5f43684e3bad
+2026-10-08
+717906e73545cbec8953649c0de2bd47a4bf347aedf1ab46005d14244a81bce4
+f
+t
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+f
+t
+ERROR:  TASK_NOT_APPROVABLE
+CONTEXT:  PL/pgSQL function neuraops_company.approval_expiry_at(timestamp with time zone,timestamp with time zone,date) line 4 at RAISE
+PL/pgSQL function public.company_record_task_approval(uuid,text,text,uuid) line 32 at assignment
+0
+0.0000
+PASS expiration while blocked rolls back approval and budget
+ERROR:  P0001: BUDGET_DAY_CHANGED
+CONTEXT:  PL/pgSQL function neuraops_company.approval_expiry_at(timestamp with time zone,timestamp with time zone,date) line 3 at RAISE
+LOCATION:  exec_stmt_raise, pl_exec.c:3897
+PASS UTC midnight rollover rejected
+f
+t
+{"status": "WAITING_APPROVAL", "task_id": "85e70562-68ca-4d00-a46e-a8b50bd70deb", "execution_authorized": false}
+1
+1
+ERROR:  P0001: REQUEST_CONFLICT
+CONTEXT:  PL/pgSQL function public.company_create_task_request(uuid,text,text,integer,text,uuid) line 16 at RAISE
+LOCATION:  exec_stmt_raise, pl_exec.c:3897
+62a83ba2c8618f99109da479899120714c5ab4c5efff449d174cc4192604532b
+ERROR:  P0001: SELF_APPROVAL
+CONTEXT:  PL/pgSQL function public.company_record_task_approval(uuid,text,text,uuid) line 18 at RAISE
+LOCATION:  exec_stmt_raise, pl_exec.c:3897
+{"status": "RECORDED_NOT_EXECUTED", "expires_at": "2026-10-08T07:21:49.94179+00:00", "approval_id": "029914e1-afd2-48ba-ac38-389107540a7c", "reserved_usd": 0.0000}
+WAITING_APPROVAL:NONE
+PASS concurrent human request replay preserves one task and requires independent approval
+0
+PASS all three operating controls disabled
+waiting for server to shut down.... done
+server stopped

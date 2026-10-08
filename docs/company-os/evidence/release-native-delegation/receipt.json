@@ -1,0 +1,58 @@
+{
+  "started_utc": "2026-10-08T09:38:43.007955+00:00",
+  "status": "NATIVE_RECORDING_PASS_ACTIVATION_OPEN",
+  "checks": [
+    {
+      "test": "committed sibling blocks parent-budget overreservation",
+      "status": "PASS"
+    },
+    {
+      "test": "rolled back sibling releases parent reservation",
+      "status": "PASS"
+    },
+    {
+      "test": "all controls remain disabled",
+      "status": "PASS"
+    }
+  ],
+  "native": true,
+  "synthetic_only": true,
+  "hosted_access": false,
+  "cleanup": true,
+  "server_version": "17.11 (Ubuntu 17.11-1.pgdg26.04+2)",
+  "os": "Linux 6.18.49 x86_64",
+  "sha256": {
+    "tests/fixtures/company-os/baseline.sql": "1038d290572a03f441c6426f97ef0fb77d260f63054082ed808321e7305d0911",
+    "tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql": "dd5b52b0388f8992bba2a281256804a98722062af1f99cbd119262c34339cc1e",
+    "tests/fixtures/company-os/source/20261006133909_ccp_01a_explicit_deny_and_immutable_approvals.sql": "4779a6a69dfb8e61df274f49dcf91154b7bfe18f04308b0aa1b592479472fd79",
+    "tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql": "88666a76722851b08ee282a6d92c2f4dfa141cd0e49e9481a005fc0f95e32f9d",
+    "tests/fixtures/company-os/source/20261006160954_cos_01b_execution_gateway_foundation.sql": "67a797e30dfde77d6238f91f531e15ace6417438c2bef7d36b58134516477650",
+    "tests/fixtures/company-os/source/20261006161020_cos_01b_execution_gateway_preflight_qualify.sql": "db9d667ec1bdcc318103a53f0cb18b0db9357d8762594ad44e7c2c2baf67474f",
+    "tests/fixtures/company-os/source/20261006161356_cos_01c_narrow_gateway_rpc.sql": "1926f57ad5d1e3199c7e09bb90cb10c78ebc9d0e0d3e0ef1d8defe26303cbedc",
+    "tests/fixtures/company-os/source/20261006161604_cos_01c_model_adapter_contract.sql": "4d939bf565cc55cb413d42a493c403ba2770de1e3344645ee9669bbc1972f350",
+    "supabase/candidates/company-agent-authority.sql": "ab372ce0d94b7c09b5a48f9ea466f5779439fe30875c5cc5abadf6e74086c9d8",
+    "supabase/candidates/company-task-approvals.sql": "d8fa4339362657e512d6a1d77eee702fff8360f143325336409831664c6745f4",
+    "supabase/candidates/company-task-provenance.sql": "87255c3e3747c4b0528f219adecdf9911f040d58e3c00b75714e83ea15465b55",
+    "scripts/company-os-native-verification.py": "b6913530a77fe4cb9b415fe257a903f443513142f24e58c746ff900ea4ccb60b"
+  },
+  "delegation_races": [
+    {
+      "independent_sessions": true,
+      "blocking_observed": true,
+      "a": "COMMIT",
+      "b": "PARENT_BUDGET_LIMIT",
+      "reserved_usd": "0.0300",
+      "bindings": 1
+    },
+    {
+      "independent_sessions": true,
+      "blocking_observed": true,
+      "a": "ROLLBACK",
+      "b": "COMMITTED",
+      "reserved_usd": "0.0300",
+      "bindings": 1
+    }
+  ],
+  "finished_utc": "2026-10-08T09:38:44.442132+00:00",
+  "log_sha256": "36ce38c956e43c8e3f28e802a94c816a987243f26c4d4bb6b4a167b3a7f4d18f"
+}
