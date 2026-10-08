@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { analyticsAllowed } from '@/lib/auth/password-recovery';
 
 declare global {
   interface Window {
@@ -55,6 +56,7 @@ export default function MetaPixel() {
   const lastTrackedUrl = useRef<string | null>(null);
 
   useEffect(() => {
+    if (!analyticsAllowed(pathname, window.location.pathname)) return;
     const pixelId = getCleanPixelId();
 
     if (!pixelId) {
