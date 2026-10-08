@@ -79,3 +79,39 @@ test('password inputs clear before waiting for signout', async () => {
   await recovery.complete('Long-password-123', 'Long-password-123', () => calls.push('clear'))
   assert.deepEqual(calls.slice(-3), ['update', 'clear', 'signout'])
 })
+test('recovery CSP permits only same-origin scripts and exact Auth connections', async () => {
+  const { default: config } = await import('../next.config.js')
+  const previous = process.env.NEXT_PUBLIC_SUPABASE_URL
+  try {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://synthetic-project.supabase.co'
+    const rules = await config.headers()
+    const policy = rules.find(x => x.source === '/account/recovery').headers.find(x => x.key === 'Content-Security-Policy')?.value
+    assert.ok(policy, 'recovery requires an enforcing CSP')
+    const directives = Object.fromEntries(policy.split(';').map(x => x.trim().split(/\s+/)).map(([name, ...values]) => [name, values]))
+    assert.deepEqual(directives['script-src'], ["'self'", "'unsafe-inline'"])
+    assert.deepEqual(directives['connect-src'], ["'self'", 'https://synthetic-project.supabase.co'])
+    assert.equal(policy.includes('vercel.live'), false)
+    assert.deepEqual(directives['frame-ancestors'], ["'none'"])
+    assert.deepEqual(directives['base-uri'], ["'none'"])
+    assert.deepEqual(directives['form-action'], ["'self'"])
+    assert.equal(rules.find(x => x.source === '/:path*').headers.some(x => x.key === 'Content-Security-Policy'), false)
+  } finally {
+    if (previous === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL
+    else process.env.NEXT_PUBLIC_SUPABASE_URL = previous
+  }
+})
+test('recovery CSP fails closed for absent or unsafe Auth origin configuration', async () => {
+  const { default: config } = await import('../next.config.js')
+  const previous = process.env.NEXT_PUBLIC_SUPABASE_URL
+  try {
+    for (const value of ['', 'invalid', 'http://example.test', 'https://user:password@example.test', 'https://example.test/path', 'https://example.test?x=1', 'https://example.test/#token']) {
+      process.env.NEXT_PUBLIC_SUPABASE_URL = value
+      const policy = (await config.headers()).find(x => x.source === '/account/recovery').headers.find(x => x.key === 'Content-Security-Policy')?.value
+      assert.ok(policy)
+      assert.equal(policy.split(';').map(x => x.trim()).find(x => x.startsWith('connect-src')), "connect-src 'self'")
+    }
+  } finally {
+    if (previous === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL
+    else process.env.NEXT_PUBLIC_SUPABASE_URL = previous
+  }
+})
