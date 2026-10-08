@@ -1,0 +1,16 @@
+{
+  "reviewer": "provenance_review",
+  "mode": "independent read-only, no tests rerun",
+  "scope_base": "a12e4fdf10d7e1b48cea5bc68cfd93d3c54f1992",
+  "critical": 0,
+  "important": [
+    {
+      "issue": "React function-form action resets uncontrolled fields after a caught error; re-entry changes idempotency key and can duplicate a committed request",
+      "fix": "Explicit onSubmit handler prevents automatic reset and preserves the original payload/key",
+      "verification": "Real React+JSDOM lost-response scenario: RED empty textarea, GREEN fields retained and both requests byte-equivalent after JSON serialization"
+    }
+  ],
+  "other_important_findings": 0,
+  "hosted_release_approval": false,
+  "rereview": "Not performed; one fix pass with regression evidence"
+}

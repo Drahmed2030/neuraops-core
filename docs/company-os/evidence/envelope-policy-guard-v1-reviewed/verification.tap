@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: gateway normalization denies empty
+ok 1 - gateway normalization denies empty
+  ---
+  duration_ms: 1.690945
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies null
+ok 2 - gateway normalization denies null
+  ---
+  duration_ms: 4.146388
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies multiple
+ok 3 - gateway normalization denies multiple
+  ---
+  duration_ms: 0.170722
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies missing-fields
+ok 4 - gateway normalization denies missing-fields
+  ---
+  duration_ms: 0.080538
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies string-boolean
+ok 5 - gateway normalization denies string-boolean
+  ---
+  duration_ms: 0.18991
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies contradictory-reason
+ok 6 - gateway normalization denies contradictory-reason
+  ---
+  duration_ms: 0.086127
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies approval-required
+ok 7 - gateway normalization denies approval-required
+  ---
+  duration_ms: 0.085676
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-uuid
+ok 8 - gateway normalization denies invalid-uuid
+  ---
+  duration_ms: 0.33871
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-risk
+ok 9 - gateway normalization denies invalid-risk
+  ---
+  duration_ms: 0.178854
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-budget
+ok 10 - gateway normalization denies invalid-budget
+  ---
+  duration_ms: 0.177592
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies forged-role
+ok 11 - gateway normalization denies forged-role
+  ---
+  duration_ms: 0.0951
+  type: 'test'
+  ...
+# Subtest: normalization preserves an explicit database denial
+ok 12 - normalization preserves an explicit database denial
+  ---
+  duration_ms: 1.24007
+  type: 'test'
+  ...
+# Subtest: one complete server result can retain its allow
+ok 13 - one complete server result can retain its allow
+  ---
+  duration_ms: 0.125966
+  type: 'test'
+  ...
+# Subtest: a proposed assignment never authorizes execution
+ok 14 - a proposed assignment never authorizes execution
+  ---
+  duration_ms: 1708.887333
+  type: 'test'
+  ...
+# Subtest: inactive engineering is denied
+ok 15 - inactive engineering is denied
+  ---
+  duration_ms: 3.797803
+  type: 'test'
+  ...
+# Subtest: caller role claims and unverified approval records do not activate execution
+ok 16 - caller role claims and unverified approval records do not activate execution
+  ---
+  duration_ms: 7.912484
+  type: 'test'
+  ...
+# Subtest: internal authority checker also returns explicit deny for absent task
+ok 17 - internal authority checker also returns explicit deny for absent task
+  ---
+  duration_ms: 1.077419
+  type: 'test'
+  ...
+# Subtest: model kill switch is preserved
+ok 18 - model kill switch is preserved
+  ---
+  duration_ms: 3.324254
+  type: 'test'
+  ...
+# Subtest: a ready task without a sealed envelope cannot reach assignment evaluation
+ok 19 - a ready task without a sealed envelope cannot reach assignment evaluation
+  ---
+  duration_ms: 2.741995
+  type: 'test'
+  ...
+# Subtest: an envelope cannot select an unrecorded policy version
+ok 20 - an envelope cannot select an unrecorded policy version
+  ---
+  duration_ms: 6.357579
+  type: 'test'
+  ...
+# Subtest: task drift cannot reuse an envelope for another scope or agent
+ok 21 - task drift cannot reuse an envelope for another scope or agent
+  ---
+  duration_ms: 34.151015
+  type: 'test'
+  ...
+# Subtest: matching version numbers cannot hide missing or divergent policy history
+ok 22 - matching version numbers cannot hide missing or divergent policy history
+  ---
+  duration_ms: 12.611235
+  type: 'test'
+  ...
+# Subtest: matching envelope and policy do not activate proposed assignments
+ok 23 - matching envelope and policy do not activate proposed assignments
+  ---
+  duration_ms: 6.877216
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1899.892889

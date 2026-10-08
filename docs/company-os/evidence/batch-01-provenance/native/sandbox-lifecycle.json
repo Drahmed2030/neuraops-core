@@ -1,0 +1,41 @@
+{
+  "session": {
+    "id": "sbx_y7m6i5j8yI0KKEijBdqbpqoSgkWB",
+    "runtime": "node22",
+    "architecture": "amd64",
+    "requestedAt": 1791442976169,
+    "startedAt": 1791442976195,
+    "requestedStopAt": 1791443250321,
+    "stoppedAt": 1791443250906,
+    "status": "stopped",
+    "duration": 274711,
+    "vcpus": 1,
+    "memory": 2048,
+    "timeout": 600000,
+    "region": "iad1",
+    "cwd": "/vercel",
+    "createdAt": 1791442976169,
+    "updatedAt": 1791442976207,
+    "interactivePort": 26661,
+    "networkPolicy": {
+      "mode": "custom",
+      "allowedDomains": [
+        "archive.ubuntu.com",
+        "security.ubuntu.com",
+        "apt.postgresql.org",
+        "www.postgresql.org"
+      ]
+    },
+    "activeCpuDurationMs": 18031,
+    "networkTransfer": {
+      "ingress": 95271425,
+      "egress": 374578
+    },
+    "sourceSandboxName": "company-os-provenance-pg17-20261008",
+    "projectId": "prj_RjF2s10VCS3VnylALtzTVqZr6omx"
+  },
+  "persistent": false,
+  "billed_cost": "NOT_RETRIEVED",
+  "model_calls": 0,
+  "company_database_mutations": false
+}

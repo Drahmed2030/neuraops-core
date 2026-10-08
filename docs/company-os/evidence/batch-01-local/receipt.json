@@ -1,0 +1,42 @@
+{
+  "status": "LOCAL_EMBEDDED_PASS_NATIVE_GATE_OPEN",
+  "engine": "PGlite 0.5.8 (embedded PostgreSQL; single connection)",
+  "suite": "all",
+  "started_utc": "2026-10-07T23:52:51.494Z",
+  "finished_utc": "2026-10-07T23:52:54.767Z",
+  "node": "v24.19.0",
+  "tests": 34,
+  "passed": 34,
+  "failed": 0,
+  "exit": 0,
+  "error": null,
+  "source_head": "2f5cbed5cf74d487d101a3d26cdc1933e0015a9c",
+  "working_tree_changes": [],
+  "digests": {
+    "supabase/candidates/company-agent-authority.sql": "edf5ac11ab34ebe4a43adc7b188b70dff5c38fe6462c379cb260d2966c53b5c4",
+    "src/lib/company-os/authority-result.mjs": "6542f28afe8f34c79da22c4f079c702845a5cc45c3cfa21451bf60245cf9f9f6",
+    "tools/company-os-verification/package-lock.json": "eec9dc1dd54e89c0e6204b0ea558cd53e3b3608e2aff1d85dc8e04dcdaaf4ac4",
+    "tests/company-os-baseline.pgtest.mjs": "81dbbaf839cf4ffc5a31a5268412f55df8a5fd8ad9acaf831c762bd80fc0d61f",
+    "tests/company-os-assignments.pgtest.mjs": "23517e44d1533400d23b1277cf1b8ac0e1d2e079480a36d43f172c02682a5a42",
+    "tests/company-os-authority.test.mjs": "76df221583a5a55edf0d4a177562e4070cf3ee387d039ef8baf2fd80d5394a34",
+    "tests/company-os-gateway.pgtest.mjs": "f48e3bee72c9b37637bc01c5c51c9999ea73b03284b7305d87bcffb7affb84b1",
+    "tests/helpers/company-os-db.mjs": "284e9f58f773e87849bfde6ecfc0a86753119ca6184bb1ef71fc837c708803f8",
+    "tests/fixtures/company-os/baseline.sql": "1038d290572a03f441c6426f97ef0fb77d260f63054082ed808321e7305d0911",
+    "tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql": "dd5b52b0388f8992bba2a281256804a98722062af1f99cbd119262c34339cc1e",
+    "tests/fixtures/company-os/source/20261006133909_ccp_01a_explicit_deny_and_immutable_approvals.sql": "4779a6a69dfb8e61df274f49dcf91154b7bfe18f04308b0aa1b592479472fd79",
+    "tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql": "88666a76722851b08ee282a6d92c2f4dfa141cd0e49e9481a005fc0f95e32f9d",
+    "tests/fixtures/company-os/source/20261006160954_cos_01b_execution_gateway_foundation.sql": "67a797e30dfde77d6238f91f531e15ace6417438c2bef7d36b58134516477650",
+    "tests/fixtures/company-os/source/20261006161020_cos_01b_execution_gateway_preflight_qualify.sql": "db9d667ec1bdcc318103a53f0cb18b0db9357d8762594ad44e7c2c2baf67474f",
+    "tests/fixtures/company-os/source/20261006161356_cos_01c_narrow_gateway_rpc.sql": "1926f57ad5d1e3199c7e09bb90cb10c78ebc9d0e0d3e0ef1d8defe26303cbedc",
+    "tests/fixtures/company-os/source/20261006161604_cos_01c_model_adapter_contract.sql": "4d939bf565cc55cb413d42a493c403ba2770de1e3344645ee9669bbc1972f350"
+  },
+  "log_sha256": "56073abdfbff3b8a15e830828378d85682f13596e9f7050c7b4a59abc6da655e",
+  "native_concurrency": "UNVERIFIED",
+  "hosted_application": "NOT_PERFORMED",
+  "approval_activation": "DISABLED",
+  "limitations": [
+    "Catalog-derived public fixture omits unrelated company-project columns and platform services.",
+    "No concurrent PostgreSQL sessions, authenticated approval binding or delegated execution is certified.",
+    "Tests use actual inherited anon/authenticated/service_role SQL role contracts; no worker role is claimed."
+  ]
+}

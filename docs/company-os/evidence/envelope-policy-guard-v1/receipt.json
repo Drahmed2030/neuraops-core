@@ -1,0 +1,51 @@
+{
+  "status": "LOCAL_EMBEDDED_PASS",
+  "engine": "PGlite 0.5.8 (embedded PostgreSQL; single connection)",
+  "suite": "authority",
+  "started_utc": "2026-10-08T08:50:25.584Z",
+  "finished_utc": "2026-10-08T08:50:27.777Z",
+  "node": "v24.19.0",
+  "tests": 22,
+  "passed": 22,
+  "failed": 0,
+  "exit": 0,
+  "error": null,
+  "source_head": "35c9483318e82f32ac640c96d6801afcdc73551b",
+  "working_tree_changes": [
+    "M supabase/candidates/company-agent-authority.sql",
+    " M tests/company-os-gateway.pgtest.mjs",
+    "?? docs/company-os/evidence/envelope-policy-guard-v1/"
+  ],
+  "digests": {
+    "scripts/company-os-local-verification.mjs": "51d604abf33f6626250e0bbedf3c2c9c80c60e8a72354bac7e4a1b523a18ca93",
+    "supabase/candidates/company-agent-authority.sql": "fd221fafe6dfa1df2ddd46f88b42b452feaf114df41b4e8c90896132c17d5b38",
+    "supabase/candidates/company-task-approvals.sql": "78ee421981c9c066ba23b9cac8dc771a719bdb8cbcdc36a20f4d4a37b0b178b3",
+    "supabase/candidates/company-task-provenance.sql": "87255c3e3747c4b0528f219adecdf9911f040d58e3c00b75714e83ea15465b55",
+    "src/app/dashboard/control/requests/page.tsx": "ab1c33fb691662208a33222b06e2b5b2d38e72e714bf4eafe74807589dcc4df2",
+    "src/app/dashboard/control/requests/RequestWorkspace.tsx": "3c8aaa35908468195b4a73bff186b719923796fe27159195cb9be116e4d3443a",
+    "src/app/dashboard/control/approval-actions.ts": "98ed45558d59bd416119de54ec8b9aa8bc2a5d10ae06bfe20eeb6d609e5103a6",
+    "src/lib/auth/require-operations-access.ts": "60f1c0307840c186cad7801b1f483186e24baa59cc25e6c337408d5cf4df02c5",
+    "src/lib/company-os/authority-result.mjs": "6542f28afe8f34c79da22c4f079c702845a5cc45c3cfa21451bf60245cf9f9f6",
+    "tools/company-os-verification/package-lock.json": "fdb8c7b0248be59bd6f30ccd80488523c82884cff8d51552aa35818e6b4375d8",
+    "tests/company-os-authority.test.mjs": "76df221583a5a55edf0d4a177562e4070cf3ee387d039ef8baf2fd80d5394a34",
+    "tests/company-os-gateway.pgtest.mjs": "4dbf9ab9774583b8f0a436c99ade87121e4d05258048ece46c77ac97f0848266",
+    "tests/helpers/company-os-db.mjs": "284e9f58f773e87849bfde6ecfc0a86753119ca6184bb1ef71fc837c708803f8",
+    "tests/fixtures/company-os/baseline.sql": "1038d290572a03f441c6426f97ef0fb77d260f63054082ed808321e7305d0911",
+    "tests/fixtures/company-os/source/20261006133837_ccp_01a_control_plane_security_foundation.sql": "dd5b52b0388f8992bba2a281256804a98722062af1f99cbd119262c34339cc1e",
+    "tests/fixtures/company-os/source/20261006133909_ccp_01a_explicit_deny_and_immutable_approvals.sql": "4779a6a69dfb8e61df274f49dcf91154b7bfe18f04308b0aa1b592479472fd79",
+    "tests/fixtures/company-os/source/20261006160439_cos_01a_operating_kernel.sql": "88666a76722851b08ee282a6d92c2f4dfa141cd0e49e9481a005fc0f95e32f9d",
+    "tests/fixtures/company-os/source/20261006160954_cos_01b_execution_gateway_foundation.sql": "67a797e30dfde77d6238f91f531e15ace6417438c2bef7d36b58134516477650",
+    "tests/fixtures/company-os/source/20261006161020_cos_01b_execution_gateway_preflight_qualify.sql": "db9d667ec1bdcc318103a53f0cb18b0db9357d8762594ad44e7c2c2baf67474f",
+    "tests/fixtures/company-os/source/20261006161356_cos_01c_narrow_gateway_rpc.sql": "1926f57ad5d1e3199c7e09bb90cb10c78ebc9d0e0d3e0ef1d8defe26303cbedc",
+    "tests/fixtures/company-os/source/20261006161604_cos_01c_model_adapter_contract.sql": "4d939bf565cc55cb413d42a493c403ba2770de1e3344645ee9669bbc1972f350"
+  },
+  "log_sha256": "2e70a47ce9e4d36ab6be54de3741abfb3dc9e97c9d8c132b6d6aa87ba54ec815",
+  "native_concurrency": "NOT_TESTED_BY_THIS_RUNNER",
+  "hosted_application": "NOT_PERFORMED",
+  "approval_activation": "DISABLED",
+  "limitations": [
+    "Catalog-derived public fixture omits unrelated company-project columns and platform services.",
+    "This runner does not certify native concurrency, live authentication, task provenance issuance or delegated execution.",
+    "Tests use actual inherited anon/authenticated/service_role SQL role contracts; no worker role is claimed."
+  ]
+}

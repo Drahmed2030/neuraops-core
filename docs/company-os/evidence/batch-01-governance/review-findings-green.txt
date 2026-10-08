@@ -1,0 +1,34 @@
+(node:13) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/166c9debe503/company-os-batch01/src/app/dashboard/control/approval-actions.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/166c9debe503/company-os-batch01/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ unauthenticated request cannot reach privileged approval RPC (1.672742ms)
+✔ user metadata founder claim is not operator access (0.599615ms)
+✔ disabled recording remains unavailable even to verified operator (0.809745ms)
+✔ verified operator supplies actor from server authentication, not input (7.02208ms)
+✔ caller-supplied actor or budget fields are rejected (0.397463ms)
+✔ malformed digest is rejected before database access (0.561333ms)
+✔ approval binding storage exists (2543.471031ms)
+✔ record approval and budget reservation atomically, replay once (29.979027ms)
+✔ changed payload and destination invalidate the reviewed digest (9.809438ms)
+✔ changed policy invalidates review without accepting a new grant (9.9628ms)
+✔ unknown task, expired task, restricted or external work is denied (29.739895ms)
+✔ self approval and malformed actor are denied (7.693094ms)
+✔ anonymous and authenticated callers cannot assert an operator identity directly (8.237263ms)
+✔ per-task spending cap rejects oversized requests (7.390223ms)
+✔ daily cap has no partial approval or budget write on failure (7.213426ms)
+✔ approval records never enable execution or operating controls (5.836128ms)
+✔ an agent reference cannot approve its own work (6.434338ms)
+✔ revocation prevents replay of a recorded approval (11.489414ms)
+✔ prior rejection or revocation blocks first approval recording (13.542798ms)
+✔ missing or noncanonical requester provenance fails closed (25.294571ms)
+✔ expiry window uses post-lock wall clock and refuses UTC day rollover (1.848722ms)
+✔ a canonical hash alone is not verified requester provenance (6.080107ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2901.292765

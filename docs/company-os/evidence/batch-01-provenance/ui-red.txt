@@ -1,0 +1,20 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Lost response must preserve original request fields
++ actual - expected
+
++ ''
+- 'Synthetic internal release checklist'
+
+    at file:///workspace/scratch/166c9debe503/company-os-batch01/scripts/company-os-request-ui-check.mjs:32:9 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: '',
+  expected: 'Synthetic internal release checklist',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.19.0

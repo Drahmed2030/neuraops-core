@@ -1,0 +1,51 @@
+{
+  "status": "LOCAL_PROVENANCE_AND_REVIEW_PASS_ACTIVATION_OPEN",
+  "base": "a12e4fdf10d7e1b48cea5bc68cfd93d3c54f1992",
+  "source_sha256": {
+    "supabase/candidates/company-task-provenance.sql": "87255c3e3747c4b0528f219adecdf9911f040d58e3c00b75714e83ea15465b55",
+    "supabase/candidates/company-task-approvals.sql": "78ee421981c9c066ba23b9cac8dc771a719bdb8cbcdc36a20f4d4a37b0b178b3",
+    "src/app/dashboard/control/approval-actions.ts": "98ed45558d59bd416119de54ec8b9aa8bc2a5d10ae06bfe20eeb6d609e5103a6",
+    "src/app/dashboard/control/requests/page.tsx": "ab1c33fb691662208a33222b06e2b5b2d38e72e714bf4eafe74807589dcc4df2",
+    "src/app/dashboard/control/requests/RequestWorkspace.tsx": "3c8aaa35908468195b4a73bff186b719923796fe27159195cb9be116e4d3443a",
+    "src/app/dashboard/control/page.tsx": "59ecf8de21d479fee6477d4b15906932a747d890416066f558486ec822717820",
+    "scripts/company-os-native-verification.py": "0d101b1154fa171e70f8468c4067b920b5786589df17e9a1b24589f381d236d5",
+    "scripts/company-os-local-verification.mjs": "51d604abf33f6626250e0bbedf3c2c9c80c60e8a72354bac7e4a1b523a18ca93",
+    "scripts/company-os-request-ui-check.mjs": "96f165fd1b41c26b91d2e9530010952029cc199140ab09458f456a2b2a84a447",
+    "tests/company-os-request-flow.pgtest.mjs": "7e39a1b32c1c6ea82d0a224a3a492056c9361a16598840df1ddc03ad8b1bd54c",
+    "tools/company-os-verification/package.json": "8919a9fbc0936414d798a5cb005ccf5c2d8f79059feee98c5e83a6af3c137345",
+    "tools/company-os-verification/package-lock.json": "fdb8c7b0248be59bd6f30ccd80488523c82884cff8d51552aa35818e6b4375d8"
+  },
+  "native_pg17": {
+    "checks": 27,
+    "exit": 0,
+    "cleanup": true,
+    "receipt": "native/receipt.json"
+  },
+  "targeted": {
+    "pass": 65,
+    "failed": 0
+  },
+  "root_unit": {
+    "pass": 110,
+    "failed": 0,
+    "overlap_with_targeted": 19
+  },
+  "react_dom_retry": {
+    "pass": 1,
+    "failed": 0,
+    "browser_layout_verified": false
+  },
+  "typecheck_exit": 0,
+  "live_authentication": "UNVERIFIED",
+  "hosted_application": false,
+  "agent_execution": false,
+  "next_gate": "effective assignment/policy selection and bounded delegation; live founder end-to-end and release drift/recovery gates remain open",
+  "limitations": [
+    "Auth service and RPC transport are synthetic adapters; real guard and SQL execute.",
+    "service_role is a trusted server transport, not a worker identity.",
+    "Single-founder account cannot self-approve; no second live operator was provisioned.",
+    "Native fixture is synthetic and not a hosted Supabase equivalence claim.",
+    "JSDOM validates retry behavior, not browser layout.",
+    "Environment emits existing Node MODULE_TYPELESS_PACKAGE_JSON and npm http-proxy warnings; product dependencies unchanged."
+  ]
+}

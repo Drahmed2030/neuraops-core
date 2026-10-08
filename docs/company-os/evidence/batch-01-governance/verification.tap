@@ -1,0 +1,350 @@
+TAP version 13
+# (node:20) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/166c9debe503/company-os-batch01/src/app/dashboard/control/approval-actions.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /workspace/scratch/166c9debe503/company-os-batch01/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: unauthenticated request cannot reach privileged approval RPC
+ok 1 - unauthenticated request cannot reach privileged approval RPC
+  ---
+  duration_ms: 2.572007
+  type: 'test'
+  ...
+# Subtest: user metadata founder claim is not operator access
+ok 2 - user metadata founder claim is not operator access
+  ---
+  duration_ms: 1.355542
+  type: 'test'
+  ...
+# Subtest: disabled recording remains unavailable even to verified operator
+ok 3 - disabled recording remains unavailable even to verified operator
+  ---
+  duration_ms: 1.642321
+  type: 'test'
+  ...
+# Subtest: verified operator supplies actor from server authentication, not input
+ok 4 - verified operator supplies actor from server authentication, not input
+  ---
+  duration_ms: 2.000893
+  type: 'test'
+  ...
+# Subtest: caller-supplied actor or budget fields are rejected
+ok 5 - caller-supplied actor or budget fields are rejected
+  ---
+  duration_ms: 1.598517
+  type: 'test'
+  ...
+# Subtest: malformed digest is rejected before database access
+ok 6 - malformed digest is rejected before database access
+  ---
+  duration_ms: 0.459043
+  type: 'test'
+  ...
+# Subtest: approval binding storage exists
+ok 7 - approval binding storage exists
+  ---
+  duration_ms: 3984.976142
+  type: 'test'
+  ...
+# Subtest: record approval and budget reservation atomically, replay once
+ok 8 - record approval and budget reservation atomically, replay once
+  ---
+  duration_ms: 38.043234
+  type: 'test'
+  ...
+# Subtest: changed payload and destination invalidate the reviewed digest
+ok 9 - changed payload and destination invalidate the reviewed digest
+  ---
+  duration_ms: 13.659458
+  type: 'test'
+  ...
+# Subtest: changed policy invalidates review without accepting a new grant
+ok 10 - changed policy invalidates review without accepting a new grant
+  ---
+  duration_ms: 12.353125
+  type: 'test'
+  ...
+# Subtest: unknown task, expired task, restricted or external work is denied
+ok 11 - unknown task, expired task, restricted or external work is denied
+  ---
+  duration_ms: 43.201316
+  type: 'test'
+  ...
+# Subtest: self approval and malformed actor are denied
+ok 12 - self approval and malformed actor are denied
+  ---
+  duration_ms: 9.401284
+  type: 'test'
+  ...
+# Subtest: anonymous and authenticated callers cannot assert an operator identity directly
+ok 13 - anonymous and authenticated callers cannot assert an operator identity directly
+  ---
+  duration_ms: 6.372019
+  type: 'test'
+  ...
+# Subtest: per-task spending cap rejects oversized requests
+ok 14 - per-task spending cap rejects oversized requests
+  ---
+  duration_ms: 8.398648
+  type: 'test'
+  ...
+# Subtest: daily cap has no partial approval or budget write on failure
+ok 15 - daily cap has no partial approval or budget write on failure
+  ---
+  duration_ms: 6.002025
+  type: 'test'
+  ...
+# Subtest: approval records never enable execution or operating controls
+ok 16 - approval records never enable execution or operating controls
+  ---
+  duration_ms: 6.925061
+  type: 'test'
+  ...
+# Subtest: an agent reference cannot approve its own work
+ok 17 - an agent reference cannot approve its own work
+  ---
+  duration_ms: 7.508819
+  type: 'test'
+  ...
+# Subtest: revocation prevents replay of a recorded approval
+ok 18 - revocation prevents replay of a recorded approval
+  ---
+  duration_ms: 15.609625
+  type: 'test'
+  ...
+# Subtest: prior rejection or revocation blocks first approval recording
+ok 19 - prior rejection or revocation blocks first approval recording
+  ---
+  duration_ms: 16.830821
+  type: 'test'
+  ...
+# Subtest: missing or noncanonical requester provenance fails closed
+ok 20 - missing or noncanonical requester provenance fails closed
+  ---
+  duration_ms: 23.092585
+  type: 'test'
+  ...
+# Subtest: expiry window uses post-lock wall clock and refuses UTC day rollover
+ok 21 - expiry window uses post-lock wall clock and refuses UTC day rollover
+  ---
+  duration_ms: 2.684637
+  type: 'test'
+  ...
+# Subtest: a canonical hash alone is not verified requester provenance
+ok 22 - a canonical hash alone is not verified requester provenance
+  ---
+  duration_ms: 8.21874
+  type: 'test'
+  ...
+# Subtest: candidate creates versioned assignments
+ok 23 - candidate creates versioned assignments
+  ---
+  duration_ms: 4796.963334
+  type: 'test'
+  ...
+# Subtest: six identities and task linkage survive repeat candidate seed
+ok 24 - six identities and task linkage survive repeat candidate seed
+  ---
+  duration_ms: 16.881101
+  type: 'test'
+  ...
+# Subtest: five business functions plus independent assurance remain proposed
+ok 25 - five business functions plus independent assurance remain proposed
+  ---
+  duration_ms: 2.534613
+  type: 'test'
+  ...
+# Subtest: engineering identity is inactive with no allowed actions
+ok 26 - engineering identity is inactive with no allowed actions
+  ---
+  duration_ms: 1.051868
+  type: 'test'
+  ...
+# Subtest: assignment activation is rejected until authenticated approval path exists
+ok 27 - assignment activation is rejected until authenticated approval path exists
+  ---
+  duration_ms: 2.950543
+  type: 'test'
+  ...
+# Subtest: policy snapshots cannot be rewritten, even by ordinary owner DML
+ok 28 - policy snapshots cannot be rewritten, even by ordinary owner DML
+  ---
+  duration_ms: 2.071876
+  type: 'test'
+  ...
+# Subtest: policy widening cannot silently replace the current profile
+ok 29 - policy widening cannot silently replace the current profile
+  ---
+  duration_ms: 1.715151
+  type: 'test'
+  ...
+# Subtest: service and authenticated callers cannot assign, self-approve or change controls
+ok 30 - service and authenticated callers cannot assign, self-approve or change controls
+  ---
+  duration_ms: 12.696999
+  type: 'test'
+  ...
+# Subtest: failed mapping transaction rolls back the whole write
+ok 31 - failed mapping transaction rolls back the whole write
+  ---
+  duration_ms: 5.053832
+  type: 'test'
+  ...
+# Subtest: same assignment version cannot be duplicated
+ok 32 - same assignment version cannot be duplicated
+  ---
+  duration_ms: 1.358881
+  type: 'test'
+  ...
+# Subtest: operating controls stay disabled
+ok 33 - operating controls stay disabled
+  ---
+  duration_ms: 1.51411
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies empty
+ok 34 - gateway normalization denies empty
+  ---
+  duration_ms: 21.790502
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies null
+ok 35 - gateway normalization denies null
+  ---
+  duration_ms: 7.380034
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies multiple
+ok 36 - gateway normalization denies multiple
+  ---
+  duration_ms: 0.177222
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies missing-fields
+ok 37 - gateway normalization denies missing-fields
+  ---
+  duration_ms: 0.140495
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies string-boolean
+ok 38 - gateway normalization denies string-boolean
+  ---
+  duration_ms: 0.191978
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies contradictory-reason
+ok 39 - gateway normalization denies contradictory-reason
+  ---
+  duration_ms: 0.129075
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies approval-required
+ok 40 - gateway normalization denies approval-required
+  ---
+  duration_ms: 0.157243
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-uuid
+ok 41 - gateway normalization denies invalid-uuid
+  ---
+  duration_ms: 23.362842
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-risk
+ok 42 - gateway normalization denies invalid-risk
+  ---
+  duration_ms: 0.34388
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies invalid-budget
+ok 43 - gateway normalization denies invalid-budget
+  ---
+  duration_ms: 4.964885
+  type: 'test'
+  ...
+# Subtest: gateway normalization denies forged-role
+ok 44 - gateway normalization denies forged-role
+  ---
+  duration_ms: 1.582667
+  type: 'test'
+  ...
+# Subtest: normalization preserves an explicit database denial
+ok 45 - normalization preserves an explicit database denial
+  ---
+  duration_ms: 7.937784
+  type: 'test'
+  ...
+# Subtest: one complete server result can retain its allow
+ok 46 - one complete server result can retain its allow
+  ---
+  duration_ms: 0.244735
+  type: 'test'
+  ...
+# Subtest: recovered schema preserves six identities and foreign-key task linkage
+ok 47 - recovered schema preserves six identities and foreign-key task linkage
+  ---
+  duration_ms: 3720.65394
+  type: 'test'
+  ...
+# Subtest: duplicate display names cannot introduce an ambiguous identity
+ok 48 - duplicate display names cannot introduce an ambiguous identity
+  ---
+  duration_ms: 2.183087
+  type: 'test'
+  ...
+# Subtest: existing service role cannot mutate private authority tables
+ok 49 - existing service role cannot mutate private authority tables
+  ---
+  duration_ms: 2.048912
+  type: 'test'
+  ...
+# Subtest: service wrapper returns a denial for unknown task, anonymous callers cannot invoke it
+ok 50 - service wrapper returns a denial for unknown task, anonymous callers cannot invoke it
+  ---
+  duration_ms: 8.763184
+  type: 'test'
+  ...
+# Subtest: model, external and production controls remain disabled
+ok 51 - model, external and production controls remain disabled
+  ---
+  duration_ms: 1.362193
+  type: 'test'
+  ...
+# Subtest: a proposed assignment never authorizes execution
+ok 52 - a proposed assignment never authorizes execution
+  ---
+  duration_ms: 4260.763157
+  type: 'test'
+  ...
+# Subtest: inactive engineering is denied
+ok 53 - inactive engineering is denied
+  ---
+  duration_ms: 5.443864
+  type: 'test'
+  ...
+# Subtest: caller role claims and unverified approval records do not activate execution
+ok 54 - caller role claims and unverified approval records do not activate execution
+  ---
+  duration_ms: 8.467456
+  type: 'test'
+  ...
+# Subtest: internal authority checker also returns explicit deny for absent task
+ok 55 - internal authority checker also returns explicit deny for absent task
+  ---
+  duration_ms: 1.956212
+  type: 'test'
+  ...
+# Subtest: model kill switch is preserved
+ok 56 - model kill switch is preserved
+  ---
+  duration_ms: 4.637804
+  type: 'test'
+  ...
+1..56
+# tests 56
+# suites 0
+# pass 56
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5062.097157

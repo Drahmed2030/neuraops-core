@@ -1,0 +1,26 @@
+{
+  "scope": "new approval recording SQL and guarded server action",
+  "independent_reviewer": "company_os_review",
+  "disposition_received": "Important findings; fixes required",
+  "findings": [
+    {
+      "issue": "Prior rejection/revocation omitted on first approval",
+      "fix": "Check prior REJECT/REVOKE before both initial recording and replay",
+      "test": "prior rejection or revocation blocks first approval recording"
+    },
+    {
+      "issue": "Statement timestamp stale after lock wait",
+      "fix": "Use wall clock after task/profile/budget locks; rollback on expired task or UTC budget-day rollover",
+      "test": "native expiry_race plus UTC midnight helper negative case"
+    },
+    {
+      "issue": "Nullable or arbitrary requester reference cannot prove independent identity",
+      "fix": "Require immutable private requester attestation and matching canonical principal digest; no free-text backfill or public/service-role insertion grant",
+      "test": "missing/noncanonical provenance; canonical unattested hash; direct role insert denial"
+    }
+  ],
+  "red_results": "3/15 failed before fixes",
+  "green_results": "22/22 affected tests; full targeted 56/56 and native 26/26 subsequently passed",
+  "second_independent_review": "NOT_PERFORMED; concrete findings resolved by implementer and verified with regression tests",
+  "release_approval": "NOT_GRANTED; task-attestation issuer and live authentication remain open"
+}

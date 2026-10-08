@@ -1,0 +1,168 @@
+(node:13) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///workspace/scratch/166c9debe503/company-os-batch01/src/app/dashboard/control/approval-actions.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /workspace/scratch/166c9debe503/company-os-batch01/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✖ verified requester creates an attested inert task, reviewed by a distinct operator (1748.748022ms)
+✖ same requester/key is idempotent; changed request is a conflict (1.075748ms)
+✖ two identities do not share an idempotency namespace (0.255828ms)
+✖ unauthenticated, unlisted and disabled callers never reach the privileged transport (0.364107ms)
+✖ caller identity, tool, destination, PHI class and spending overrides are rejected (0.567768ms)
+✖ unknown/inactive agent cannot create partial evidence (0.260915ms)
+✖ public roles cannot forge the trusted creation RPC (3.206351ms)
+✖ review rejects a legacy task without newly attested provenance (10.959444ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 0
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2043.028558
+
+✖ failing tests:
+
+test at tests/company-os-request-flow.pgtest.mjs:29:1
+✖ verified requester creates an attested inert task, reviewed by a distinct operator (1748.748022ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  501 !== 200
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-request-flow.pgtest.mjs:30:39)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 501,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/company-os-request-flow.pgtest.mjs:41:1
+✖ same requester/key is idempotent; changed request is a conflict (1.075748ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  501 !== 200
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-request-flow.pgtest.mjs:42:61)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 501,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/company-os-request-flow.pgtest.mjs:45:1
+✖ two identities do not share an idempotency namespace (0.255828ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  501 !== 200
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-request-flow.pgtest.mjs:46:43)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 501,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/company-os-request-flow.pgtest.mjs:48:1
+✖ unauthenticated, unlisted and disabled callers never reach the privileged transport (0.364107ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  501 !== 401
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-request-flow.pgtest.mjs:49:19)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 501,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/company-os-request-flow.pgtest.mjs:54:1
+✖ caller identity, tool, destination, PHI class and spending overrides are rejected (0.567768ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  501 !== 400
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-request-flow.pgtest.mjs:55:210)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 501,
+    expected: 400,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/company-os-request-flow.pgtest.mjs:58:1
+✖ unknown/inactive agent cannot create partial evidence (0.260915ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  501 !== 409
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-request-flow.pgtest.mjs:59:64)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 501,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/company-os-request-flow.pgtest.mjs:62:1
+✖ public roles cannot forge the trusted creation RPC (3.206351ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  error: function public.company_create_task_request(unknown, unknown, unknown, unknown, unknown, unknown) does not exist
+      at async TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-request-flow.pgtest.mjs:63:45)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: error: function public.company_create_task_request(unknown, unknown, unknown, unknown, unknown, unknown) does not exist
+        at pe.Ue (file:///workspace/scratch/166c9debe503/company-os-batch01/tools/company-os-verification/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:17959)
+        at pe.tt (file:///workspace/scratch/166c9debe503/company-os-batch01/tools/company-os-verification/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:15347)
+        at pe.parse (file:///workspace/scratch/166c9debe503/company-os-batch01/tools/company-os-verification/node_modules/@electric-sql/pglite/dist/chunk-2BOC2OMW.js:1:14021)
+        at N.qe (file:///workspace/scratch/166c9debe503/company-os-batch01/tools/company-os-verification/node_modules/@electric-sql/pglite/dist/index.js:5:1762)
+        at file:///workspace/scratch/166c9debe503/company-os-batch01/tools/company-os-verification/node_modules/@electric-sql/pglite/dist/index.js:5:1155
+        at wasm://wasm/0267bb86:wasm-function[10930]:0x5a5ccf
+        at wasm://wasm/0267bb86:wasm-function[3585]:0x27eaeb
+        at wasm://wasm/0267bb86:wasm-function[3627]:0x2869d1
+        at wasm://wasm/0267bb86:wasm-function[3637]:0x286c2d
+        at wasm://wasm/0267bb86:wasm-function[9914]:0x54fd4d,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at tests/company-os-request-flow.pgtest.mjs:65:1
+✖ review rejects a legacy task without newly attested provenance (10.959444ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 409
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/166c9debe503/company-os-batch01/tests/company-os-request-flow.pgtest.mjs:67:9)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
