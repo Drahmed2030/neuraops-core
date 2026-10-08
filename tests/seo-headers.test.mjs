@@ -11,7 +11,7 @@ function robotsHeader(rules) {
     .find(header => header.key.toLowerCase() === 'x-robots-tag')
 }
 
-test('robots header blocks previews without overriding route metadata in production', async () => {
+test('previews are globally noindex while production restricts noindex to recovery', async () => {
   const previousEnvironment = process.env.VERCEL_ENV
 
   try {
@@ -22,7 +22,16 @@ test('robots header blocks previews without overriding route metadata in product
     })
 
     process.env.VERCEL_ENV = 'production'
-    assert.equal(robotsHeader(await nextConfig.headers()), undefined)
+    const productionRules = await nextConfig.headers()
+    const publicRule = productionRules.find(rule => rule.source === '/:path*')
+    assert.ok(publicRule, 'public wildcard header rule must remain present')
+    assert.equal(robotsHeader([publicRule]), undefined)
+    const recoveryRule = productionRules.find(rule => rule.source === '/account/recovery')
+    assert.ok(recoveryRule, 'recovery header rule must remain present')
+    assert.deepEqual(robotsHeader([recoveryRule]), {
+      key: 'X-Robots-Tag',
+      value: 'noindex, nofollow',
+    })
   } finally {
     if (previousEnvironment === undefined) delete process.env.VERCEL_ENV
     else process.env.VERCEL_ENV = previousEnvironment

@@ -3,6 +3,7 @@
 
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
+import { requireOperationsAccess } from '@/lib/auth/require-operations-access'
 
 export async function login(formData: FormData) {
   const email = String(formData.get('email') || '').trim()
@@ -19,7 +20,14 @@ export async function login(formData: FormData) {
     redirect('/login?error=invalid_credentials')
   }
 
-  redirect('/dashboard')
+  const access = await requireOperationsAccess()
+  if (!access.ok && access.status === 401) {
+    redirect('/login?error=invalid_credentials')
+  }
+
+  // Keep customer access unchanged. Operators enter the existing protected
+  // company surface; unavailable configuration is handled there, fail-closed.
+  redirect(access.ok || access.status === 503 ? '/dashboard/control' : '/dashboard')
 }
 
 export async function logout() {
