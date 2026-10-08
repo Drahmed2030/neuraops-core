@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "engine": "PGlite",
+  "atomic_rollback_restores_baseline": true,
+  "combined_migration_applies": true,
+  "controls_enabled": 0,
+  "migration_sha256": "c38c549e09a4ed203762a603268893a10eaebef2328a26152ec0a55b4e55d6a1",
+  "utc": "2026-10-08T09:42:15.513Z"
+}

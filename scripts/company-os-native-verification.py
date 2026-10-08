@@ -3,7 +3,7 @@
 import argparse, hashlib, json, os, pathlib, select, shutil, subprocess, tempfile, time
 from datetime import datetime, timezone
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser();p.add_argument('--pg-bin',required=True);p.add_argument('--evidence',required=True)
+p=argparse.ArgumentParser();p.add_argument('--pg-bin',required=True);p.add_argument('--evidence',required=True);p.add_argument('--scope',choices=['all','delegation'],default='all')
 a=p.parse_args();binpath=pathlib.Path(a.pg_bin).resolve();out=pathlib.Path(a.evidence).resolve();out.mkdir()
 if os.geteuid()==0: raise SystemExit('Run as an ordinary OS user, never root')
 for cmd in ['initdb','pg_ctl','psql']:
@@ -57,6 +57,36 @@ def approval_task():
  tid=sql("insert into public.agent_tasks(agent_id,task_description,lifecycle_state,risk_level,action_class,data_class,budget_limit_usd,expires_at,requested_by_reference) values('dce3a297-b28c-45b5-96d5-da4a8dc195aa','synthetic budget','WAITING_APPROVAL',1,'INTERNAL_CREATE','PUBLIC',0.05,now()+interval '1 hour',repeat('b',64)) returning id")
  sql("insert into neuraops_company.task_requester_attestations(task_id,principal_reference,verified_origin) values('"+tid+"',repeat('b',64),'SERVER_VERIFIED_HUMAN')")
  return tid
+def delegated_budget_race(rollback=False):
+ import uuid
+ parent=approval_task()
+ pd=sql("select public.company_task_approval_snapshot('"+parent+"')->>'digest'")
+ sql("set role service_role; select public.company_record_task_approval('%s','%s','%s','%s')"%(parent,pd,'a'*64,uuid.uuid4()))
+ ids=[approval_task(),approval_task()]
+ for child in ids:sql("update public.agent_tasks set parent_task_id='%s',budget_limit_usd=0.03 where id='%s'"%(parent,child))
+ digests=[sql("select public.company_task_approval_snapshot('"+i+"')->>'digest'") for i in ids]
+ day=sql("select (statement_timestamp() at time zone 'UTC')::date")
+ calls=["select public.company_record_task_approval('%s','%s','%s','%s');"%(i,d,'a'*64,uuid.uuid4()) for i,d in zip(ids,digests)]
+ A=subprocess.Popen([str(binpath/'psql'),'-X','-qAt','-v','ON_ERROR_STOP=1'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=dict(env,PGAPPNAME='company_budget_a'),bufsize=1);children.append(A)
+ # Suppress receipt output; synchronization line follows successful reservation.
+ A.stdin.write("begin; set local statement_timeout='8s'; set local role service_role;\n\\o /dev/null\n"+calls[0]+"\n\\o\nselect 'BUDGET_HELD';\n");A.stdin.flush()
+ assert select.select([A.stdout],[],[],8)[0],'budget A not ready'
+ assert A.stdout.readline().strip()=='BUDGET_HELD'
+ B=subprocess.Popen([str(binpath/'psql'),'-X','-qAt','-v','ON_ERROR_STOP=1','-c',"set statement_timeout='8s'; set role service_role; "+calls[1]],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=dict(env,PGAPPNAME='company_budget_b'));children.append(B)
+ blocked=False
+ for _ in range(50):
+  blocked=sql("select exists(select 1 from pg_stat_activity where application_name='company_budget_b' and wait_event_type='Lock' and cardinality(pg_blocking_pids(pid))>0)")=='t'
+  if blocked:break
+  time.sleep(.05)
+ assert blocked,'budget B did not demonstrate contention'
+ A.stdin.write(('rollback;' if rollback else 'commit;')+'\n\\q\n');A.stdin.flush();ao,ae=A.communicate(timeout=10);bo,be=B.communicate(timeout=10);log.write(ao+ae+bo+be)
+ assert A.returncode==0,ae
+ if rollback:assert B.returncode==0,be
+ else:assert B.returncode!=0 and 'PARENT_BUDGET_LIMIT' in be,(B.returncode,be)
+ eq(sql("select coalesce(sum(reserved_usd),0)::numeric(12,4)::text from neuraops_company.task_approval_bindings where parent_task_id='"+parent+"'"),'0.0300')
+ eq(sql("select count(*) from neuraops_company.task_approval_bindings where parent_task_id='"+parent+"'"),'1')
+ receipt.setdefault('delegation_races',[]).append({'independent_sessions':True,'blocking_observed':True,'a':'ROLLBACK' if rollback else 'COMMIT','b':'COMMITTED' if rollback else 'PARENT_BUDGET_LIMIT','reserved_usd':'0.0300','bindings':1})
+
 def budget_race():
  import uuid
  ids=[approval_task(),approval_task()]
@@ -155,30 +185,36 @@ try:
  provenance=ROOT/'supabase/candidates/company-task-provenance.sql'
  receipt['sha256']={str(x.relative_to(ROOT)):hashlib.sha256(x.read_bytes()).hexdigest() for x in paths+[candidate,approvals,provenance,pathlib.Path(__file__).resolve()]}
  for f in paths:file(f)
- before=rows('select * from public.system_agents order by id');profiles=rows('select * from neuraops_company.agent_authority_profiles order by agent_id')
- file(candidate)
- check('six original identities preserved',lambda:eq(rows("select * from public.system_agents where id<>'f44919ab-3f1a-430e-90f9-c569d8c1bb01' order by id"),before))
- check('six original policies preserved',lambda:eq(rows("select * from neuraops_company.agent_authority_profiles where agent_id<>'f44919ab-3f1a-430e-90f9-c569d8c1bb01' order by agent_id"),profiles))
- snapshot=rows('select * from neuraops_company.agent_function_assignments order by agent_id');file(candidate)
- check('seed replay changes nothing',lambda:eq(rows('select * from neuraops_company.agent_function_assignments order by agent_id'),snapshot))
- check('engineering inactive',lambda:eq(sql("select active::text||':'||cardinality(allowed_action_classes) from neuraops_company.agent_authority_profiles where agent_id='f44919ab-3f1a-430e-90f9-c569d8c1bb01'"),'false:0'))
- check('proposal cannot activate',lambda:denied("update neuraops_company.agent_function_assignments set state='ACTIVE'"))
- for role in ['anon','authenticated','service_role']:
-  for table in ['agent_function_assignments','agent_authority_profile_versions','task_approvals','operating_controls']:
-   check(role+' cannot write '+table,lambda r=role,t=table:denied('set role '+r+'; delete from neuraops_company.'+t,'42501'))
- check('history is immutable',lambda:denied('delete from neuraops_company.agent_authority_profile_versions'))
- check('policy cannot silently widen',lambda:denied("update neuraops_company.agent_authority_profiles set allowed_action_classes=array['PRODUCTION']"))
- taskid=sql("insert into public.agent_tasks(agent_id,task_description,lifecycle_state,risk_level,action_class,data_class,execution_mode) values('dce3a297-b28c-45b5-96d5-da4a8dc195aa','synthetic native','READY',0,'RESEARCH','PUBLIC','INTERNAL') returning id")
- check('service gateway denies unactivated work',lambda:eq(sql("set role service_role; select allowed::text||':'||reason from public.company_execution_gateway_preflight('"+taskid+"')"),'false:ASSIGNMENT_ACTIVATION_DISABLED'))
- check('concurrent commit rejects conflicting version',lambda:race('RESEARCH'))
- check('concurrent rollback releases reservation',lambda:race('GROWTH',True))
- file(approvals)
- check('concurrent budget reservation cannot exceed daily cap',budget_race)
- check('expiration while blocked rolls back approval and budget',expiry_race)
- check('UTC midnight rollover rejected',lambda:denied("select neuraops_company.approval_expiry_at('2026-10-09T00:00:01Z','2026-10-09T01:00:00Z','2026-10-08')",'BUDGET_DAY_CHANGED'))
- file(provenance)
- check('concurrent human request replay preserves one task and requires independent approval',request_race)
- check('all three operating controls disabled',lambda:eq(sql('select count(*) from neuraops_company.operating_controls where enabled'),'0'))
+ if a.scope=='delegation':
+  file(candidate);file(approvals);file(provenance)
+  check('committed sibling blocks parent-budget overreservation',delegated_budget_race)
+  check('rolled back sibling releases parent reservation',lambda:delegated_budget_race(True))
+  check('all controls remain disabled',lambda:eq(sql('select count(*) from neuraops_company.operating_controls where enabled'),'0'))
+ else:
+  before=rows('select * from public.system_agents order by id');profiles=rows('select * from neuraops_company.agent_authority_profiles order by agent_id')
+  file(candidate)
+  check('six original identities preserved',lambda:eq(rows("select * from public.system_agents where id<>'f44919ab-3f1a-430e-90f9-c569d8c1bb01' order by id"),before))
+  check('six original policies preserved',lambda:eq(rows("select * from neuraops_company.agent_authority_profiles where agent_id<>'f44919ab-3f1a-430e-90f9-c569d8c1bb01' order by agent_id"),profiles))
+  snapshot=rows('select * from neuraops_company.agent_function_assignments order by agent_id');file(candidate)
+  check('seed replay changes nothing',lambda:eq(rows('select * from neuraops_company.agent_function_assignments order by agent_id'),snapshot))
+  check('engineering inactive',lambda:eq(sql("select active::text||':'||cardinality(allowed_action_classes) from neuraops_company.agent_authority_profiles where agent_id='f44919ab-3f1a-430e-90f9-c569d8c1bb01'"),'false:0'))
+  check('proposal cannot activate',lambda:denied("update neuraops_company.agent_function_assignments set state='ACTIVE'"))
+  for role in ['anon','authenticated','service_role']:
+   for table in ['agent_function_assignments','agent_authority_profile_versions','task_approvals','operating_controls']:
+    check(role+' cannot write '+table,lambda r=role,t=table:denied('set role '+r+'; delete from neuraops_company.'+t,'42501'))
+  check('history is immutable',lambda:denied('delete from neuraops_company.agent_authority_profile_versions'))
+  check('policy cannot silently widen',lambda:denied("update neuraops_company.agent_authority_profiles set allowed_action_classes=array['PRODUCTION']"))
+  taskid=sql("insert into public.agent_tasks(agent_id,task_description,lifecycle_state,risk_level,action_class,data_class,execution_mode) values('dce3a297-b28c-45b5-96d5-da4a8dc195aa','synthetic native','READY',0,'RESEARCH','PUBLIC','INTERNAL') returning id")
+  check('service gateway denies unactivated work',lambda:eq(sql("set role service_role; select allowed::text||':'||reason from public.company_execution_gateway_preflight('"+taskid+"')"),'false:EXECUTION_ENVELOPE_MISSING'))
+  check('concurrent commit rejects conflicting version',lambda:race('RESEARCH'))
+  check('concurrent rollback releases reservation',lambda:race('GROWTH',True))
+  file(approvals)
+  check('concurrent budget reservation cannot exceed daily cap',budget_race)
+  check('expiration while blocked rolls back approval and budget',expiry_race)
+  check('UTC midnight rollover rejected',lambda:denied("select neuraops_company.approval_expiry_at('2026-10-09T00:00:01Z','2026-10-09T01:00:00Z','2026-10-08')",'BUDGET_DAY_CHANGED'))
+  file(provenance)
+  check('concurrent human request replay preserves one task and requires independent approval',request_race)
+  check('all three operating controls disabled',lambda:eq(sql('select count(*) from neuraops_company.operating_controls where enabled'),'0'))
  receipt['status']='NATIVE_RECORDING_PASS_ACTIVATION_OPEN'
 except Exception as e:
  receipt['error']=str(e);log.write('FAIL '+str(e)+'\n')

@@ -1,0 +1,185 @@
+{
+  "project": "dvgekyzxdwhrndsjnpkd",
+  "migration": "20261008094330_company_os_recording_v1.sql",
+  "sql_sha256": "c38c549e09a4ed203762a603268893a10eaebef2328a26152ec0a55b4e55d6a1",
+  "applied_success": true,
+  "post_verification": {
+    "verification": {
+      "controls": [
+        {
+          "key": "MODEL_EXECUTION",
+          "enabled": false
+        },
+        {
+          "key": "EXTERNAL_ACTIONS",
+          "enabled": false
+        },
+        {
+          "key": "PRODUCTION_ACTIONS",
+          "enabled": false
+        }
+      ],
+      "migration": [
+        {
+          "name": "company_os_recording_v1",
+          "version": "20261008094330"
+        }
+      ],
+      "tables_rls": true,
+      "assignments": 7,
+      "original_agents": 6,
+      "engineering_active": false,
+      "rpc_publicly_callable": false
+    }
+  },
+  "advisors": {
+    "lints": [
+      {
+        "name": "rls_enabled_no_policy",
+        "title": "RLS Enabled No Policy",
+        "level": "INFO",
+        "facing": "EXTERNAL",
+        "categories": [
+          "SECURITY"
+        ],
+        "description": "Detects cases where row level security (RLS) has been enabled on a table but no RLS policies have been created.",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy",
+        "count": 7,
+        "findings": [
+          {
+            "detail": "Table \\`neuraops_company.agent_authority_profile_versions\\` has RLS enabled, but no policies exist",
+            "metadata": {
+              "name": "agent_authority_profile_versions",
+              "type": "table",
+              "schema": "neuraops_company"
+            },
+            "observed_at": "2026-10-08T09:44:01.635Z"
+          },
+          {
+            "detail": "Table \\`neuraops_company.agent_function_assignments\\` has RLS enabled, but no policies exist",
+            "metadata": {
+              "name": "agent_function_assignments",
+              "type": "table",
+              "schema": "neuraops_company"
+            },
+            "observed_at": "2026-10-08T09:44:01.635Z"
+          },
+          {
+            "detail": "Table \\`neuraops_company.approval_budget_days\\` has RLS enabled, but no policies exist",
+            "metadata": {
+              "name": "approval_budget_days",
+              "type": "table",
+              "schema": "neuraops_company"
+            },
+            "observed_at": "2026-10-08T09:44:01.635Z"
+          },
+          {
+            "detail": "Table \\`neuraops_company.task_approval_bindings\\` has RLS enabled, but no policies exist",
+            "metadata": {
+              "name": "task_approval_bindings",
+              "type": "table",
+              "schema": "neuraops_company"
+            },
+            "observed_at": "2026-10-08T09:44:01.635Z"
+          },
+          {
+            "detail": "Table \\`neuraops_company.task_request_bindings\\` has RLS enabled, but no policies exist",
+            "metadata": {
+              "name": "task_request_bindings",
+              "type": "table",
+              "schema": "neuraops_company"
+            },
+            "observed_at": "2026-10-08T09:44:01.635Z"
+          },
+          {
+            "detail": "Table \\`neuraops_company.task_requester_attestations\\` has RLS enabled, but no policies exist",
+            "metadata": {
+              "name": "task_requester_attestations",
+              "type": "table",
+              "schema": "neuraops_company"
+            },
+            "observed_at": "2026-10-08T09:44:01.635Z"
+          },
+          {
+            "detail": "Table \\`public.api_rate_limits\\` has RLS enabled, but no policies exist",
+            "metadata": {
+              "name": "api_rate_limits",
+              "type": "table",
+              "schema": "public"
+            },
+            "observed_at": "2026-10-08T09:44:01.635Z"
+          }
+        ]
+      },
+      {
+        "name": "function_search_path_mutable",
+        "title": "Function Search Path Mutable",
+        "level": "WARN",
+        "facing": "EXTERNAL",
+        "categories": [
+          "SECURITY"
+        ],
+        "description": "Detects functions where the search_path parameter is not set.",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable",
+        "count": 1,
+        "findings": [
+          {
+            "detail": "Function \\`public.match_documents\\` has a role mutable search_path",
+            "metadata": {
+              "name": "match_documents",
+              "type": "function",
+              "schema": "public"
+            },
+            "observed_at": "2026-10-08T09:44:01.635Z"
+          }
+        ]
+      },
+      {
+        "name": "extension_in_public",
+        "title": "Extension in Public",
+        "level": "WARN",
+        "facing": "EXTERNAL",
+        "categories": [
+          "SECURITY"
+        ],
+        "description": "Detects extensions installed in the \\`public\\` schema.",
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0014_extension_in_public",
+        "count": 1,
+        "findings": [
+          {
+            "detail": "Extension \\`vector\\` is installed in the public schema. Move it to another schema.",
+            "metadata": {
+              "name": "vector",
+              "type": "extension",
+              "schema": "public"
+            },
+            "observed_at": "2026-10-08T09:44:01.635Z"
+          }
+        ]
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "title": "Leaked Password Protection Disabled",
+        "level": "WARN",
+        "facing": "EXTERNAL",
+        "categories": [
+          "SECURITY"
+        ],
+        "description": "Leaked password protection is currently disabled.",
+        "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+        "count": 1,
+        "findings": [
+          {
+            "detail": "Supabase Auth prevents the use of compromised passwords by checking against HaveIBeenPwned.org. Enable this feature to enhance security.",
+            "metadata": {
+              "type": "auth",
+              "entity": "Auth"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "scope": "Recording schema only. Application flag OFF. Agent execution not activated.",
+  "advisor_disposition": "Six private Company OS no-policy tables intentionally deny direct access; trusted RPC only. Remaining advisor findings outside changed objects require separate triage; no pre-application advisor baseline."
+}
